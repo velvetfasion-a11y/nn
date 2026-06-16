@@ -371,18 +371,53 @@
   flex-shrink: 0;
 }
 
+.btn-social.is-loading,
+.btn-login-submit.is-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.auth-mode-toggle-wrap {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+.auth-mode-toggle-wrap a {
+  color: #111;
+}
+
+.profile-success {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: #f0faf0;
+  border: 1px solid #b8e0b8;
+  border-radius: 4px;
+  color: #1b5e20;
+  font-size: 14px;
+}
+
+.account-form--secure input[readonly] {
+  background: #f4f4f4;
+  color: #666;
+}
+
 .account-panel--locked {
   opacity: 0.45;
   pointer-events: none;
 }
 
 .account-nav__link--locked {
-  opacity: 0.5;
+  color: #a3a3a3 !important;
+  opacity: 1;
+  cursor: not-allowed;
 }
 
-.account-nav a.account-nav__link--locked:hover {
+.account-nav a.account-nav__link--locked:hover,
+.account-nav a.account-nav__link--locked.is-active {
   background: transparent;
   font-weight: normal;
+  color: #a3a3a3 !important;
 }
 
 @media (max-width: 900px) {

@@ -21,9 +21,9 @@
     <nav class="account-nav" aria-label="Account">
       <div class="account-nav__main">
         <a href="#my-profile" data-account-nav="my-profile">My Profile</a>
-        <a href="#order-history" data-account-nav="order-history">Order History</a>
-        <a href="#saved-addresses" data-account-nav="saved-addresses">Saved Addresses</a>
-        <a href="#liked-items" data-account-nav="liked-items">Liked Items</a>
+        <a href="#order-history" data-account-nav="order-history" data-requires-auth>Order History</a>
+        <a href="#saved-addresses" data-account-nav="saved-addresses" data-requires-auth>Saved Addresses</a>
+        <a href="#liked-items" data-account-nav="liked-items" data-requires-auth>Liked Items</a>
       </div>
       <div class="account-nav__bottom">
         <a href="#support" data-account-nav="support" data-always-available>Support</a>
@@ -46,9 +46,12 @@
               </div>
               <div class="form-group">
                 <label for="login-password">Password</label>
-                <input type="password" id="login-password" name="password" autocomplete="current-password" required>
+                <input type="password" id="login-password" name="password" autocomplete="current-password" minlength="6" required>
               </div>
-              <button type="submit" class="btn btn-login-submit">Log In</button>
+              <button type="submit" id="login-submit-btn" class="btn btn-login-submit">Log In</button>
+              <p class="auth-mode-toggle-wrap">
+                <a href="#" id="auth-mode-toggle">Don't have an account? Create one</a>
+              </p>
             </form>
 
             <div class="login-divider"><span>or</span></div>
@@ -80,22 +83,23 @@
             <button type="button" id="logout-btn" class="btn btn-outline">Log Out</button>
           </div>
           <div class="card">
-            <form class="account-form" data-success="Profile updated.">
+            <p id="profile-success" class="profile-success" hidden></p>
+            <form id="profile-form" class="account-form account-form--secure">
               <div class="form-group">
                 <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" value="Jane" required>
+                <input type="text" id="firstName" name="firstName" required>
               </div>
               <div class="form-group">
                 <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" name="lastName" value="Doe" required>
+                <input type="text" id="lastName" name="lastName" required>
               </div>
               <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" value="jane.doe@example.com" required>
+                <input type="email" id="email" name="email" required>
               </div>
               <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" value="+1 555-0198">
+                <input type="tel" id="phone" name="phone">
               </div>
               <button type="submit" class="btn">Save Changes</button>
             </form>
@@ -210,9 +214,9 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="password-card">
           <h3>Change Password</h3>
-          <form class="account-form" data-success="Password updated.">
+          <form id="password-form" class="account-form account-form--secure">
             <div class="form-group">
               <label for="currentPassword">Current Password</label>
               <input type="password" id="currentPassword" required>
@@ -229,6 +233,7 @@
   </div>
 
   <script type="module" src="js/account-auth.js"></script>
+  <script type="module" src="js/auth-nav.js"></script>
   <script src="js/account.js" defer></script>
   <script src="js/ai-knowledge.js" defer></script>
   <script src="js/ai-chat.js" defer></script>

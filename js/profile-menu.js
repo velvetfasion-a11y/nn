@@ -7,16 +7,16 @@
         <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#my-profile" role="menuitem">
           <span>My Profile</span>
         </a>
-        <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#order-history" role="menuitem">
+        <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#order-history" data-requires-auth role="menuitem">
           <span>Order History</span>
         </a>
-        <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#saved-addresses" role="menuitem">
+        <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#saved-addresses" data-requires-auth role="menuitem">
           <span>Saved Addresses</span>
         </a>
       </div>
       <div class="profile-dropdown__divider" role="separator"></div>
       <div class="profile-dropdown__section">
-        <a class="profile-dropdown__item" href="/account.html#liked-items" role="menuitem">
+        <a class="profile-dropdown__item" href="/account.html#liked-items" data-requires-auth role="menuitem">
           <svg class="profile-dropdown__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M12 20.25s-6.75-4.125-6.75-9.75a4.125 4.125 0 0 1 7.5-2.36 4.125 4.125 0 0 1 7.5 2.36c0 5.625-6.75 9.75-6.75 9.75Z"

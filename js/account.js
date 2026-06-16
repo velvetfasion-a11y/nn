@@ -33,7 +33,7 @@
     showPanel(getViewFromHash());
   });
 
-  document.querySelectorAll(".account-form").forEach((form) => {
+  document.querySelectorAll(".account-form:not(.account-form--secure)").forEach((form) => {
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       const message = form.dataset.success || "Saved.";

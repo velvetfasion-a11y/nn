@@ -89,3 +89,17 @@
 #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
   cursor: pointer;
 }
+
+.profile-dropdown__item--locked {
+  color: #a3a3a3 !important;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.profile-dropdown__item--locked .profile-dropdown__icon {
+  color: #a3a3a3;
+}
+
+.profile-dropdown__item--locked:hover {
+  opacity: 1;
+}

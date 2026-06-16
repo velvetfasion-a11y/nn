@@ -13,7 +13,7 @@
   }
 
   function isNotifySection(target) {
-    return !!target.closest("#notify-section, .notify-section");
+    return !!target.closest("#notify-section, #notify-section-top, .notify-section");
   }
 
   function isAiChat(target) {

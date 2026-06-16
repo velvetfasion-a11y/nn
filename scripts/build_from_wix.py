@@ -108,13 +108,19 @@ def clean_html(content: str) -> str:
     return content
 
 
-def inject_notify_section(content: str) -> str:
-    notify = (ROOT / "partials" / "notify-section.html").read_text(encoding="utf-8")
-    marker = '</section></main><footer id="comp-kbgakxmn"'
-    if marker in content and 'id="notify-section"' not in content:
+def inject_notify_sections(content: str) -> str:
+    top = (ROOT / "partials" / "notify-section-top.html").read_text(encoding="utf-8")
+    bottom = (ROOT / "partials" / "notify-section.html").read_text(encoding="utf-8")
+
+    top_marker = '</header><main id="PAGE_SECTIONSc1dmp"'
+    if top_marker in content and 'id="notify-section-top"' not in content:
+        content = content.replace(top_marker, f"</header>{top}<main id=\"PAGE_SECTIONSc1dmp\"", 1)
+
+    bottom_marker = '</section></main><footer id="comp-kbgakxmn"'
+    if bottom_marker in content and 'id="notify-section"' not in content:
         content = content.replace(
-            marker,
-            f'</section></main>{notify}<footer id="comp-kbgakxmn"',
+            bottom_marker,
+            f'</section></main>{bottom}<footer id="comp-kbgakxmn"',
             1,
         )
     return content
@@ -127,7 +133,7 @@ def extract_body(wix: str) -> str:
     if start == -1:
         start = body.find('<div id="main_MF"')
     end = body.find('<div id="SCROLL_TO_BOTTOM"')
-    return inject_notify_section(clean_html(body[start:end]))
+    return inject_notify_sections(clean_html(body[start:end]))
 
 
 def should_keep_style(attrs: str, content: str) -> bool:
@@ -214,6 +220,7 @@ def build() -> None:
 <body>
 {body}
 <script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>
 <script src="js/menu.js" defer></script>
 <script src="js/notify.js" defer></script>
