@@ -9,7 +9,7 @@
   top: calc(100% + 6px);
   right: 0;
   width: 220px;
-  min-height: auto;
+  min-height: 280px;
   background: #fff;
   border: 1px solid #c9c0b3;
   box-sizing: border-box;
@@ -47,9 +47,14 @@
 
 .profile-dropdown__bottom {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 18px 16px;
   margin-top: auto;
+}
+
+.profile-dropdown__bottom .profile-dropdown__item {
+  padding: 4px 0;
 }
 
 .profile-dropdown__item {

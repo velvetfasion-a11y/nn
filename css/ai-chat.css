@@ -34,15 +34,31 @@
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  gap: 6px;
+  gap: 10px;
+  align-items: center;
   transition: transform 0.05s linear;
 }
 
 .eye {
+  position: relative;
   width: 14px;
-  height: 7px;
+  height: 14px;
   background-color: #fff;
-  border-radius: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+
+.pupil {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background-color: #111;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s linear;
 }
 
 #ai-chat-popup {
@@ -112,6 +128,7 @@
   color: #111;
   align-self: flex-start;
   border-bottom-left-radius: 4px;
+  white-space: pre-wrap;
 }
 
 .msg.user {

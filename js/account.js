@@ -3,19 +3,23 @@
   const navLinks = document.querySelectorAll("[data-account-nav]");
   const defaultView = "my-profile";
 
+  const ALWAYS_AVAILABLE = new Set(["my-profile", "support", "settings"]);
+
   function showPanel(view) {
     const id = view || defaultView;
+    const isLocked = document.getElementById("profile-view")?.hidden !== false;
+    const resolvedId = isLocked && !ALWAYS_AVAILABLE.has(id) ? "my-profile" : id;
 
     panels.forEach((panel) => {
-      panel.classList.toggle("is-active", panel.id === id);
+      panel.classList.toggle("is-active", panel.id === resolvedId);
     });
 
     navLinks.forEach((link) => {
       const target = link.getAttribute("data-account-nav");
-      link.classList.toggle("is-active", target === id);
+      link.classList.toggle("is-active", target === resolvedId);
     });
 
-    const activePanel = document.getElementById(id);
+    const activePanel = document.getElementById(resolvedId);
     if (activePanel) {
       document.title = `${activePanel.dataset.title || "Account"} | Jamil Jamila`;
     }

@@ -219,6 +219,7 @@ def build() -> None:
 <script src="js/notify.js" defer></script>
 <script src="js/profile-menu.js" defer></script>
 <script src="js/links.js" defer></script>
+<script src="js/ai-knowledge.js" defer></script>
 <script src="js/ai-chat.js" defer></script>
 </body>
 </html>

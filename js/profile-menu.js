@@ -13,9 +13,6 @@
         <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#saved-addresses" role="menuitem">
           <span>Saved Addresses</span>
         </a>
-        <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#support" role="menuitem">
-          <span>Support</span>
-        </a>
       </div>
       <div class="profile-dropdown__divider" role="separator"></div>
       <div class="profile-dropdown__section">
@@ -33,6 +30,23 @@
       </div>
       <div class="profile-dropdown__divider" role="separator"></div>
       <div class="profile-dropdown__bottom">
+        <a class="profile-dropdown__item" href="/account.html#support" role="menuitem">
+          <svg class="profile-dropdown__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M12 22c4.97 0 9-3.58 9-8v-5H3v5c0 4.42 4.03 8 9 8Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8 10V7a4 4 0 1 1 8 0v3"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Support</span>
+        </a>
         <a class="profile-dropdown__item" href="/account.html#settings" role="menuitem">
           <svg class="profile-dropdown__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
