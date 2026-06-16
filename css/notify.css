@@ -1,0 +1,152 @@
+.notify-section {
+  background: #0a0a0a;
+  color: #ffffff;
+  padding: 100px 24px;
+  text-align: center;
+  font-family: inherit;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.notify-inner {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.notify-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 24px;
+}
+
+.notify-heading {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+
+.notify-sub {
+  font-size: 15px;
+  color: #aaa;
+  margin: 0 0 48px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.notify-form {
+  width: 100%;
+}
+
+.notify-input-row {
+  display: flex;
+  gap: 0;
+  border: 1px solid #333;
+  border-radius: 0;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.notify-input-row:focus-within {
+  border-color: #fff;
+}
+
+.notify-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  padding: 16px 20px;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+}
+
+.notify-input::placeholder {
+  color: #555;
+}
+
+.notify-btn {
+  background: #fff;
+  color: #0a0a0a;
+  border: none;
+  padding: 16px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.notify-btn:hover {
+  background: #e0e0e0;
+}
+
+.btn-arrow {
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.notify-btn:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+.notify-privacy {
+  margin: 14px 0 0;
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.05em;
+}
+
+.notify-success {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  padding: 16px 0;
+  animation: notify-fade-in 0.4s ease;
+}
+
+.notify-success.visible {
+  display: flex;
+}
+
+@keyframes notify-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .notify-input-row {
+    flex-direction: column;
+  }
+
+  .notify-btn {
+    justify-content: center;
+    border-top: 1px solid #333;
+  }
+}

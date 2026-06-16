@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | Jamil Jamila</title>
+  <link rel="icon" href="assets/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/ai-chat.css">
+</head>
+<body class="account-page">
+  <header class="account-topbar">
+    <a class="account-topbar__logo" href="/">
+      <img src="assets/images/logo.png" alt="Jamil &amp; Jamila">
+      <span class="account-topbar__title">Jamil &amp; Jamila</span>
+    </a>
+    <a href="/">← Back to store</a>
+  </header>
+
+  <div class="account-layout">
+    <nav class="account-nav" aria-label="Account">
+      <a href="#my-profile" data-account-nav="my-profile">My Profile</a>
+      <a href="#order-history" data-account-nav="order-history">Order History</a>
+      <a href="#saved-addresses" data-account-nav="saved-addresses">Saved Addresses</a>
+      <a href="#support" data-account-nav="support">Support</a>
+      <a href="#liked-items" data-account-nav="liked-items">Liked Items</a>
+      <a href="#settings" data-account-nav="settings">Settings</a>
+    </nav>
+
+    <main class="account-main">
+      <section id="my-profile" class="account-panel account-section is-active" data-title="My Profile">
+        <h1>My Profile</h1>
+        <div class="card">
+          <form class="account-form" data-success="Profile updated.">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" value="Jane" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" value="Doe" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" value="jane.doe@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" value="+1 555-0198">
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="order-history" class="account-panel account-section" data-title="Order History">
+        <h1>Order History</h1>
+
+        <div class="card">
+          <div class="order-header">
+            <div><strong>Order #10045</strong> • Placed on Oct 12, 2023</div>
+            <div class="status-delivered">Delivered</div>
+          </div>
+          <div class="order-footer">
+            <p>Total: $145.00 (2 items)</p>
+            <button class="btn btn-outline" type="button">View Details</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="order-header">
+            <div><strong>Order #10044</strong> • Placed on Sep 05, 2023</div>
+            <div class="status-delivered">Delivered</div>
+          </div>
+          <div class="order-footer">
+            <p>Total: $89.50 (1 item)</p>
+            <button class="btn btn-outline" type="button">View Details</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="saved-addresses" class="account-panel account-section" data-title="Saved Addresses">
+        <div class="account-section__header">
+          <h1>Saved Addresses</h1>
+          <button class="btn" type="button">+ Add New</button>
+        </div>
+
+        <div class="address-grid">
+          <div class="card">
+            <p><strong>Default Shipping</strong></p>
+            <p>Jane Doe</p>
+            <p>123 Fashion Street, Apt 4B</p>
+            <p>New York, NY 10001</p>
+            <div class="address-actions">
+              <a href="#">Edit</a>
+              <span>|</span>
+              <a href="#" class="delete">Delete</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="support" class="account-panel account-section" data-title="Support">
+        <h1>Support</h1>
+        <p class="account-intro">Need help with an order? Send us a message and our team will get back to you within 24 hours.</p>
+
+        <div class="card">
+          <form class="account-form" data-success="Message sent. We'll be in touch within 24 hours.">
+            <div class="form-group">
+              <label for="subject">Subject / Order Number</label>
+              <input type="text" id="subject" name="subject" required>
+            </div>
+            <div class="form-group">
+              <label for="message">How can we help?</label>
+              <textarea id="message" name="message" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn">Send Message</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="liked-items" class="account-panel account-section account-section--wide" data-title="Liked Items">
+        <h1>Liked Items</h1>
+
+        <div class="product-grid">
+          <div class="product-card">
+            <img src="assets/images/women.jpg" alt="Structured Black Dress">
+            <div class="product-info">
+              <div class="product-row">
+                <strong>Structured Black Dress</strong>
+                <span>$120.00</span>
+              </div>
+              <div class="product-actions">
+                <button class="btn btn-outline" type="button" style="padding: 6px 12px; font-size: 12px;">Add to Cart</button>
+                <button class="remove-liked" type="button">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="account-panel account-section" data-title="Settings">
+        <h1>Settings</h1>
+
+        <div class="card" style="margin-bottom: 32px;">
+          <h3>Notifications</h3>
+          <div class="toggle-row">
+            <div>
+              <strong>Order Updates</strong>
+              <p>Receive emails about your order status.</p>
+            </div>
+            <input type="checkbox" checked>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <strong>Promotions &amp; News</strong>
+              <p>Get notified about new collections.</p>
+            </div>
+            <input type="checkbox">
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Change Password</h3>
+          <form class="account-form" data-success="Password updated.">
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" required>
+            </div>
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" required>
+            </div>
+            <button type="submit" class="btn btn-outline">Update Password</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/account.js" defer></script>
+  <script src="js/ai-chat.js" defer></script>
+</body>
+</html>
