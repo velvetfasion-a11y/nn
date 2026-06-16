@@ -9,5 +9,8 @@ export default defineConfig({
     hmr: {
       overlay: true,
     },
+    proxy: {
+      "/api": "http://localhost:3001",
+    },
   },
 });

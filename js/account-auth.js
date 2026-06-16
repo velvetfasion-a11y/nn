@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase.js";
+import { submitProfileCreated } from "./email-api.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
@@ -112,7 +113,7 @@ async function ensureUserProfile(user) {
       updatedAt: serverTimestamp(),
     };
     await setDoc(ref, profile);
-    return profile;
+    return { profile, isNew: true };
   }
 
   const existing = snap.data();
@@ -132,12 +133,18 @@ async function ensureUserProfile(user) {
     );
   }
 
-  return merged;
+  return { profile: merged, isNew: false };
 }
 
 async function loadSecureProfile(user) {
-  const profile = await ensureUserProfile(user);
+  const { profile, isNew } = await ensureUserProfile(user);
   fillProfileForm(profile, user);
+
+  if (isNew && user.email) {
+    submitProfileCreated(user.email, profile).catch((error) => {
+      console.warn("Welcome email failed:", error);
+    });
+  }
 }
 
 function setAuthenticated(user) {

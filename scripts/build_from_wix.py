@@ -223,7 +223,7 @@ def build() -> None:
 <script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>
 <script src="js/menu.js" defer></script>
-<script src="js/notify.js" defer></script>
+<script type="module" src="js/notify.js"></script>
 <script src="js/profile-menu.js" defer></script>
 <script src="js/links.js" defer></script>
 <script src="js/ai-knowledge.js" defer></script>
