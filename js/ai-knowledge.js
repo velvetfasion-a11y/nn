@@ -24,7 +24,6 @@
         "EXPLORE buttons on the page scroll to the launch signup section so you can get notified when we go live.",
       about:
         "The About section tells the Jamil & Jamila story — Swedish minimalism, timeless design, and conscious lifestyle.",
-      accessories: "The Accessories section highlights complementary pieces for your wardrobe.",
       images:
         "Most images and links on the homepage scroll to the 'Get Notified When We Launch' section at the bottom (above the footer).",
     },
@@ -82,13 +81,12 @@
         `Category Page: ${STORE_GUIDE.header.categoryPage}\n\nHover "Category Page" in the header to see All Products, T-shirts, Klänningar, and Jackor.`,
     },
     {
-      match: /collection|women|men|kids|kid|accessories|shop/i,
+      match: /collection|women|men|kids|kid|shop/i,
       reply: function (q) {
         if (/women/i.test(q)) return "Women's collection is in the Collections and Shop by Category sections. Click the image to reach the launch signup.";
         if (/men/i.test(q) && !/women/i.test(q))
           return "Men's collection appears in Collections and Shop by Category. Click any Men's image to go to the signup section.";
         if (/kid/i.test(q)) return "Kids collection is shown in Collections and Shop by Category. Click the Kids image to get launch updates.";
-        if (/accessor/i.test(q)) return STORE_GUIDE.homepage.accessories + " Click the section image to scroll to signup.";
         return `${STORE_GUIDE.homepage.collections}\n\n${STORE_GUIDE.homepage.shopByCategory}`;
       },
     },

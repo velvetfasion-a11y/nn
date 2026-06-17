@@ -108,6 +108,32 @@ def clean_html(content: str) -> str:
     return content
 
 
+def remove_accessories_section(content: str) -> str:
+    """Remove the Accessories full-width section from the page."""
+    marker = '<section id="comp-mmp1huot"'
+    start = content.find(marker)
+    if start == -1:
+        return content
+
+    depth = 0
+    i = start
+    while i < len(content):
+        open_idx = content.find("<section", i)
+        close_idx = content.find("</section>", i)
+        if close_idx == -1:
+            break
+        if open_idx != -1 and open_idx < close_idx:
+            depth += 1
+            i = open_idx + len("<section")
+            continue
+        depth -= 1
+        i = close_idx + len("</section>")
+        if depth == 0:
+            return content[:start] + content[i:]
+
+    return content
+
+
 def inject_notify_sections(content: str) -> str:
     top = (ROOT / "partials" / "notify-section-top.html").read_text(encoding="utf-8")
     bottom = (ROOT / "partials" / "notify-section.html").read_text(encoding="utf-8")
@@ -133,7 +159,7 @@ def extract_body(wix: str) -> str:
     if start == -1:
         start = body.find('<div id="main_MF"')
     end = body.find('<div id="SCROLL_TO_BOTTOM"')
-    return inject_notify_sections(clean_html(body[start:end]))
+    return remove_accessories_section(inject_notify_sections(clean_html(body[start:end])))
 
 
 def should_keep_style(attrs: str, content: str) -> bool:
