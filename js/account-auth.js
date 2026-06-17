@@ -18,6 +18,7 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
+import { isAdminUser } from "./admin-constants.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
@@ -147,6 +148,15 @@ async function loadSecureProfile(user) {
   }
 }
 
+function maybeRedirectAdmin(user) {
+  if (!isAdminUser(user)) return;
+
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next === "admin.html" || next === "/admin.html") {
+    window.location.replace("/admin.html");
+  }
+}
+
 function setAuthenticated(user) {
   currentUser = user;
   const isLoggedIn = !!user;
@@ -171,6 +181,7 @@ function setAuthenticated(user) {
 
   if (isLoggedIn) {
     setLoginError("");
+    maybeRedirectAdmin(user);
     loadSecureProfile(user).catch(() => {
       setProfileSuccess("");
       fillProfileForm(splitName(user.displayName), user);

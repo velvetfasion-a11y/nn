@@ -7,6 +7,9 @@
         <a class="profile-dropdown__item profile-dropdown__item--plain" href="/account.html#my-profile" role="menuitem">
           <span>My Profile</span>
         </a>
+        <a class="profile-dropdown__item profile-dropdown__item--plain profile-dropdown__item--admin" href="/admin.html" data-admin-only hidden role="menuitem">
+          <span>Admin Panel</span>
+        </a>
         <a class="profile-dropdown__item profile-dropdown__item--plain profile-dropdown__item--locked" href="/account.html#order-history" data-requires-auth role="menuitem" aria-disabled="true" tabindex="-1">
           <span>Order History</span>
         </a>

@@ -414,6 +414,18 @@
   pointer-events: none;
 }
 
+.account-nav a[data-admin-only] {
+  margin-top: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.account-nav a[data-admin-only][hidden] {
+  display: none;
+}
+
 .account-nav a.account-nav__link--locked:hover,
 .account-nav a.account-nav__link--locked.is-active {
   background: transparent;

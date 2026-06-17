@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Jamil Jamila — Admin</title>
+  <link rel="icon" href="assets/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div id="admin-gate" class="admin-gate">
+  <h1>Jamil Jamila Admin</h1>
+  <p>Checking access…</p>
+</div>
+
+<div id="admin-denied" class="admin-gate" hidden>
+  <h1>Access denied</h1>
+  <p>This admin panel is only available to the authorized Firebase account (<strong>contact@jamiljamila.com</strong>).</p>
+  <p><a href="/">← Back to store</a> · <a href="/account.html">My account</a></p>
+</div>
+
+<div id="admin-app" hidden>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <img src="assets/images/logo.png" alt="" class="sidebar-logo-mark" width="28" height="28">
+    <span class="sidebar-logo-name">Jamil Jamila</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item">
+      <svg viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="5" height="5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" stroke="currentColor" stroke-width="1.2"/></svg>
+      Översikt
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 15 15" fill="none"><path d="M1 3h13M1 7h13M1 11h13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Produkter
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 15 15" fill="none"><path d="M1 2h13l-1.5 9H2.5L1 2z" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="13" r="1" fill="currentColor"/><circle cx="10" cy="13" r="1" fill="currentColor"/></svg>
+      Ordrar
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 15 15" fill="none"><path d="M7.5 1a6.5 6.5 0 1 1 0 13A6.5 6.5 0 0 1 7.5 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 4v3.5L9.5 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Prenumeranter
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 13c0-3 3-5 6.5-5s6.5 2 6.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Kunder
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <p class="sidebar-footer-text">Admin Panel</p>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Öppna meny">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="topbar-title">Produkter</span>
+    </div>
+    <div class="topbar-right">
+      <span class="admin-topbar-user" id="admin-user-email"></span>
+      <button type="button" class="btn btn-ghost" id="admin-logout">Log out</button>
+      <button type="button" class="btn btn-outline">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Lägg till produkt
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="filter-chip active">
+          Alla produkter <span class="count">9</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <button type="button" class="btn btn-ghost" style="font-size:11px; padding:7px 12px;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 3h10M3 6h6M5 9h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Filtrera
+        </button>
+        <button type="button" class="btn btn-ghost" style="font-size:11px; padding:7px 12px;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6l5 5 5-5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Exportera
+        </button>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <input type="text" placeholder="Sök ..." id="searchInput" oninput="filterProducts()">
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" class="checkbox" id="selectAll" onchange="toggleAll(this)"></th>
+            <th>Namn</th>
+            <th>Typ</th>
+            <th>SKU</th>
+            <th>Pris</th>
+            <th>Lagersaldo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <p class="modal-eyebrow">Redigera produkt</p>
+        <h2 class="modal-title" id="modalProductName">—</h2>
+      </div>
+      <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <p class="form-section-title">Pris &amp; info</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="editPrice">Pris (SEK)</label>
+            <div class="form-input-prefix">
+              <span class="prefix">kr</span>
+              <input type="number" class="form-input" id="editPrice" style="border-left:none;" placeholder="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editSku">SKU</label>
+            <input type="text" class="form-input" id="editSku" placeholder="JJ-001">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editName">Produktnamn</label>
+          <input type="text" class="form-input" id="editName" placeholder="Produktnamn">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Lagersaldo per storlek</p>
+        <div id="variantRows"></div>
+      </div>
+
+      <div class="form-section">
+        <p class="form-section-title">Produktbilder</p>
+        <div class="image-upload-area" onclick="document.getElementById('imageFileInput').click()">
+          <input type="file" id="imageFileInput" accept="image/*" multiple onchange="handleImageUpload(event)">
+          <div class="image-upload-text">
+            <strong>Ladda upp bilder</strong>
+            PNG, JPG eller WEBP — max 5 MB per bild
+          </div>
+        </div>
+        <div class="image-previews" id="imagePreviews"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" onclick="closeModal()">Avbryt</button>
+      <button type="button" class="btn btn-primary" onclick="saveProduct()">Spara ändringar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-check">
+    <svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <span id="toastMsg">Ändringarna sparades</span>
+</div>
+
+</div>
+
+<script type="module" src="js/admin-auth.js"></script>
+<script type="module" src="js/admin-app.js"></script>
+</body>
+</html>

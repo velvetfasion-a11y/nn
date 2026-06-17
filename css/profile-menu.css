@@ -103,3 +103,10 @@
 .profile-dropdown__item--locked:hover {
   opacity: 1;
 }
+
+.profile-dropdown__item--admin span {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}

@@ -1,5 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase.js";
+import { isAdminUser } from "./admin-constants.js";
 
 const LOCKED_WHEN_LOGGED_OUT = new Set([
   "order-history",
@@ -28,6 +29,10 @@ export function syncAuthNav(user) {
     const nav = link.dataset.accountNav;
     if (!nav || !LOCKED_WHEN_LOGGED_OUT.has(nav)) return;
     link.classList.toggle("account-nav__link--locked", !isLoggedIn);
+  });
+
+  document.querySelectorAll("[data-admin-only]").forEach((link) => {
+    link.hidden = !isAdminUser(user);
   });
 }
 
