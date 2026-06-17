@@ -14,15 +14,21 @@
   padding-bottom: 72px;
 }
 
-.notify-section--top::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 1px;
+.header-notify-divider {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(40px, 4.5vw, 56px);
+  margin: 0;
+  padding: 0;
+  border: 0;
   background: #fff;
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 130;
+  pointer-events: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .notify-inner {

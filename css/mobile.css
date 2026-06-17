@@ -281,6 +281,17 @@ body {
     padding-bottom: 40px;
   }
 
+  .header-notify-divider {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    margin: 0 !important;
+    grid-column: 1 / -1 !important;
+    background: #fff !important;
+    border: 0 !important;
+    z-index: 130 !important;
+  }
+
   .notify-sub {
     margin-bottom: 28px;
   }

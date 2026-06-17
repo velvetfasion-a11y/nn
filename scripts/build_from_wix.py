@@ -134,6 +134,14 @@ def remove_accessories_section(content: str) -> str:
     return content
 
 
+def inject_collections_categories(content: str) -> str:
+    block = (ROOT / "partials" / "collections-categories.html").read_text(encoding="utf-8")
+    marker = 'assets/images/kids.jpg" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></div></div></div>'
+    if marker in content and "collections-categories" not in content:
+        content = content.replace(marker, f"{marker}\n{block}", 1)
+    return content
+
+
 def inject_notify_sections(content: str) -> str:
     top = (ROOT / "partials" / "notify-section-top.html").read_text(encoding="utf-8")
     bottom = (ROOT / "partials" / "notify-section.html").read_text(encoding="utf-8")
@@ -159,7 +167,9 @@ def extract_body(wix: str) -> str:
     if start == -1:
         start = body.find('<div id="main_MF"')
     end = body.find('<div id="SCROLL_TO_BOTTOM"')
-    return remove_accessories_section(inject_notify_sections(clean_html(body[start:end])))
+    return remove_accessories_section(
+        inject_collections_categories(inject_notify_sections(clean_html(body[start:end])))
+    )
 
 
 def should_keep_style(attrs: str, content: str) -> bool:
@@ -243,6 +253,7 @@ def build() -> None:
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/collections.css">
   <script type="importmap" src="importmap.json"></script>
   <script src="js/wix-viewport.js"></script>
 </head>
