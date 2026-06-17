@@ -216,6 +216,7 @@ def build() -> None:
   <link rel="stylesheet" href="css/notify.css">
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/ai-chat.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
 {body}
@@ -223,6 +224,7 @@ def build() -> None:
 <script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>
 <script src="js/menu.js" defer></script>
+<script src="js/mobile-menu.js" defer></script>
 <script type="module" src="js/notify.js"></script>
 <script src="js/profile-menu.js" defer></script>
 <script src="js/links.js" defer></script>

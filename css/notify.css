@@ -162,6 +162,11 @@
 }
 
 @media (max-width: 480px) {
+  .notify-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .notify-input-row {
     flex-direction: column;
   }

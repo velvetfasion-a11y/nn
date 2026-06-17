@@ -6,9 +6,13 @@
     );
   }
 
+  function isMobileNav(target) {
+    return !!target.closest(".mobile-nav-overlay, .mobile-nav-panel");
+  }
+
   function isUiControl(target) {
     return !!target.closest(
-      '[data-part="dropdown-button"], .hamburger-open-button, .wixui-menu__scroll-button, [data-part="scroll-backward-button"], [data-part="scroll-forward-button"]',
+      '[data-part="dropdown-button"], .hamburger-open-button, .wixui-menu__scroll-button, [data-part="scroll-backward-button"], [data-part="scroll-forward-button"], .mobile-nav-close, .mobile-nav-group-toggle',
     );
   }
 
@@ -43,7 +47,13 @@
   document.addEventListener(
     "click",
     function (event) {
-      if (isProfile(event.target) || isUiControl(event.target) || isNotifySection(event.target) || isAiChat(event.target)) {
+      if (
+        isProfile(event.target) ||
+        isMobileNav(event.target) ||
+        isUiControl(event.target) ||
+        isNotifySection(event.target) ||
+        isAiChat(event.target)
+      ) {
         return;
       }
 

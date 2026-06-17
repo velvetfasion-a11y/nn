@@ -421,6 +421,15 @@
 }
 
 @media (max-width: 900px) {
+  .account-topbar {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+
+  .account-topbar__title {
+    font-size: 11px;
+  }
+
   .account-layout {
     grid-template-columns: 1fr;
   }

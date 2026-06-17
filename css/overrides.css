@@ -31,37 +31,39 @@ body {
 }
 
 /* Original Wix login slot (icon + text); icon aligned right where "Log in" was */
-#site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) {
-  position: relative !important;
-  width: 7.86% !important;
-  margin-left: 89.53125% !important;
-  margin-right: 0 !important;
-  margin-top: calc(
-    max(0.5px, 0.009375 * (var(--scaling-factor) - var(--scrollbar-width)))
-    + max(0.5px, 0.007 * (var(--scaling-factor) - var(--scrollbar-width)))
-  ) !important;
-  justify-self: start !important;
-  align-self: start !important;
-  height: auto !important;
-}
+@media (min-width: 1024px) {
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) {
+    position: relative !important;
+    width: 7.86% !important;
+    margin-left: 89.53125% !important;
+    margin-right: 0 !important;
+    margin-top: calc(
+      max(0.5px, 0.009375 * (var(--scaling-factor) - var(--scrollbar-width)))
+      + max(0.5px, 0.007 * (var(--scaling-factor) - var(--scrollbar-width)))
+    ) !important;
+    justify-self: start !important;
+    align-self: start !important;
+    height: auto !important;
+  }
 
-#site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
-  width: 100% !important;
-  height: auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  padding: 0 !important;
-  gap: 0 !important;
-}
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
 
-#site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) .login-social-bar__avatar-icon,
-#site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._avatar_2paxv_7 {
-  width: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
-  height: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
-  --icon-size: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
-  flex-shrink: 0 !important;
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) .login-social-bar__avatar-icon,
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._avatar_2paxv_7 {
+    width: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
+    height: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
+    --icon-size: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
+    flex-shrink: 0 !important;
+  }
 }
 
 /* Clickable images scroll to footer */
