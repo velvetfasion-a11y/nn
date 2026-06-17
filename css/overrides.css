@@ -52,6 +52,12 @@ body {
   border-bottom: none !important;
 }
 
+#comp-mb7ogqrp {
+  box-sizing: border-box;
+  --header-edge-padding: clamp(28px, 4vw, 56px);
+  --header-icon-size: 44px;
+}
+
 /* Desktop header — vertically center logo, nav, and profile icon */
 @media (min-width: 1024px) {
   #site-root :where(.comp-mb7ogqrp_r_comp-mdr142kt) .comp-mb7ogqrp_r_comp-mdr142kt-container {
@@ -60,8 +66,12 @@ body {
     grid-template-rows: 1fr !important;
     align-items: center !important;
     min-height: 72px !important;
-    padding-top: 14px !important;
-    padding-bottom: 14px !important;
+    padding: 14px var(--header-edge-padding) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   #site-root :where(.comp-mb7ogqrp_r_comp-mmq4x45x),
@@ -72,10 +82,21 @@ body {
 
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfjc) {
     grid-area: 1 / 1 / 2 / 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
     align-self: center !important;
     justify-self: start !important;
-    width: 52px !important;
+    width: var(--header-icon-size) !important;
+    height: var(--header-icon-size) !important;
     margin: 0 !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfjc) img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
   }
 
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfoi) {
@@ -106,30 +127,34 @@ body {
 
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) {
     position: relative !important;
-    grid-area: 1 / 3 / 2 / 4 !important;
-    width: auto !important;
-    margin: 0 !important;
-    justify-self: end !important;
-    align-self: center !important;
-    height: auto !important;
-  }
-
-  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
-    width: 100% !important;
-    height: auto !important;
-    min-width: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
+    grid-area: 1 / 3 / 2 / 4 !important;
+    width: var(--header-icon-size) !important;
+    height: var(--header-icon-size) !important;
+    margin: 0 !important;
+    justify-self: end !important;
+    align-self: center !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
+    width: var(--header-icon-size) !important;
+    height: var(--header-icon-size) !important;
+    min-width: var(--header-icon-size) !important;
+    min-height: var(--header-icon-size) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     padding: 0 !important;
     gap: 0 !important;
   }
 
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) .login-social-bar__avatar-icon,
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._avatar_2paxv_7 {
-    width: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
-    height: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
-    --icon-size: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
+    width: var(--header-icon-size) !important;
+    height: var(--header-icon-size) !important;
+    --icon-size: var(--header-icon-size) !important;
     flex-shrink: 0 !important;
   }
 }

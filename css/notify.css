@@ -18,7 +18,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  height: clamp(40px, 4.5vw, 56px);
+  height: clamp(64px, 7vw, 88px);
   margin: 0;
   padding: 0;
   border: 0;
@@ -29,6 +29,10 @@
   pointer-events: none;
   box-sizing: border-box;
   flex-shrink: 0;
+}
+
+.header-notify-divider--bottom {
+  height: clamp(40px, 4.5vw, 56px);
 }
 
 .notify-inner {
