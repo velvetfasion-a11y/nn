@@ -32,7 +32,7 @@ app.post("/api/notify-signup", async (req, res) => {
   try {
     const signup = await recordLaunchSignup(email);
     try {
-      await handleLaunchSignup({ email, name, signup });
+      await handleLaunchSignup({ email });
     } catch (error) {
       console.error("notify-signup emails failed:", error);
       return res.status(500).json({

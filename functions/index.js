@@ -37,7 +37,7 @@ export const notifySignup = onCall(
     const signup = await recordLaunchSignup(email, name);
 
     try {
-      await handleLaunchSignup({ email, name, signup });
+      await handleLaunchSignup({ email });
     } catch (error) {
       console.error("notifySignup email error:", error);
       if (!signup.isNew) {
@@ -72,7 +72,7 @@ export const profileCreated = onCall(
     applyMailerSendEnv();
 
     try {
-      await handleProfileCreated({ email, name });
+      await handleProfileCreated({ email });
     } catch (error) {
       console.error("profileCreated email error:", error);
       throw new HttpsError("internal", "Could not send welcome emails. Please try again.");
