@@ -209,6 +209,8 @@ function getFriendlyAuthError(error) {
       return "Popup was blocked. Trying redirect sign-in...";
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled in Firebase Authentication.";
+    case "auth/unauthorized-domain":
+      return "This domain is not authorized for sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.";
     case "auth/account-exists-with-different-credential":
       return "An account already exists with this email using a different sign-in method.";
     default:
@@ -228,12 +230,12 @@ async function handleProviderLogin(provider) {
   setAuthLoading(true);
 
   try {
-    if (prefersAuthRedirect()) {
-      await signInWithRedirect(auth, provider);
+    if (!prefersAuthRedirect()) {
+      await signInWithPopup(auth, provider);
       return;
     }
 
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } catch (error) {
     if (
       error.code === "auth/popup-blocked" ||
@@ -382,13 +384,13 @@ logoutBtn?.addEventListener("click", async () => {
 async function initAuth() {
   await setPersistence(auth, browserLocalPersistence);
 
+  onAuthStateChanged(auth, setAuthenticated);
+
   try {
     await getRedirectResult(auth);
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   }
-
-  onAuthStateChanged(auth, setAuthenticated);
 }
 
 initAuth();

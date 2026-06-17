@@ -1,6 +1,7 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "./firebase.js";
 import { saveLaunchSignupLocal } from "./launch-signup-store.js";
+import { isLocalDev } from "./is-dev.js";
 
 const functions = getFunctions(app, "europe-west1");
 
@@ -36,7 +37,7 @@ export async function submitLaunchSignup(email, name = {}) {
   const saved = await saveLaunchSignupLocal(email, name);
 
   try {
-    if (import.meta.env.DEV) {
+    if (isLocalDev()) {
       const data = await callLocalApi("/api/notify-signup", payload);
       return { duplicate: Boolean(data.duplicate ?? saved.duplicate) };
     }
@@ -59,7 +60,7 @@ export async function submitProfileCreated(email, name = {}) {
     lastName: name.lastName || "",
   };
 
-  if (import.meta.env.DEV) {
+  if (isLocalDev()) {
     await callLocalApi("/api/profile-created", payload);
     return;
   }

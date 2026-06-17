@@ -12,37 +12,57 @@ body {
   background-color: rgb(26, 26, 26);
 }
 
-/* Header login — icon only, sized and placed like Wix "Log in" area */
-
-.login-social-bar {
-  --logged-out-text-display: none !important;
-  --logged-in-text-display: none !important;
-}
-
-.login-social-bar ._logOutText_101h2_12,
-.login-social-bar [class*="logOutText"],
-.login-social-bar [class*="logInText"] {
-  display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
-}
-
-/* Original Wix login slot (icon + text); icon aligned right where "Log in" was */
+/* Desktop header — vertically center logo, nav, and profile icon */
 @media (min-width: 1024px) {
+  #site-root :where(.comp-mb7ogqrp_r_comp-mdr142kt) .comp-mb7ogqrp_r_comp-mdr142kt-container {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-rows: 1fr !important;
+    align-items: center !important;
+    min-height: 72px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmq4x45x),
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2ph0l),
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfse) {
+    display: none !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfjc) {
+    grid-area: 1 / 1 / 2 / 2 !important;
+    align-self: center !important;
+    justify-self: start !important;
+    width: 52px !important;
+    margin: 0 !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfoi) {
+    grid-area: 1 / 2 / 2 / 3 !important;
+    align-self: center !important;
+    justify-self: center !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfoi) .navbar {
+    --container-align: center;
+  }
+
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp2pfoi) [data-part="navbar"] ul {
+    align-items: center !important;
+  }
+
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) {
     position: relative !important;
-    width: 7.86% !important;
-    margin-left: 89.53125% !important;
-    margin-right: 0 !important;
-    margin-top: calc(
-      max(0.5px, 0.009375 * (var(--scaling-factor) - var(--scrollbar-width)))
-      + max(0.5px, 0.007 * (var(--scaling-factor) - var(--scrollbar-width)))
-    ) !important;
-    justify-self: start !important;
-    align-self: start !important;
+    grid-area: 1 / 3 / 2 / 4 !important;
+    width: auto !important;
+    margin: 0 !important;
+    justify-self: end !important;
+    align-self: center !important;
     height: auto !important;
   }
 
@@ -64,6 +84,23 @@ body {
     --icon-size: max(0.5px, 0.036 * (var(--scaling-factor) - var(--scrollbar-width))) !important;
     flex-shrink: 0 !important;
   }
+}
+
+/* Header login — icon only (hide "Log in" text) */
+.login-social-bar {
+  --logged-out-text-display: none !important;
+  --logged-in-text-display: none !important;
+}
+
+.login-social-bar ._logOutText_101h2_12,
+.login-social-bar [class*="logOutText"],
+.login-social-bar [class*="logInText"] {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
 }
 
 /* Clickable images scroll to footer */

@@ -243,9 +243,12 @@ def build() -> None:
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
+  <script type="importmap" src="importmap.json"></script>
+  <script src="js/wix-viewport.js"></script>
 </head>
 <body>
 {body}
+<script type="importmap" src="/importmap.json"></script>
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>

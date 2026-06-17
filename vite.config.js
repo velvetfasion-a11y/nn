@@ -5,6 +5,9 @@ export default defineConfig({
   css: {
     postcss: false,
   },
+  build: {
+    cssMinify: false,
+  },
   server: {
     hmr: {
       overlay: true,
