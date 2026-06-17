@@ -1,13 +1,13 @@
 import nodemailer from "nodemailer";
 
-const FROM_EMAIL = process.env.MAILERSEND_FROM_EMAIL || "noreply@jamiljamila.com";
-const FROM_NAME = process.env.MAILERSEND_FROM_NAME || "Jamil & Jamila";
-const ADMIN_EMAIL = process.env.MAILERSEND_ADMIN_EMAIL || "contact@jamiljamila.com";
-const VERIFICATION_TEMPLATE_ID =
+const FROM_EMAIL = () => process.env.MAILERSEND_FROM_EMAIL || "noreply@jamiljamila.com";
+const FROM_NAME = () => process.env.MAILERSEND_FROM_NAME || "Jamil & Jamila";
+const ADMIN_EMAIL = () => process.env.MAILERSEND_ADMIN_EMAIL || "contact@jamiljamila.com";
+const VERIFICATION_TEMPLATE_ID = () =>
   process.env.MAILERSEND_VERIFICATION_TEMPLATE_ID || "3vz9dleyvn74kj50";
-const REGISTRATION_TEMPLATE_ID =
+const REGISTRATION_TEMPLATE_ID = () =>
   process.env.MAILERSEND_REGISTRATION_TEMPLATE_ID || "pr9084zne0x4w63d";
-const API_TOKEN = process.env.MAILERSEND_API_TOKEN;
+const API_TOKEN = () => process.env.MAILERSEND_API_TOKEN;
 
 function getSmtpTransport() {
   return nodemailer.createTransport({
@@ -29,12 +29,12 @@ function displayName(firstName, lastName, email) {
 }
 
 async function sendMailerSendTemplate({ to, templateId, data, subject }) {
-  if (!API_TOKEN) {
+  if (!API_TOKEN()) {
     throw new Error("MAILERSEND_API_TOKEN is not configured");
   }
 
   const payload = {
-    from: { email: FROM_EMAIL, name: FROM_NAME },
+    from: { email: FROM_EMAIL(), name: FROM_NAME() },
     to: [{ email: to }],
     template_id: templateId,
     personalization: [
@@ -53,7 +53,7 @@ async function sendMailerSendTemplate({ to, templateId, data, subject }) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${API_TOKEN}`,
+      Authorization: `Bearer ${API_TOKEN()}`,
     },
     body: JSON.stringify(payload),
   });
@@ -70,7 +70,8 @@ async function sendVerificationEmail({ email, name }) {
   try {
     await sendMailerSendTemplate({
       to: email,
-      templateId: VERIFICATION_TEMPLATE_ID,
+      templateId: VERIFICATION_TEMPLATE_ID(),
+      subject: "Welcome to Jamil & Jamila",
       data: {
         name: person,
         first_name: name?.firstName || person,
@@ -79,10 +80,15 @@ async function sendVerificationEmail({ email, name }) {
       },
     });
   } catch (error) {
-    console.warn("Template email failed, using SMTP fallback:", error.message);
+    const isRecipientLimit =
+      error.message.includes("MS42225") || error.message.includes("unique recipients");
+    console.warn("Verification template failed:", error.message);
+    if (isRecipientLimit) {
+      throw error;
+    }
     const transport = getSmtpTransport();
     await transport.sendMail({
-      from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+      from: `"${FROM_NAME()}" <${FROM_EMAIL()}>`,
       to: email,
       subject: "Welcome to Jamil & Jamila",
       html: `
@@ -109,8 +115,8 @@ async function sendLaunchAdminNotification(signup) {
 
   try {
     await sendMailerSendTemplate({
-      to: ADMIN_EMAIL,
-      templateId: REGISTRATION_TEMPLATE_ID,
+      to: ADMIN_EMAIL(),
+      templateId: REGISTRATION_TEMPLATE_ID(),
       data: templateData,
       subject: `Ny prenumerant: ${signup.subscriber_email}`,
     });
@@ -118,8 +124,8 @@ async function sendLaunchAdminNotification(signup) {
     console.warn("Registration template failed, using SMTP fallback:", error.message);
     const transport = getSmtpTransport();
     await transport.sendMail({
-      from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-      to: ADMIN_EMAIL,
+      from: `"${FROM_NAME()}" <${FROM_EMAIL()}>`,
+      to: ADMIN_EMAIL(),
       subject: `Ny prenumerant: ${signup.subscriber_email}`,
       html: `
         <div style="font-family: sans-serif; max-width: 560px; color: #111;">
@@ -138,16 +144,16 @@ async function sendLaunchAdminNotification(signup) {
 async function sendProfileAdminNotification({ userEmail, userName }) {
   const person = displayName(userName?.firstName, userName?.lastName, userEmail);
 
-  if (API_TOKEN) {
+  if (API_TOKEN()) {
     const response = await fetch("https://api.mailersend.com/v1/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${API_TOKEN}`,
+        Authorization: `Bearer ${API_TOKEN()}`,
       },
       body: JSON.stringify({
-        from: { email: FROM_EMAIL, name: FROM_NAME },
-        to: [{ email: ADMIN_EMAIL }],
+        from: { email: FROM_EMAIL(), name: FROM_NAME() },
+        to: [{ email: ADMIN_EMAIL() }],
         subject: `New profile: ${person}`,
         text: `New profile\n\nName: ${person}\nEmail: ${userEmail}`,
         html: `
@@ -169,8 +175,8 @@ async function sendProfileAdminNotification({ userEmail, userName }) {
 
   const transport = getSmtpTransport();
   await transport.sendMail({
-    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-    to: ADMIN_EMAIL,
+    from: `"${FROM_NAME()}" <${FROM_EMAIL()}>`,
+    to: ADMIN_EMAIL(),
     subject: `New profile: ${person}`,
     text: `New profile\n\nName: ${person}\nEmail: ${userEmail}`,
     html: `
@@ -184,8 +190,26 @@ async function sendProfileAdminNotification({ userEmail, userName }) {
 }
 
 export async function handleLaunchSignup({ email, name, signup }) {
-  await sendVerificationEmail({ email, name });
-  await sendLaunchAdminNotification(signup);
+  let userEmailError = null;
+  let adminEmailError = null;
+
+  try {
+    await sendVerificationEmail({ email, name });
+  } catch (error) {
+    userEmailError = error;
+    console.warn("User welcome email failed:", error.message);
+  }
+
+  try {
+    await sendLaunchAdminNotification(signup);
+  } catch (error) {
+    adminEmailError = error;
+    console.warn("Admin notification failed:", error.message);
+  }
+
+  if (userEmailError && adminEmailError) {
+    throw adminEmailError;
+  }
 }
 
 export async function handleProfileCreated({ email, name }) {
