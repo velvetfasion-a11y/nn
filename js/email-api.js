@@ -11,15 +11,19 @@ async function callLocalApi(path, payload) {
     body: JSON.stringify(payload),
   });
 
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
     throw new Error(data.error || "Could not submit your email.");
   }
+
+  return data;
 }
 
 async function callCloudFunction(name, payload) {
   const callable = httpsCallable(functions, name);
-  await callable(payload);
+  const result = await callable(payload);
+  return result.data || {};
 }
 
 export async function submitLaunchSignup(email, name = {}) {
@@ -33,17 +37,13 @@ export async function submitLaunchSignup(email, name = {}) {
 
   try {
     if (import.meta.env.DEV) {
-      await callLocalApi("/api/notify-signup", payload);
-      return;
+      const data = await callLocalApi("/api/notify-signup", payload);
+      return { duplicate: Boolean(data.duplicate ?? saved.duplicate) };
     }
 
-    await callCloudFunction("notifySignup", payload);
+    const data = await callCloudFunction("notifySignup", payload);
+    return { duplicate: Boolean(data.duplicate ?? saved.duplicate) };
   } catch (error) {
-    if (saved.saved) {
-      console.warn("Email send failed, but signup was saved:", error);
-      return;
-    }
-
     const message =
       error?.message ||
       error?.details ||

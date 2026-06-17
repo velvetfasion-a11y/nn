@@ -81,6 +81,11 @@ async function sendMailerSendTemplate({
 
   if (!response.ok) {
     const body = await response.text();
+    if (response.status === 403) {
+      throw new Error(
+        "MailerSend rejected the send (403). Your API token needs Email send permission — create a new token in MailerSend with Full access → Email.",
+      );
+    }
     throw new Error(`MailerSend API error (${response.status}): ${body}`);
   }
 }
@@ -148,19 +153,21 @@ export async function sendLaunchEmails(recipientEmail) {
     throw new Error("A valid email is required.");
   }
 
-  const results = await Promise.allSettled([
+  const [userResult, adminResult] = await Promise.allSettled([
     sendUserVerificationEmail(email),
     sendAdminSignupNotification(email),
   ]);
 
-  const failures = results.filter((result) => result.status === "rejected");
-  if (failures.length === results.length) {
-    throw failures[0].reason;
+  if (userResult.status === "rejected") {
+    throw userResult.reason;
   }
 
-  failures.forEach((failure) => {
-    console.warn("Launch email partial failure:", failure.reason?.message || failure.reason);
-  });
+  if (adminResult.status === "rejected") {
+    console.warn(
+      "Admin notification failed:",
+      adminResult.reason?.message || adminResult.reason,
+    );
+  }
 }
 
 // Backwards-compatible alias used elsewhere in the project.

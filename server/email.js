@@ -1,4 +1,4 @@
-import { sendLaunchEmails } from "./sendLaunchEmails.js";
+import { sendLaunchEmails, sendUserVerificationEmail } from "./sendLaunchEmails.js";
 
 export {
   sendLaunchEmails,
@@ -7,10 +7,20 @@ export {
   sendVerificationEmail,
 } from "./sendLaunchEmails.js";
 
-export async function handleLaunchSignup({ email }) {
-  await sendLaunchEmails(email);
+export async function handleLaunchSignup({ email, isNew = true }) {
+  if (isNew) {
+    await sendLaunchEmails(email);
+    return;
+  }
+
+  await sendUserVerificationEmail(email);
 }
 
-export async function handleProfileCreated({ email }) {
-  await sendLaunchEmails(email);
+export async function handleProfileCreated({ email, isNew = true }) {
+  if (isNew) {
+    await sendLaunchEmails(email);
+    return;
+  }
+
+  await sendUserVerificationEmail(email);
 }

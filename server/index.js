@@ -32,7 +32,7 @@ app.post("/api/notify-signup", async (req, res) => {
   try {
     const signup = await recordLaunchSignup(email);
     try {
-      await handleLaunchSignup({ email });
+      await handleLaunchSignup({ email, isNew: signup.isNew });
     } catch (error) {
       console.error("notify-signup emails failed:", error);
       return res.status(500).json({
@@ -40,7 +40,7 @@ app.post("/api/notify-signup", async (req, res) => {
           "Could not send emails. Check MailerSend API token permissions in .env, then restart npm run dev.",
       });
     }
-    return res.json({ ok: true });
+    return res.json({ ok: true, duplicate: !signup.isNew });
   } catch (error) {
     console.error("notify-signup failed:", error);
     return res.status(500).json({ error: "Could not send emails. Please try again." });
