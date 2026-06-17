@@ -411,6 +411,7 @@
   color: #a3a3a3 !important;
   opacity: 1;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .account-nav a.account-nav__link--locked:hover,

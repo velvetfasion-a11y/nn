@@ -205,14 +205,29 @@ function getFriendlyAuthError(error) {
   }
 }
 
-async function handleProviderLogin(provider, providerName) {
+function prefersAuthRedirect() {
+  return (
+    window.matchMedia("(max-width: 900px)").matches ||
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  );
+}
+
+async function handleProviderLogin(provider) {
   setLoginError("");
   setAuthLoading(true);
 
   try {
+    if (prefersAuthRedirect()) {
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+
     await signInWithPopup(auth, provider);
   } catch (error) {
-    if (error.code === "auth/popup-blocked") {
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/cancelled-popup-request"
+    ) {
       try {
         await signInWithRedirect(auth, provider);
         return;
@@ -346,8 +361,8 @@ loginForm?.addEventListener("submit", handleEmailAuth);
 profileForm?.addEventListener("submit", handleProfileSave);
 passwordForm?.addEventListener("submit", handlePasswordUpdate);
 authModeToggle?.addEventListener("click", toggleAuthMode);
-googleBtn?.addEventListener("click", () => handleProviderLogin(googleProvider, "Google"));
-appleBtn?.addEventListener("click", () => handleProviderLogin(appleProvider, "Apple"));
+googleBtn?.addEventListener("click", () => handleProviderLogin(googleProvider));
+appleBtn?.addEventListener("click", () => handleProviderLogin(appleProvider));
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
   window.location.hash = "my-profile";
