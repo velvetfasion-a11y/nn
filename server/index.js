@@ -31,7 +31,15 @@ app.post("/api/notify-signup", async (req, res) => {
 
   try {
     const signup = await recordLaunchSignup(email);
-    await handleLaunchSignup({ email, name, signup });
+    try {
+      await handleLaunchSignup({ email, name, signup });
+    } catch (error) {
+      console.error("notify-signup emails failed:", error);
+      return res.status(500).json({
+        error:
+          "Could not send emails. Check MailerSend API token permissions in .env, then restart npm run dev.",
+      });
+    }
     return res.json({ ok: true });
   } catch (error) {
     console.error("notify-signup failed:", error);

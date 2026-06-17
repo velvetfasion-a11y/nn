@@ -11,5 +11,14 @@ service cloud.firestore {
       allow read: if request.auth != null
         && resource.data.userId == request.auth.uid;
     }
+
+    match /launch_subscribers/{subscriberId} {
+      allow read: if false;
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.keys().hasAll(['email', 'createdAt'])
+        && !exists(/databases/$(database)/documents/launch_subscribers/$(subscriberId));
+      allow update, delete: if false;
+    }
   }
 }

@@ -89,13 +89,11 @@
     chatInput.value = "";
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    window.setTimeout(function () {
-      const aiMsg = document.createElement("div");
-      aiMsg.className = "msg ai";
-      aiMsg.textContent = getReply(text);
-      chatMessages.appendChild(aiMsg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 500);
+    const aiMsg = document.createElement("div");
+    aiMsg.className = "msg ai";
+    aiMsg.textContent = getReply(text);
+    chatMessages.appendChild(aiMsg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   sendBtn.addEventListener("click", function (event) {
