@@ -130,23 +130,25 @@ body {
   #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) {
     position: relative !important;
     z-index: 2 !important;
-    flex: 0 0 var(--header-icon-size) !important;
+    flex: 0 0 auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    width: var(--header-icon-size) !important;
+    width: auto !important;
+    min-width: var(--header-icon-size) !important;
     height: var(--header-icon-size) !important;
     margin: 0 !important;
   }
 
-  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1 {
-    width: var(--header-icon-size) !important;
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) ._login_101h2_1,
+  #site-root :where(.comp-mb7ogqrp_r_comp-mmp1kp50) .profile-trigger {
+    width: auto !important;
     height: var(--header-icon-size) !important;
     min-width: var(--header-icon-size) !important;
     min-height: var(--header-icon-size) !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-end !important;
     padding: 0 !important;
     gap: 0 !important;
   }
@@ -160,7 +162,7 @@ body {
   }
 }
 
-/* Header login — icon only (hide "Log in" text) */
+/* Header login — show "Log In" label on desktop (icon + text) */
 .login-social-bar {
   --logged-out-text-display: none !important;
   --logged-in-text-display: none !important;
@@ -170,11 +172,6 @@ body {
 .login-social-bar [class*="logOutText"],
 .login-social-bar [class*="logInText"] {
   display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
 }
 
 /* Clickable images scroll to footer */

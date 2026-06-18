@@ -25,7 +25,7 @@
   background: #fff;
   grid-column: 1 / -1;
   position: relative;
-  z-index: 130;
+  z-index: 1;
   pointer-events: none;
   box-sizing: border-box;
   flex-shrink: 0;

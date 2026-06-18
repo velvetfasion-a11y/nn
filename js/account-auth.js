@@ -2,12 +2,8 @@ import {
   EmailAuthProvider,
   GoogleAuthProvider,
   OAuthProvider,
-  browserLocalPersistence,
   createUserWithEmailAndPassword,
-  getRedirectResult,
-  onAuthStateChanged,
   reauthenticateWithCredential,
-  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
@@ -16,13 +12,20 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { auth, db } from "./firebase.js";
+import { auth, db, persistenceReady } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
 import { isAdminUser } from "./admin-constants.js";
+import {
+  clearNextQueryParam,
+  prepareAuthSession,
+  redirectToAdminPanel,
+  subscribeAuthState,
+} from "./auth-init.js";
 import { syncAuthNav } from "./auth-nav.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
+const authChecking = document.getElementById("auth-checking");
 const accountPanels = document.querySelectorAll(".account-panel:not(#my-profile)");
 const navLinks = document.querySelectorAll("[data-account-nav]");
 const loginForm = document.getElementById("email-login-form");
@@ -47,6 +50,14 @@ appleProvider.addScope("name");
 
 let authMode = "login";
 let currentUser = null;
+
+function setAuthChecking(isChecking) {
+  if (authChecking) authChecking.hidden = !isChecking;
+  if (isChecking) {
+    if (loginView) loginView.hidden = true;
+    if (profileView) profileView.hidden = true;
+  }
+}
 
 function setLoginError(message) {
   if (!loginError) return;
@@ -161,13 +172,86 @@ async function loadSecureProfile(user) {
   }
 }
 
-function maybeRedirectAdmin(user) {
-  if (!isAdminUser(user)) return;
+async function sendAdminToPanel(user) {
+  if (!isAdminUser(user)) return false;
+  clearNextQueryParam();
 
-  const next = new URLSearchParams(window.location.search).get("next");
-  if (next === "admin.html" || next === "/admin.html") {
-    window.location.replace("/admin.html");
+  try {
+    await Promise.race([persistenceReady, new Promise((r) => setTimeout(r, 2500))]);
+    await user.getIdToken();
+    await new Promise((r) => setTimeout(r, 200));
+  } catch (error) {
+    console.warn("Admin redirect session sync failed:", error);
   }
+
+  sessionStorage.setItem("jj-admin-pending", String(Date.now()));
+  redirectToAdminPanel();
+  return true;
+}
+
+function showAccountDashboard(user) {
+  if (isAdminUser(user)) {
+    void sendAdminToPanel(user);
+    return;
+  }
+
+  if (loginView) loginView.hidden = true;
+  if (profileView) profileView.hidden = false;
+  if (logoutBtn) logoutBtn.hidden = false;
+
+  if (window.location.hash !== "#my-profile") {
+    window.location.hash = "my-profile";
+  }
+
+  accountPanels.forEach((panel) => {
+    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
+    panel.classList.toggle("account-panel--locked", false);
+    if (!alwaysOpen && panel.id !== "my-profile") {
+      panel.classList.remove("account-panel--locked");
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.remove("account-nav__link--locked");
+  });
+
+  setLoginError("");
+  loadSecureProfile(user)
+    .then(() => {
+      setProfileError("");
+      setProfileSuccess("Signed in successfully.");
+    })
+    .catch((error) => {
+      console.warn("Profile load failed:", error);
+      fillProfileForm(splitName(user.displayName), user);
+      setProfileSuccess("");
+      setProfileError(
+        "Signed in, but your profile could not be loaded from Firestore. Check that firestore rules are deployed.",
+      );
+    });
+}
+
+function showLoginForm() {
+  if (loginView) loginView.hidden = false;
+  if (profileView) profileView.hidden = true;
+  if (logoutBtn) logoutBtn.hidden = true;
+
+  accountPanels.forEach((panel) => {
+    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
+    panel.classList.toggle("account-panel--locked", !alwaysOpen);
+  });
+
+  navLinks.forEach((link) => {
+    const nav = link.dataset.accountNav;
+    if (nav !== "my-profile" && !ALWAYS_AVAILABLE.has(nav)) {
+      link.classList.add("account-nav__link--locked");
+    } else {
+      link.classList.remove("account-nav__link--locked");
+    }
+  });
+
+  setProfileSuccess("");
+  setProfileError("");
 }
 
 function setAuthenticated(user) {
@@ -175,48 +259,16 @@ function setAuthenticated(user) {
   const isLoggedIn = !!user;
 
   syncAuthNav(user);
-
-  if (loginView) loginView.hidden = isLoggedIn;
-  if (profileView) profileView.hidden = !isLoggedIn;
-  if (logoutBtn) logoutBtn.hidden = !isLoggedIn;
-
-  accountPanels.forEach((panel) => {
-    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
-    panel.classList.toggle("account-panel--locked", !isLoggedIn && !alwaysOpen);
-  });
-
-  navLinks.forEach((link) => {
-    const nav = link.dataset.accountNav;
-    if (!isLoggedIn && nav !== "my-profile" && !ALWAYS_AVAILABLE.has(nav)) {
-      link.classList.add("account-nav__link--locked");
-    } else {
-      link.classList.remove("account-nav__link--locked");
-    }
-  });
+  setAuthChecking(false);
 
   if (isLoggedIn) {
-    setLoginError("");
-    maybeRedirectAdmin(user);
-    loadSecureProfile(user)
-      .then(() => {
-        setProfileError("");
-        if (isAdminUser(user)) {
-          setProfileSuccess("Signed in. Open Admin Panel from the menu on the left.");
-        } else {
-          setProfileSuccess("Signed in successfully.");
-        }
-      })
-      .catch((error) => {
-        console.warn("Profile load failed:", error);
-        fillProfileForm(splitName(user.displayName), user);
-        setProfileSuccess("");
-        setProfileError(
-          "Signed in, but your profile could not be loaded from Firestore. Check that firestore rules are deployed.",
-        );
-      });
+    if (isAdminUser(user)) {
+      void sendAdminToPanel(user);
+      return;
+    }
+    showAccountDashboard(user);
   } else {
-    setProfileSuccess("");
-    setProfileError("");
+    showLoginForm();
   }
 }
 
@@ -239,7 +291,7 @@ function getFriendlyAuthError(error) {
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled in Firebase Authentication.";
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.";
+      return "This domain is not authorized for sign-in. Add localhost and jamiljamila.com under Firebase Console → Authentication → Settings → Authorized domains.";
     case "auth/account-exists-with-different-credential":
       return "An account already exists with this email using a different sign-in method.";
     default:
@@ -248,6 +300,10 @@ function getFriendlyAuthError(error) {
 }
 
 function prefersAuthRedirect() {
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return false;
+  }
+
   return (
     window.matchMedia("(max-width: 900px)").matches ||
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -305,6 +361,14 @@ async function handleEmailAuth(event) {
     } else {
       await signInWithEmailAndPassword(auth, email, password);
     }
+
+    if (auth.currentUser && (await sendAdminToPanel(auth.currentUser))) {
+      return;
+    }
+
+    if (auth.currentUser) {
+      showAccountDashboard(auth.currentUser);
+    }
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   } finally {
@@ -345,7 +409,7 @@ async function handleProfileSave(event) {
     setProfileSuccess("Profile saved securely.");
   } catch (error) {
     setProfileSuccess("");
-    setProfileError("Could not save profile. Check Firestore rules and try again.");
+    setProfileError("Could not save profile. Check Firestore rules and deploy firestore.rules.");
   }
 }
 
@@ -411,16 +475,12 @@ logoutBtn?.addEventListener("click", async () => {
   window.location.hash = "my-profile";
 });
 
-async function initAuth() {
-  await setPersistence(auth, browserLocalPersistence);
-
-  onAuthStateChanged(auth, setAuthenticated);
-
-  try {
-    await getRedirectResult(auth);
-  } catch (error) {
-    setLoginError(getFriendlyAuthError(error));
-  }
+function initAuth() {
+  setAuthChecking(true);
+  prepareAuthSession({ redirectResult: true }).catch((error) => {
+    console.warn("Account auth bootstrap failed:", error);
+  });
+  subscribeAuthState(setAuthenticated);
 }
 
 initAuth();

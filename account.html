@@ -8,7 +8,17 @@
   <link rel="stylesheet" href="css/account.css">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
-  <script type="importmap" src="importmap.json"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js",
+    "firebase/analytics": "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js",
+    "firebase/functions": "https://www.gstatic.com/firebasejs/12.14.0/firebase-functions.js"
+  }
+}
+</script>
 </head>
 <body class="account-page">
   <header class="account-topbar">
@@ -36,7 +46,11 @@
 
     <main class="account-main">
       <section id="my-profile" class="account-panel account-section is-active" data-title="My Profile">
-        <div id="login-view">
+        <div id="auth-checking" class="auth-checking">
+          <p>Checking sign-in status…</p>
+        </div>
+
+        <div id="login-view" hidden>
           <h1>Log In</h1>
           <div class="card login-card">
             <p class="login-intro">Sign in to manage your profile, orders, and saved items.</p>
@@ -236,7 +250,6 @@
   </div>
 
   <script type="module" src="js/account-auth.js"></script>
-  <script type="module" src="js/auth-nav.js"></script>
   <script src="js/account.js" defer></script>
   <script src="js/ai-knowledge.js" defer></script>
   <script src="js/ai-chat.js" defer></script>

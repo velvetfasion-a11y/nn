@@ -273,14 +273,12 @@ body {
   }
 
   .profile-dropdown {
-    position: fixed;
-    top: calc(60px + env(safe-area-inset-top, 0px));
-    right: 12px;
-    left: auto;
-    width: min(260px, calc(100vw - 24px));
+    width: min(248px, calc(100vw - 24px));
     max-height: calc(100vh - 80px);
-    overflow-y: auto;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  .profile-trigger-label {
+    display: none !important;
   }
 
   .notify-section {
@@ -301,7 +299,7 @@ body {
     grid-column: 1 / -1 !important;
     background: #fff !important;
     border: 0 !important;
-    z-index: 130 !important;
+    z-index: 1 !important;
   }
 
   .header-notify-divider--bottom {
