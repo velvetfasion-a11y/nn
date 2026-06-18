@@ -20,6 +20,7 @@ const loginSubmit = document.getElementById("admin-login-submit");
 
 let panelOpen = false;
 let adminReadyFired = false;
+let signingIn = false;
 
 function setStatus(message) {
   if (statusEl) statusEl.textContent = message;
@@ -46,6 +47,10 @@ function clearAdminUi() {
 }
 
 function grantAdminAccess(user) {
+  if (!user) return;
+  panelOpen = true;
+  signingIn = false;
+
   if (userLabel) {
     userLabel.textContent = user.email || user.uid;
   }
@@ -59,6 +64,8 @@ function grantAdminAccess(user) {
 }
 
 function showAccessDenied(user) {
+  panelOpen = true;
+  signingIn = false;
   clearAdminUi();
 
   const uidHint = document.getElementById("admin-denied-uid");
@@ -73,6 +80,7 @@ function showAccessDenied(user) {
 }
 
 function showLoginForm() {
+  if (signingIn) return;
   setStatus("Sign in to open the admin panel");
   if (loginForm) loginForm.hidden = false;
   showOnly(gate);
@@ -86,8 +94,6 @@ function isAllowedAdmin(user, emailHint = "") {
 function admitUser(user, emailHint = "") {
   if (panelOpen || !user) return false;
 
-  panelOpen = true;
-
   if (!isAllowedAdmin(user, emailHint)) {
     showAccessDenied(user);
     return true;
@@ -98,27 +104,29 @@ function admitUser(user, emailHint = "") {
 }
 
 function finalizeCheck() {
-  if (panelOpen) return;
+  if (panelOpen || signingIn) return;
   admitUser(auth.currentUser) || showLoginForm();
 }
 
 setStatus("Checking access…");
 
-const authTimer = window.setTimeout(finalizeCheck, 2500);
+const authTimer = window.setTimeout(finalizeCheck, 1500);
 
 onAuthStateChanged(auth, (user) => {
+  if (signingIn) return;
   if (user) {
     window.clearTimeout(authTimer);
     admitUser(user);
   }
 });
 
-function signInTimeout(ms) {
-  return new Promise((_, reject) => {
-    window.setTimeout(() => {
-      reject(new Error("Sign-in timed out. Check your connection and try again."));
-    }, ms);
-  });
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error(message)), ms);
+    }),
+  ]);
 }
 
 loginForm?.addEventListener("submit", async (event) => {
@@ -138,24 +146,29 @@ loginForm?.addEventListener("submit", async (event) => {
     return;
   }
 
+  signingIn = true;
   setStatus("Signing in…");
   if (loginSubmit) loginSubmit.disabled = true;
 
   try {
-    const credential = await Promise.race([
+    if (auth.currentUser && !isAllowedAdmin(auth.currentUser, email)) {
+      await signOut(auth);
+    }
+
+    if (auth.currentUser && isAllowedAdmin(auth.currentUser, email)) {
+      grantAdminAccess(auth.currentUser);
+      return;
+    }
+
+    const credential = await withTimeout(
       signInWithEmailAndPassword(auth, email, password),
-      signInTimeout(20000),
-    ]);
+      8000,
+      "Sign-in timed out. Check your connection and try again.",
+    );
 
-    if (!panelOpen) {
-      admitUser(credential.user, email);
-    }
-
-    if (!panelOpen) {
-      panelOpen = true;
-      grantAdminAccess(credential.user);
-    }
+    grantAdminAccess(credential.user);
   } catch (error) {
+    signingIn = false;
     setStatus("Sign in to open the admin panel");
     const code = error?.code || "";
     if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
@@ -174,6 +187,7 @@ loginForm?.addEventListener("submit", async (event) => {
       setLoginError(error.message || "Could not sign in.");
     }
   } finally {
+    signingIn = false;
     if (loginSubmit) loginSubmit.disabled = false;
   }
 });
@@ -183,6 +197,7 @@ logoutBtn?.addEventListener("click", async () => {
   clearAdminUi();
   panelOpen = false;
   adminReadyFired = false;
+  signingIn = false;
   if (loginForm) loginForm.hidden = false;
   if (loginPassword) loginPassword.value = "";
   setLoginError("");
