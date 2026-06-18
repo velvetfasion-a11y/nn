@@ -19,6 +19,7 @@ import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
 import { isAdminUser } from "./admin-constants.js";
+import { syncAuthNav } from "./auth-nav.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
@@ -57,6 +58,18 @@ function setProfileSuccess(message) {
   if (!profileSuccess) return;
   profileSuccess.textContent = message || "";
   profileSuccess.hidden = !message;
+  if (message) {
+    profileSuccess.classList.remove("profile-success--error");
+  }
+}
+
+function setProfileError(message) {
+  if (!profileSuccess) return;
+  profileSuccess.textContent = message || "";
+  profileSuccess.hidden = !message;
+  if (message) {
+    profileSuccess.classList.add("profile-success--error");
+  }
 }
 
 function setAuthLoading(isLoading) {
@@ -161,6 +174,8 @@ function setAuthenticated(user) {
   currentUser = user;
   const isLoggedIn = !!user;
 
+  syncAuthNav(user);
+
   if (loginView) loginView.hidden = isLoggedIn;
   if (profileView) profileView.hidden = !isLoggedIn;
   if (logoutBtn) logoutBtn.hidden = !isLoggedIn;
@@ -182,12 +197,26 @@ function setAuthenticated(user) {
   if (isLoggedIn) {
     setLoginError("");
     maybeRedirectAdmin(user);
-    loadSecureProfile(user).catch(() => {
-      setProfileSuccess("");
-      fillProfileForm(splitName(user.displayName), user);
-    });
+    loadSecureProfile(user)
+      .then(() => {
+        setProfileError("");
+        if (isAdminUser(user)) {
+          setProfileSuccess("Signed in. Open Admin Panel from the menu on the left.");
+        } else {
+          setProfileSuccess("Signed in successfully.");
+        }
+      })
+      .catch((error) => {
+        console.warn("Profile load failed:", error);
+        fillProfileForm(splitName(user.displayName), user);
+        setProfileSuccess("");
+        setProfileError(
+          "Signed in, but your profile could not be loaded from Firestore. Check that firestore rules are deployed.",
+        );
+      });
   } else {
     setProfileSuccess("");
+    setProfileError("");
   }
 }
 
@@ -312,10 +341,11 @@ async function handleProfileSave(event) {
       displayName: [firstName, lastName].filter(Boolean).join(" "),
     });
 
+    setProfileError("");
     setProfileSuccess("Profile saved securely.");
   } catch (error) {
     setProfileSuccess("");
-    window.alert("Could not save profile. Please try again.");
+    setProfileError("Could not save profile. Check Firestore rules and try again.");
   }
 }
 

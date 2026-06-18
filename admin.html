@@ -13,12 +13,15 @@
 <div id="admin-gate" class="admin-gate">
   <h1>Jamil Jamila Admin</h1>
   <p>Checking access…</p>
+  <p class="admin-gate-hint">Use the same login as the store — you will be sent to <a href="/account.html?next=admin.html">My Profile</a> if needed.</p>
 </div>
 
 <div id="admin-denied" class="admin-gate" hidden>
   <h1>Access denied</h1>
   <p>This admin panel is only available to the authorized Firebase account (<strong>contact@jamiljamila.com</strong>).</p>
-  <p><a href="/">← Back to store</a> · <a href="/account.html">My account</a></p>
+  <p id="admin-denied-uid" class="admin-gate-hint" hidden></p>
+  <p>Sign in with the same account at <a href="/account.html">My Profile</a>, then open Admin Panel from the menu.</p>
+  <p><a href="/">← Back to store</a></p>
 </div>
 
 <div id="admin-app" hidden>

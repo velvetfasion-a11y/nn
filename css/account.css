@@ -397,6 +397,12 @@
   font-size: 14px;
 }
 
+.profile-success.profile-success--error {
+  background: #fff5f5;
+  border-color: #e8b4b4;
+  color: #8b1a1a;
+}
+
 .account-form--secure input[readonly] {
   background: #f4f4f4;
   color: #666;

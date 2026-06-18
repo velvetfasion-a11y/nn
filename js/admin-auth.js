@@ -35,6 +35,11 @@ onAuthStateChanged(auth, (user) => {
 
   if (!isAdminUser(user)) {
     clearAdminUi();
+    const uidHint = document.getElementById("admin-denied-uid");
+    if (uidHint) {
+      uidHint.hidden = false;
+      uidHint.textContent = `Your Firebase UID is ${user.uid}. Admin access requires UID CXikFopbqfdKUy98g6gj9H6j2412 — update js/admin-constants.js if this account should be admin.`;
+    }
     showOnly(denied);
     return;
   }
