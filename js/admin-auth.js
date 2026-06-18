@@ -4,7 +4,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "./firebase.js";
-import { isAdminUser, ADMIN_EMAIL, isAdminEmail } from "./admin-constants.js";
+import { ADMIN_EMAIL, isAdminEmail, isAdminUser } from "./admin-constants.js";
 
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
@@ -18,9 +18,7 @@ const loginPassword = document.getElementById("admin-login-password");
 const loginError = document.getElementById("admin-login-error");
 const loginSubmit = document.getElementById("admin-login-submit");
 
-let panelOpen = false;
 let adminReadyFired = false;
-let signingIn = false;
 
 function setStatus(message) {
   if (statusEl) statusEl.textContent = message;
@@ -46,28 +44,31 @@ function clearAdminUi() {
   if (count) count.textContent = "0";
 }
 
+function canAccessAdmin(user, emailHint = "") {
+  if (!user) return false;
+  return isAdminUser(user) || isAdminEmail(user.email) || isAdminEmail(emailHint);
+}
+
 function grantAdminAccess(user) {
-  if (!user) return;
-  panelOpen = true;
-  signingIn = false;
+  if (!user) return false;
 
   if (userLabel) {
     userLabel.textContent = user.email || user.uid;
   }
 
   showOnly(app);
+  setLoginError("");
 
   if (!adminReadyFired) {
     adminReadyFired = true;
     window.dispatchEvent(new CustomEvent("admin-ready", { detail: { user } }));
   }
+
+  return true;
 }
 
 function showAccessDenied(user) {
-  panelOpen = true;
-  signingIn = false;
   clearAdminUi();
-
   const uidHint = document.getElementById("admin-denied-uid");
   if (uidHint) {
     uidHint.hidden = false;
@@ -75,61 +76,46 @@ function showAccessDenied(user) {
       ? `Signed in as ${user.email || user.uid}.`
       : "";
   }
-
   showOnly(denied);
 }
 
 function showLoginForm() {
-  if (signingIn) return;
   setStatus("Sign in to open the admin panel");
   if (loginForm) loginForm.hidden = false;
   showOnly(gate);
 }
 
-function isAllowedAdmin(user, emailHint = "") {
-  if (!user) return isAdminEmail(emailHint);
-  return isAdminUser(user) || isAdminEmail(emailHint) || isAdminEmail(user.email);
-}
-
-function admitUser(user, emailHint = "") {
-  if (panelOpen || !user) return false;
-
-  if (!isAllowedAdmin(user, emailHint)) {
-    showAccessDenied(user);
-    return true;
+function handleSignedInUser(user, emailHint = "") {
+  if (!user) {
+    showLoginForm();
+    return;
   }
 
-  grantAdminAccess(user);
-  return true;
-}
-
-function finalizeCheck() {
-  if (panelOpen || signingIn) return;
-  admitUser(auth.currentUser) || showLoginForm();
-}
-
-setStatus("Checking access…");
-
-const authTimer = window.setTimeout(finalizeCheck, 1500);
-
-onAuthStateChanged(auth, (user) => {
-  if (signingIn) return;
-  if (user) {
-    window.clearTimeout(authTimer);
-    admitUser(user);
+  if (canAccessAdmin(user, emailHint)) {
+    grantAdminAccess(user);
+    return;
   }
-});
 
-function withTimeout(promise, ms, message) {
+  showAccessDenied(user);
+}
+
+function raceTimeout(promise, ms) {
   return Promise.race([
     promise,
     new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error(message)), ms);
+      window.setTimeout(() => reject(new Error("TIMEOUT")), ms);
     }),
   ]);
 }
 
-loginForm?.addEventListener("submit", async (event) => {
+setStatus("Checking access…");
+if (loginForm) loginForm.hidden = false;
+
+onAuthStateChanged(auth, (user) => {
+  handleSignedInUser(user);
+});
+
+loginForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   setLoginError("");
 
@@ -146,61 +132,57 @@ loginForm?.addEventListener("submit", async (event) => {
     return;
   }
 
-  signingIn = true;
   setStatus("Signing in…");
   if (loginSubmit) loginSubmit.disabled = true;
 
-  try {
-    if (auth.currentUser && !isAllowedAdmin(auth.currentUser, email)) {
-      await signOut(auth);
-    }
+  raceTimeout(signInWithEmailAndPassword(auth, email, password), 10000)
+    .then((credential) => {
+      const user = credential.user;
+      if (canAccessAdmin(user, email)) {
+        grantAdminAccess(user);
+        return;
+      }
+      showAccessDenied(user);
+    })
+    .catch((error) => {
+      setStatus("Sign in to open the admin panel");
 
-    if (auth.currentUser && isAllowedAdmin(auth.currentUser, email)) {
-      grantAdminAccess(auth.currentUser);
-      return;
-    }
+      if (error.message === "TIMEOUT") {
+        setLoginError("Sign-in timed out. Check your connection and try again.");
+        return;
+      }
 
-    const credential = await withTimeout(
-      signInWithEmailAndPassword(auth, email, password),
-      8000,
-      "Sign-in timed out. Check your connection and try again.",
-    );
-
-    grantAdminAccess(credential.user);
-  } catch (error) {
-    signingIn = false;
-    setStatus("Sign in to open the admin panel");
-    const code = error?.code || "";
-    if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
-      setLoginError("Incorrect password. Try again.");
-    } else if (code === "auth/user-not-found") {
-      setLoginError("No account found for this email in Firebase.");
-    } else if (code === "auth/unauthorized-domain") {
-      setLoginError(
-        "This domain is not authorized in Firebase. Add jamiljamila.com under Authentication → Settings → Authorized domains.",
-      );
-    } else if (code === "auth/operation-not-allowed") {
-      setLoginError("Email/password sign-in is not enabled in Firebase Console.");
-    } else if (code === "auth/too-many-requests") {
-      setLoginError("Too many attempts. Wait a moment and try again.");
-    } else {
-      setLoginError(error.message || "Could not sign in.");
-    }
-  } finally {
-    signingIn = false;
-    if (loginSubmit) loginSubmit.disabled = false;
-  }
+      const code = error?.code || "";
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+        setLoginError("Incorrect password. Try again.");
+      } else if (code === "auth/user-not-found") {
+        setLoginError("No account found for this email in Firebase.");
+      } else if (code === "auth/unauthorized-domain") {
+        setLoginError(
+          "Add jamiljamila.com under Firebase → Authentication → Authorized domains.",
+        );
+      } else if (code === "auth/operation-not-allowed") {
+        setLoginError("Email/password sign-in is not enabled in Firebase Console.");
+      } else if (code === "auth/too-many-requests") {
+        setLoginError("Too many attempts. Wait a moment and try again.");
+      } else {
+        setLoginError(error.message || "Could not sign in.");
+      }
+    })
+    .finally(() => {
+      if (loginSubmit) loginSubmit.disabled = false;
+      if (app?.hidden) {
+        setStatus("Sign in to open the admin panel");
+      }
+    });
 });
 
-logoutBtn?.addEventListener("click", async () => {
-  await signOut(auth);
-  clearAdminUi();
-  panelOpen = false;
-  adminReadyFired = false;
-  signingIn = false;
-  if (loginForm) loginForm.hidden = false;
-  if (loginPassword) loginPassword.value = "";
-  setLoginError("");
-  setStatus("Sign in to open the admin panel");
-  showOnly(gate);
+logoutBtn?.addEventListener("click", () => {
+  signOut(auth).finally(() => {
+    clearAdminUi();
+    adminReadyFired = false;
+    if (loginPassword) loginPassword.value = "";
+    setLoginError("");
+    showLoginForm();
+  });
 });
