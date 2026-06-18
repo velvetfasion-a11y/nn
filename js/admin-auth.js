@@ -3,8 +3,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { auth, persistenceReady } from "./firebase.js";
-import { isAdminUser, ADMIN_EMAIL } from "./admin-constants.js";
+import { auth } from "./firebase.js";
+import { isAdminUser, ADMIN_EMAIL, isAdminEmail } from "./admin-constants.js";
 
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
@@ -18,7 +18,7 @@ const loginPassword = document.getElementById("admin-login-password");
 const loginError = document.getElementById("admin-login-error");
 const loginSubmit = document.getElementById("admin-login-submit");
 
-let accessGranted = false;
+let panelOpen = false;
 let adminReadyFired = false;
 
 function setStatus(message) {
@@ -78,28 +78,28 @@ function showLoginForm() {
   showOnly(gate);
 }
 
-function openForUser(user) {
-  if (accessGranted || !user) return;
-  accessGranted = true;
+function isAllowedAdmin(user, emailHint = "") {
+  if (!user) return isAdminEmail(emailHint);
+  return isAdminUser(user) || isAdminEmail(emailHint) || isAdminEmail(user.email);
+}
 
-  if (isAdminUser(user)) {
-    grantAdminAccess(user);
-    return;
+function admitUser(user, emailHint = "") {
+  if (panelOpen || !user) return false;
+
+  panelOpen = true;
+
+  if (!isAllowedAdmin(user, emailHint)) {
+    showAccessDenied(user);
+    return true;
   }
 
-  showAccessDenied(user);
+  grantAdminAccess(user);
+  return true;
 }
 
 function finalizeCheck() {
-  if (accessGranted) return;
-
-  const user = auth.currentUser;
-  if (user) {
-    openForUser(user);
-    return;
-  }
-
-  showLoginForm();
+  if (panelOpen) return;
+  admitUser(auth.currentUser) || showLoginForm();
 }
 
 setStatus("Checking access…");
@@ -109,9 +109,17 @@ const authTimer = window.setTimeout(finalizeCheck, 2500);
 onAuthStateChanged(auth, (user) => {
   if (user) {
     window.clearTimeout(authTimer);
-    openForUser(user);
+    admitUser(user);
   }
 });
+
+function signInTimeout(ms) {
+  return new Promise((_, reject) => {
+    window.setTimeout(() => {
+      reject(new Error("Sign-in timed out. Check your connection and try again."));
+    }, ms);
+  });
+}
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -120,7 +128,7 @@ loginForm?.addEventListener("submit", async (event) => {
   const email = loginEmail?.value.trim() || "";
   const password = loginPassword?.value || "";
 
-  if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  if (!isAdminEmail(email)) {
     setLoginError(`Only ${ADMIN_EMAIL} can access this panel.`);
     return;
   }
@@ -134,23 +142,34 @@ loginForm?.addEventListener("submit", async (event) => {
   if (loginSubmit) loginSubmit.disabled = true;
 
   try {
-    await persistenceReady;
-    const credential = await signInWithEmailAndPassword(auth, email, password);
-    openForUser(credential.user);
-    if (!accessGranted && credential.user && isAdminUser(credential.user)) {
-      accessGranted = true;
+    const credential = await Promise.race([
+      signInWithEmailAndPassword(auth, email, password),
+      signInTimeout(20000),
+    ]);
+
+    if (!panelOpen) {
+      admitUser(credential.user, email);
+    }
+
+    if (!panelOpen) {
+      panelOpen = true;
       grantAdminAccess(credential.user);
     }
   } catch (error) {
     setStatus("Sign in to open the admin panel");
-    if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+    const code = error?.code || "";
+    if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
       setLoginError("Incorrect password. Try again.");
-    } else if (error.code === "auth/user-not-found") {
+    } else if (code === "auth/user-not-found") {
       setLoginError("No account found for this email in Firebase.");
-    } else if (error.code === "auth/unauthorized-domain") {
-      setLoginError("This domain is not authorized in Firebase. Add jamiljamila.com under Authentication → Settings → Authorized domains.");
-    } else if (error.code === "auth/operation-not-allowed") {
+    } else if (code === "auth/unauthorized-domain") {
+      setLoginError(
+        "This domain is not authorized in Firebase. Add jamiljamila.com under Authentication → Settings → Authorized domains.",
+      );
+    } else if (code === "auth/operation-not-allowed") {
       setLoginError("Email/password sign-in is not enabled in Firebase Console.");
+    } else if (code === "auth/too-many-requests") {
+      setLoginError("Too many attempts. Wait a moment and try again.");
     } else {
       setLoginError(error.message || "Could not sign in.");
     }
@@ -162,7 +181,7 @@ loginForm?.addEventListener("submit", async (event) => {
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
   clearAdminUi();
-  accessGranted = false;
+  panelOpen = false;
   adminReadyFired = false;
   if (loginForm) loginForm.hidden = false;
   if (loginPassword) loginPassword.value = "";
