@@ -12,9 +12,9 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { auth, db, persistenceReady } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
-import { isAdminUser } from "./admin-constants.js";
+import { isAdminUser, isAdminEmail } from "./admin-constants.js";
 import {
   clearNextQueryParam,
   prepareAuthSession,
@@ -172,26 +172,22 @@ async function loadSecureProfile(user) {
   }
 }
 
-async function sendAdminToPanel(user) {
-  if (!isAdminUser(user)) return false;
+function shouldGoToAdmin(user, emailHint = "") {
+  if (isAdminUser(user)) return true;
+  return isAdminEmail(emailHint);
+}
+
+function sendAdminToPanel(user, emailHint = "") {
+  if (!shouldGoToAdmin(user, emailHint)) return false;
   clearNextQueryParam();
-
-  try {
-    await Promise.race([persistenceReady, new Promise((r) => setTimeout(r, 2500))]);
-    await user.getIdToken();
-    await new Promise((r) => setTimeout(r, 200));
-  } catch (error) {
-    console.warn("Admin redirect session sync failed:", error);
-  }
-
   sessionStorage.setItem("jj-admin-pending", String(Date.now()));
   redirectToAdminPanel();
   return true;
 }
 
 function showAccountDashboard(user) {
-  if (isAdminUser(user)) {
-    void sendAdminToPanel(user);
+  if (shouldGoToAdmin(user)) {
+    sendAdminToPanel(user);
     return;
   }
 
@@ -258,14 +254,20 @@ function setAuthenticated(user) {
   currentUser = user;
   const isLoggedIn = !!user;
 
+  if (isLoggedIn && shouldGoToAdmin(user)) {
+    setAuthChecking(true);
+    if (authChecking) {
+      const msg = authChecking.querySelector("p");
+      if (msg) msg.textContent = "Opening admin panel…";
+    }
+    sendAdminToPanel(user);
+    return;
+  }
+
   syncAuthNav(user);
   setAuthChecking(false);
 
   if (isLoggedIn) {
-    if (isAdminUser(user)) {
-      void sendAdminToPanel(user);
-      return;
-    }
     showAccountDashboard(user);
   } else {
     showLoginForm();
@@ -362,7 +364,7 @@ async function handleEmailAuth(event) {
       await signInWithEmailAndPassword(auth, email, password);
     }
 
-    if (auth.currentUser && (await sendAdminToPanel(auth.currentUser))) {
+    if (sendAdminToPanel(auth.currentUser, email)) {
       return;
     }
 
