@@ -23,16 +23,9 @@
 <div id="admin-gate" class="admin-gate">
   <h1>Jamil Jamila Admin</h1>
   <p id="admin-gate-status">Checking access…</p>
-  <p class="admin-gate-hint">Only <strong>contact@jamiljamila.com</strong> can access this panel.</p>
-  <form id="admin-login-form" class="admin-gate-form" hidden>
-    <label class="admin-gate-label" for="admin-login-email">Email</label>
-    <input class="admin-gate-input" type="email" id="admin-login-email" value="contact@jamiljamila.com" autocomplete="username" required>
-    <label class="admin-gate-label" for="admin-login-password">Password</label>
-    <input class="admin-gate-input" type="password" id="admin-login-password" placeholder="Password" autocomplete="current-password" required>
-    <button type="submit" class="admin-gate-btn" id="admin-login-submit">Sign in to admin</button>
-    <p id="admin-login-error" class="admin-gate-error" hidden></p>
-  </form>
+  <p class="admin-gate-hint">Sign in with <strong>contact@jamiljamila.com</strong> on the <a href="/account.html?next=admin.html">profile login page</a>.</p>
   <p class="admin-gate-actions">
+    <a class="admin-gate-btn" href="/account.html?next=admin.html">Go to sign in</a>
     <a class="admin-gate-link" href="/">← Back to store</a>
   </p>
 </div>

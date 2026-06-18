@@ -1,10 +1,7 @@
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase.js";
-import { ADMIN_EMAIL, isAdminEmail, isAdminUser } from "./admin-constants.js";
+import { isAdminUser } from "./admin-constants.js";
+import { prepareAuthSession } from "./auth-init.js";
 
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
@@ -12,22 +9,12 @@ const app = document.getElementById("admin-app");
 const userLabel = document.getElementById("admin-user-email");
 const logoutBtn = document.getElementById("admin-logout");
 const statusEl = document.getElementById("admin-gate-status");
-const loginForm = document.getElementById("admin-login-form");
-const loginEmail = document.getElementById("admin-login-email");
-const loginPassword = document.getElementById("admin-login-password");
-const loginError = document.getElementById("admin-login-error");
-const loginSubmit = document.getElementById("admin-login-submit");
 
 let adminReadyFired = false;
+let redirectedToLogin = false;
 
 function setStatus(message) {
   if (statusEl) statusEl.textContent = message;
-}
-
-function setLoginError(message) {
-  if (!loginError) return;
-  loginError.textContent = message || "";
-  loginError.hidden = !message;
 }
 
 function showOnly(el) {
@@ -44,27 +31,19 @@ function clearAdminUi() {
   if (count) count.textContent = "0";
 }
 
-function canAccessAdmin(user, emailHint = "") {
-  if (!user) return false;
-  return isAdminUser(user) || isAdminEmail(user.email) || isAdminEmail(emailHint);
-}
-
 function grantAdminAccess(user) {
-  if (!user) return false;
+  if (!user || !isAdminUser(user)) return;
 
   if (userLabel) {
     userLabel.textContent = user.email || user.uid;
   }
 
   showOnly(app);
-  setLoginError("");
 
   if (!adminReadyFired) {
     adminReadyFired = true;
     window.dispatchEvent(new CustomEvent("admin-ready", { detail: { user } }));
   }
-
-  return true;
 }
 
 function showAccessDenied(user) {
@@ -79,119 +58,58 @@ function showAccessDenied(user) {
   showOnly(denied);
 }
 
-function showLoginForm() {
-  setStatus("Sign in to open the admin panel");
-  if (loginForm) loginForm.hidden = false;
-  showOnly(gate);
+function redirectToAccountLogin() {
+  if (redirectedToLogin) return;
+  redirectedToLogin = true;
+  setStatus("Redirecting to sign in…");
+  window.location.replace("/account.html?next=admin.html");
 }
 
-function handleSignedInUser(user, emailHint = "") {
+function resolveAccess(user) {
   if (!user) {
-    if (!loginSubmit?.disabled) {
-      showLoginForm();
+    redirectToAccountLogin();
+    return;
+  }
+
+  if (!isAdminUser(user)) {
+    showAccessDenied(user);
+    return;
+  }
+
+  grantAdminAccess(user);
+}
+
+async function init() {
+  setStatus("Checking access…");
+
+  try {
+    await prepareAuthSession();
+  } catch (error) {
+    console.warn("Admin auth bootstrap failed:", error);
+  }
+
+  resolveAccess(auth.currentUser);
+
+  onAuthStateChanged(auth, (user) => {
+    if (redirectedToLogin) return;
+    if (!user) {
+      redirectToAccountLogin();
+      return;
     }
-    return;
-  }
-
-  if (canAccessAdmin(user, emailHint)) {
-    grantAdminAccess(user);
-    return;
-  }
-
-  showAccessDenied(user);
-}
-
-function raceTimeout(promise, ms) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error("TIMEOUT")), ms);
-    }),
-  ]);
-}
-
-setStatus("Checking access…");
-if (loginForm) loginForm.hidden = false;
-
-onAuthStateChanged(auth, (user) => {
-  if (loginSubmit?.disabled) {
-    if (user && canAccessAdmin(user, loginEmail?.value.trim() || "")) {
+    if (isAdminUser(user)) {
       grantAdminAccess(user);
+      return;
     }
-    return;
-  }
-
-  handleSignedInUser(user);
-});
-
-loginForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  setLoginError("");
-
-  const email = loginEmail?.value.trim() || "";
-  const password = loginPassword?.value || "";
-
-  if (!isAdminEmail(email)) {
-    setLoginError(`Only ${ADMIN_EMAIL} can access this panel.`);
-    return;
-  }
-
-  if (!password) {
-    setLoginError("Enter your password.");
-    return;
-  }
-
-  setStatus("Signing in…");
-  if (loginSubmit) loginSubmit.disabled = true;
-
-  raceTimeout(signInWithEmailAndPassword(auth, email, password), 10000)
-    .then((credential) => {
-      const user = credential.user;
-      if (canAccessAdmin(user, email)) {
-        grantAdminAccess(user);
-        return;
-      }
-      showAccessDenied(user);
-    })
-    .catch((error) => {
-      setStatus("Sign in to open the admin panel");
-
-      if (error.message === "TIMEOUT") {
-        setLoginError("Sign-in timed out. Check your connection and try again.");
-        return;
-      }
-
-      const code = error?.code || "";
-      if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
-        setLoginError("Incorrect password. Try again.");
-      } else if (code === "auth/user-not-found") {
-        setLoginError("No account found for this email in Firebase.");
-      } else if (code === "auth/unauthorized-domain") {
-        setLoginError(
-          "Add jamiljamila.com under Firebase → Authentication → Authorized domains.",
-        );
-      } else if (code === "auth/operation-not-allowed") {
-        setLoginError("Email/password sign-in is not enabled in Firebase Console.");
-      } else if (code === "auth/too-many-requests") {
-        setLoginError("Too many attempts. Wait a moment and try again.");
-      } else {
-        setLoginError(error.message || "Could not sign in.");
-      }
-    })
-    .finally(() => {
-      if (loginSubmit) loginSubmit.disabled = false;
-      if (app?.hidden) {
-        setStatus("Sign in to open the admin panel");
-      }
-    });
-});
-
-logoutBtn?.addEventListener("click", () => {
-  signOut(auth).finally(() => {
-    clearAdminUi();
-    adminReadyFired = false;
-    if (loginPassword) loginPassword.value = "";
-    setLoginError("");
-    showLoginForm();
+    showAccessDenied(user);
   });
+}
+
+logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
+  clearAdminUi();
+  adminReadyFired = false;
+  redirectedToLogin = false;
+  window.location.replace("/account.html");
 });
+
+init();

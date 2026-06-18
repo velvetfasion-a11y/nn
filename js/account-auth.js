@@ -14,12 +14,13 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
-import { isAdminUser, isAdminEmail } from "./admin-constants.js";
+import { isAdminUser, isAdminEmail, ADMIN_EMAIL } from "./admin-constants.js";
 import {
   clearNextQueryParam,
   prepareAuthSession,
   redirectToAdminPanel,
   subscribeAuthState,
+  wantsAdminRedirect,
 } from "./auth-init.js";
 import { syncAuthNav } from "./auth-nav.js";
 
@@ -319,6 +320,9 @@ async function handleProviderLogin(provider) {
   try {
     if (!prefersAuthRedirect()) {
       await signInWithPopup(auth, provider);
+      if (auth.currentUser && sendAdminToPanel(auth.currentUser)) {
+        return;
+      }
       return;
     }
 
@@ -479,6 +483,14 @@ logoutBtn?.addEventListener("click", async () => {
 
 function initAuth() {
   setAuthChecking(true);
+
+  if (wantsAdminRedirect()) {
+    const loginEmailField = document.getElementById("login-email");
+    if (loginEmailField && !loginEmailField.value) {
+      loginEmailField.value = ADMIN_EMAIL;
+    }
+  }
+
   prepareAuthSession({ redirectResult: true }).catch((error) => {
     console.warn("Account auth bootstrap failed:", error);
   });
