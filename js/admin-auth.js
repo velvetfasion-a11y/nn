@@ -1,7 +1,6 @@
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase.js";
 import { isAdminUser } from "./admin-constants.js";
-import { prepareAuthSession } from "./auth-init.js";
 
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
@@ -11,7 +10,7 @@ const logoutBtn = document.getElementById("admin-logout");
 const statusEl = document.getElementById("admin-gate-status");
 
 let adminReadyFired = false;
-let redirectedToLogin = false;
+let settled = false;
 
 function setStatus(message) {
   if (statusEl) statusEl.textContent = message;
@@ -59,13 +58,14 @@ function showAccessDenied(user) {
 }
 
 function redirectToAccountLogin() {
-  if (redirectedToLogin) return;
-  redirectedToLogin = true;
   setStatus("Redirecting to sign in…");
   window.location.replace("/account.html?next=admin.html");
 }
 
 function resolveAccess(user) {
+  if (settled) return;
+  settled = true;
+
   if (!user) {
     redirectToAccountLogin();
     return;
@@ -79,37 +79,22 @@ function resolveAccess(user) {
   grantAdminAccess(user);
 }
 
-async function init() {
-  setStatus("Checking access…");
+setStatus("Checking access…");
 
-  try {
-    await prepareAuthSession();
-  } catch (error) {
-    console.warn("Admin auth bootstrap failed:", error);
+onAuthStateChanged(auth, (user) => {
+  resolveAccess(user);
+});
+
+window.setTimeout(() => {
+  if (!settled) {
+    resolveAccess(auth.currentUser);
   }
-
-  resolveAccess(auth.currentUser);
-
-  onAuthStateChanged(auth, (user) => {
-    if (redirectedToLogin) return;
-    if (!user) {
-      redirectToAccountLogin();
-      return;
-    }
-    if (isAdminUser(user)) {
-      grantAdminAccess(user);
-      return;
-    }
-    showAccessDenied(user);
-  });
-}
+}, 1500);
 
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
   clearAdminUi();
   adminReadyFired = false;
-  redirectedToLogin = false;
+  settled = false;
   window.location.replace("/account.html");
 });
-
-init();
