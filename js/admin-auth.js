@@ -87,7 +87,9 @@ function showLoginForm() {
 
 function handleSignedInUser(user, emailHint = "") {
   if (!user) {
-    showLoginForm();
+    if (!loginSubmit?.disabled) {
+      showLoginForm();
+    }
     return;
   }
 
@@ -112,6 +114,13 @@ setStatus("Checking access…");
 if (loginForm) loginForm.hidden = false;
 
 onAuthStateChanged(auth, (user) => {
+  if (loginSubmit?.disabled) {
+    if (user && canAccessAdmin(user, loginEmail?.value.trim() || "")) {
+      grantAdminAccess(user);
+    }
+    return;
+  }
+
   handleSignedInUser(user);
 });
 
