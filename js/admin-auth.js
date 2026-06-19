@@ -15,6 +15,9 @@ import {
 import { auth, persistenceReady } from "./firebase.js";
 import { ADMIN_EMAIL, isAdminUser } from "./admin-constants.js";
 
+const REDIRECT_FLAG = "jj-admin-google-redirect";
+const BOOTSTRAP_DEADLINE_MS = 5000;
+
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
 const app = document.getElementById("admin-app");
@@ -54,6 +57,12 @@ function setSpinner(visible) {
   if (spinnerEl) spinnerEl.hidden = !visible;
 }
 
+function setGoogleEnabled(enabled) {
+  if (!googleBtn) return;
+  googleBtn.disabled = !enabled;
+  googleBtn.dataset.authReady = enabled ? "1" : "";
+}
+
 function showOnly(el) {
   [gate, denied, app].forEach((node) => {
     if (!node) return;
@@ -74,6 +83,7 @@ function grantAdminAccess(user) {
   signingIn = false;
   setSpinner(false);
   setError("");
+  setGoogleEnabled(true);
 
   if (userLabel) {
     userLabel.textContent = user.email || user.uid;
@@ -90,6 +100,7 @@ function grantAdminAccess(user) {
 function showAccessDenied(user) {
   signingIn = false;
   setSpinner(false);
+  setGoogleEnabled(true);
   clearAdminUi();
 
   const uidHint = document.getElementById("admin-denied-uid");
@@ -106,8 +117,9 @@ function showAccessDenied(user) {
 function showChecking() {
   setSpinner(true);
   setStatus("Checking access…");
-  if (signInPanel) signInPanel.hidden = true;
   setError("");
+  setGoogleEnabled(false);
+  if (signInPanel) signInPanel.hidden = false;
   showOnly(gate);
 }
 
@@ -115,6 +127,7 @@ function showSignInScreen() {
   signingIn = false;
   setSpinner(false);
   setStatus("Admin sign in");
+  setGoogleEnabled(true);
   if (signInPanel) signInPanel.hidden = false;
   showOnly(gate);
 }
@@ -133,6 +146,12 @@ function applyAuthUser(user) {
   }
 
   grantAdminAccess(user);
+}
+
+function finishBootstrap() {
+  if (authBootstrapped) return;
+  authBootstrapped = true;
+  applyAuthUser(auth.currentUser);
 }
 
 function friendlyAuthError(error) {
@@ -157,27 +176,37 @@ async function bootstrapAuth() {
   showChecking();
 
   try {
-    await Promise.race([persistenceReady, wait(2500)]);
-  } catch (error) {
-    console.warn("Admin persistence:", error);
-  }
+    await Promise.race([persistenceReady, wait(1500)]);
 
-  try {
-    await Promise.race([getRedirectResult(auth), wait(3000)]);
-  } catch (error) {
-    if (error?.code) {
-      setError(friendlyAuthError(error));
+    const returningFromRedirect = sessionStorage.getItem(REDIRECT_FLAG) === "1";
+    if (returningFromRedirect) {
+      sessionStorage.removeItem(REDIRECT_FLAG);
+      try {
+        const result = await Promise.race([getRedirectResult(auth), wait(4000)]);
+        if (result?.user) {
+          if (!isAdminUser(result.user)) {
+            await signOut(auth);
+            setError(`Access denied — only ${ADMIN_EMAIL} is allowed.`);
+            showSignInScreen();
+            return;
+          }
+          grantAdminAccess(result.user);
+          return;
+        }
+      } catch (error) {
+        if (error?.code) {
+          setError(friendlyAuthError(error));
+        }
+      }
     }
-  }
 
-  try {
-    await Promise.race([auth.authStateReady(), wait(4000)]);
+    await Promise.race([auth.authStateReady(), wait(2500)]);
   } catch (error) {
-    console.warn("Admin authStateReady:", error);
+    console.warn("Admin auth bootstrap:", error);
+    setError("Could not verify session. Sign in below or refresh the page.");
+  } finally {
+    finishBootstrap();
   }
-
-  authBootstrapped = true;
-  applyAuthUser(auth.currentUser);
 }
 
 async function handleGoogleSignIn() {
@@ -185,10 +214,11 @@ async function handleGoogleSignIn() {
   signingIn = true;
   setSpinner(true);
   setStatus("Signing in…");
-  if (googleBtn) googleBtn.disabled = true;
+  setGoogleEnabled(false);
 
   try {
     if (window.matchMedia("(max-width: 900px)").matches) {
+      sessionStorage.setItem(REDIRECT_FLAG, "1");
       await signInWithRedirect(auth, googleProvider);
       return;
     }
@@ -209,6 +239,7 @@ async function handleGoogleSignIn() {
 
     if (error.code === "auth/popup-blocked" || error.code === "auth/cancelled-popup-request") {
       try {
+        sessionStorage.setItem(REDIRECT_FLAG, "1");
         await signInWithRedirect(auth, googleProvider);
         return;
       } catch (redirectError) {
@@ -219,11 +250,7 @@ async function handleGoogleSignIn() {
       if (message) setError(message);
     }
 
-    setSpinner(false);
-    setStatus("Admin sign in");
-    if (signInPanel) signInPanel.hidden = false;
-  } finally {
-    if (googleBtn) googleBtn.disabled = false;
+    showSignInScreen();
   }
 }
 
@@ -248,5 +275,12 @@ document.getElementById("admin-denied-signout")?.addEventListener("click", async
   adminReadyFired = false;
   showSignInScreen();
 });
+
+window.setTimeout(() => {
+  if (authBootstrapped) return;
+  console.warn("Admin auth bootstrap deadline — showing sign-in");
+  setError("Session check timed out. Sign in below or refresh the page.");
+  finishBootstrap();
+}, BOOTSTRAP_DEADLINE_MS);
 
 bootstrapAuth();
