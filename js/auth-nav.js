@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
 import { isAdminUser } from "./admin-constants.js";
 

@@ -1,4 +1,4 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "./vendor/firebase-firestore.js";
 import { db } from "./firebase.js";
 
 function subscriberId(email) {

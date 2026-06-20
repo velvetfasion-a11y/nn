@@ -1,4 +1,4 @@
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
 import { getAdminPageFromLocation, isAdminUser } from "./admin-constants.js";
 

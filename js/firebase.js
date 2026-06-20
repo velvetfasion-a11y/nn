@@ -1,7 +1,7 @@
-import { initializeApp, getApps } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps } from "./vendor/firebase-app.js";
+import { getAnalytics, isSupported } from "./vendor/firebase-analytics.js";
+import { getAuth } from "./vendor/firebase-auth.js";
+import { getFirestore } from "./vendor/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || "AIzaSyDhVpX26TuxY3esDleW_pSug7etBfxzE08",

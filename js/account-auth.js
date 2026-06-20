@@ -14,8 +14,8 @@ import {
   signOut,
   updatePassword,
   updateProfile,
-} from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+} from "./vendor/firebase-auth.js";
+import { doc, getDoc, serverTimestamp, setDoc } from "./vendor/firebase-firestore.js";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
 import { isAdminUser, normalizeAdminPage } from "./admin-constants.js";
@@ -148,16 +148,6 @@ async function loadSecureProfile(user) {
   }
 }
 
-function maybeRedirectAdmin(user) {
-  if (!isAdminUser(user)) return;
-
-  const next = new URLSearchParams(window.location.search).get("next");
-  const adminPage = normalizeAdminPage(next);
-  if (adminPage) {
-    window.location.replace(`/${adminPage}`);
-  }
-}
-
 function setAuthenticated(user) {
   currentUser = user;
   const isLoggedIn = !!user;
@@ -182,7 +172,6 @@ function setAuthenticated(user) {
 
   if (isLoggedIn) {
     setLoginError("");
-    maybeRedirectAdmin(user);
     loadSecureProfile(user).catch(() => {
       setProfileSuccess("");
       fillProfileForm(splitName(user.displayName), user);
@@ -190,6 +179,31 @@ function setAuthenticated(user) {
   } else {
     setProfileSuccess("");
   }
+}
+
+function navigateAfterSignIn(user) {
+  const params = new URLSearchParams(window.location.search);
+  const next = normalizeAdminPage(params.get("next"));
+
+  if (next && isAdminUser(user)) {
+    window.location.replace(`/${next}`);
+    return;
+  }
+
+  const returnTo = params.get("return") || params.get("redirect");
+  if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+    window.location.replace(returnTo);
+    return;
+  }
+
+  window.location.hash = "my-profile";
+  profileView?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function completeSignIn(user) {
+  if (!user) return;
+  setAuthenticated(user);
+  navigateAfterSignIn(user);
 }
 
 function getFriendlyAuthError(error) {
@@ -219,40 +233,38 @@ function getFriendlyAuthError(error) {
   }
 }
 
-function prefersAuthRedirect() {
-  return (
-    window.matchMedia("(max-width: 900px)").matches ||
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-  );
-}
-
 async function handleProviderLogin(provider) {
   setLoginError("");
   setAuthLoading(true);
+  let redirecting = false;
 
   try {
-    if (!prefersAuthRedirect()) {
-      await signInWithPopup(auth, provider);
-      return;
-    }
-
-    await signInWithRedirect(auth, provider);
-  } catch (error) {
-    if (
-      error.code === "auth/popup-blocked" ||
-      error.code === "auth/cancelled-popup-request"
-    ) {
-      try {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result?.user) {
+        await completeSignIn(result.user);
+      }
+    } catch (popupError) {
+      if (
+        popupError.code === "auth/popup-blocked" ||
+        popupError.code === "auth/operation-not-supported-in-this-environment" ||
+        popupError.code === "auth/cancelled-popup-request"
+      ) {
+        redirecting = true;
         await signInWithRedirect(auth, provider);
         return;
-      } catch (redirectError) {
-        setLoginError(getFriendlyAuthError(redirectError));
       }
-    } else if (error.code !== "auth/popup-closed-by-user") {
-      setLoginError(getFriendlyAuthError(error));
+
+      if (popupError.code !== "auth/popup-closed-by-user") {
+        throw popupError;
+      }
     }
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error));
   } finally {
-    setAuthLoading(false);
+    if (!redirecting) {
+      setAuthLoading(false);
+    }
   }
 }
 
@@ -271,12 +283,17 @@ async function handleEmailAuth(event) {
   }
 
   try {
+    let user;
     if (authMode === "signup") {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(credential.user, { displayName: email.split("@")[0] });
+      user = credential.user;
     } else {
-      await signInWithEmailAndPassword(auth, email, password);
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      user = credential.user;
     }
+
+    await completeSignIn(user);
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   } finally {
@@ -362,36 +379,58 @@ function toggleAuthMode(event) {
   setLoginError("");
 }
 
-navLinks.forEach((link) => {
-  link.addEventListener("click", function (event) {
-    if (link.classList.contains("account-nav__link--locked")) {
-      event.preventDefault();
-      window.location.hash = "my-profile";
-    }
+function bindAuthUi() {
+  navLinks.forEach((link) => {
+    link.addEventListener("click", function (event) {
+      if (link.classList.contains("account-nav__link--locked")) {
+        event.preventDefault();
+        window.location.hash = "my-profile";
+      }
+    });
   });
-});
 
-loginForm?.addEventListener("submit", handleEmailAuth);
-profileForm?.addEventListener("submit", handleProfileSave);
-passwordForm?.addEventListener("submit", handlePasswordUpdate);
-authModeToggle?.addEventListener("click", toggleAuthMode);
-googleBtn?.addEventListener("click", () => handleProviderLogin(googleProvider));
-appleBtn?.addEventListener("click", () => handleProviderLogin(appleProvider));
-logoutBtn?.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.hash = "my-profile";
-});
+  loginForm?.addEventListener("submit", handleEmailAuth);
+  profileForm?.addEventListener("submit", handleProfileSave);
+  passwordForm?.addEventListener("submit", handlePasswordUpdate);
+  authModeToggle?.addEventListener("click", toggleAuthMode);
+
+  googleBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    void handleProviderLogin(googleProvider);
+  });
+
+  appleBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    void handleProviderLogin(appleProvider);
+  });
+
+  logoutBtn?.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.hash = "my-profile";
+  });
+}
 
 async function initAuth() {
-  await setPersistence(auth, browserLocalPersistence);
-
-  onAuthStateChanged(auth, setAuthenticated);
+  bindAuthUi();
 
   try {
-    await getRedirectResult(auth);
+    await setPersistence(auth, browserLocalPersistence);
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error) || "Could not initialize sign-in.");
+    console.error("Auth persistence failed:", error);
+    return;
+  }
+
+  try {
+    const redirectResult = await getRedirectResult(auth);
+    if (redirectResult?.user) {
+      await completeSignIn(redirectResult.user);
+    }
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   }
+
+  onAuthStateChanged(auth, setAuthenticated);
 }
 
 initAuth();

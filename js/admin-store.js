@@ -8,7 +8,7 @@ import {
   orderBy,
   setDoc,
   writeBatch,
-} from "firebase/firestore";
+} from "./vendor/firebase-firestore.js";
 import { db } from "./firebase.js";
 
 const productsRef = collection(db, "admin_products");

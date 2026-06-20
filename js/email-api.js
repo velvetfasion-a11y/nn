@@ -1,4 +1,4 @@
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable } from "./vendor/firebase-functions.js";
 import { app } from "./firebase.js";
 import { saveLaunchSignupLocal } from "./launch-signup-store.js";
 import { isLocalDev } from "./is-dev.js";
