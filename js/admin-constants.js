@@ -6,8 +6,12 @@ export const ADMIN_PAGES = ["admin.html", "jamiljamila-admin.html"];
 export function isAdminUser(user) {
   if (!user) return false;
   if (user.uid === ADMIN_UID) return true;
-  const email = user.email?.trim().toLowerCase();
-  return email === ADMIN_EMAIL.toLowerCase();
+
+  const emails = [user.email, ...(user.providerData || []).map((p) => p.email)]
+    .filter(Boolean)
+    .map((email) => email.trim().toLowerCase());
+
+  return emails.includes(ADMIN_EMAIL.toLowerCase());
 }
 
 export function getAdminRedirectPage(search = window.location.search) {

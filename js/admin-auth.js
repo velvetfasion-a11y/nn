@@ -12,7 +12,6 @@ const LOG_PREFIX = "[admin-auth]";
 
 const gate = document.getElementById("admin-gate");
 const gateStatus = document.getElementById("admin-gate-status");
-const gateLogin = document.getElementById("admin-gate-login");
 const denied = document.getElementById("admin-denied");
 const app = document.getElementById("admin-app");
 const userLabel = document.getElementById("admin-user-email");
@@ -31,6 +30,18 @@ function log(step, details = {}) {
   console.log(LOG_PREFIX, step, details);
 }
 
+function setAdminView(view) {
+  const showGate = view === "gate";
+  const showDenied = view === "denied";
+  const showApp = view === "app";
+
+  if (gate) gate.hidden = !showGate;
+  if (denied) denied.hidden = !showDenied;
+  if (app) app.hidden = !showApp;
+
+  log("set admin view", { view });
+}
+
 function setGateStatus(message) {
   if (!gateStatus) return;
   gateStatus.hidden = false;
@@ -38,29 +49,10 @@ function setGateStatus(message) {
   log("gate status", { message });
 }
 
-function hideGateCompletely() {
-  if (gate) {
-    gate.hidden = true;
-    gate.setAttribute("aria-hidden", "true");
-  }
-  if (gateStatus) {
-    gateStatus.hidden = true;
-    gateStatus.textContent = "";
-  }
-  if (gateLogin) {
-    gateLogin.hidden = true;
-  }
-  log("gate hidden");
-}
-
 function showDashboard(user) {
   dashboardShown = true;
   redirectScheduled = false;
-
-  hideGateCompletely();
-
-  if (denied) denied.hidden = true;
-  if (app) app.hidden = false;
+  setAdminView("app");
 
   if (userLabel) {
     userLabel.textContent = user.email || user.uid || "Admin";
@@ -76,15 +68,26 @@ function showDashboard(user) {
 }
 
 function showDenied(user) {
-  hideGateCompletely();
-  if (app) app.hidden = true;
-  if (denied) denied.hidden = false;
+  if (dashboardShown) {
+    log("denied skipped because dashboard is already shown", {
+      uid: user?.uid,
+      email: user?.email,
+    });
+    return;
+  }
+
+  setAdminView("denied");
 
   log("access denied", {
     uid: user?.uid,
     email: user?.email,
     isAdmin: isAdminUser(user),
   });
+}
+
+function showGate(message = "Checking sign-in…") {
+  setAdminView("gate");
+  setGateStatus(message);
 }
 
 function clearAdminUi() {
@@ -101,31 +104,48 @@ function redirectToAccountLogin(reason) {
   }
 
   redirectScheduled = true;
-  setGateStatus("Redirecting to sign in…");
+  showGate("Redirecting to sign in…");
   log("redirecting to account login", { reason, url: ACCOUNT_LOGIN_URL });
 
   window.location.href = ACCOUNT_LOGIN_URL;
 }
 
-function resolveAuthUser(user, source) {
+async function normalizeUser(user) {
+  if (!user) return null;
+
+  if (!user.email) {
+    try {
+      await user.reload();
+    } catch (error) {
+      log("user reload skipped", { message: error?.message });
+    }
+  }
+
+  return user;
+}
+
+async function resolveAuthUser(user, source) {
+  const normalized = await normalizeUser(user);
+
   log("resolve auth user", {
     source,
-    hasUser: !!user,
-    uid: user?.uid ?? null,
-    email: user?.email ?? null,
-    isAdmin: isAdminUser(user),
+    hasUser: !!normalized,
+    uid: normalized?.uid ?? null,
+    email: normalized?.email ?? null,
+    isAdmin: isAdminUser(normalized),
   });
 
-  if (user && isAdminUser(user)) {
-    showDashboard(user);
+  if (normalized && isAdminUser(normalized)) {
+    showDashboard(normalized);
     return;
   }
 
-  if (user) {
-    showDenied(user);
+  if (normalized) {
+    showDenied(normalized);
     return;
   }
 
+  if (dashboardShown) return;
   redirectToAccountLogin(`no-user:${source}`);
 }
 
@@ -139,7 +159,7 @@ function attachAuthListener() {
       uid: user?.uid ?? null,
       email: user?.email ?? null,
     });
-    resolveAuthUser(user, "onAuthStateChanged");
+    void resolveAuthUser(user, "onAuthStateChanged");
   });
 
   log("auth listener attached");
@@ -158,7 +178,7 @@ function withTimeout(promise, timeoutMs, label) {
 
 async function initAdminAuth() {
   log("init start", { adminPage, accountLoginUrl: ACCOUNT_LOGIN_URL });
-  setGateStatus("Checking sign-in…");
+  showGate("Checking sign-in…");
 
   const hangGuard = window.setTimeout(() => {
     if (dashboardShown) return;
@@ -187,7 +207,7 @@ async function initAdminAuth() {
         uid: redirectResult.user.uid,
         email: redirectResult.user.email,
       });
-      resolveAuthUser(redirectResult.user, "getRedirectResult");
+      await resolveAuthUser(redirectResult.user, "getRedirectResult");
       if (dashboardShown) {
         window.clearTimeout(hangGuard);
         return;
@@ -212,7 +232,7 @@ async function initAdminAuth() {
     return;
   }
 
-  resolveAuthUser(auth.currentUser, "initial");
+  await resolveAuthUser(auth.currentUser, "initial");
   window.clearTimeout(hangGuard);
 }
 

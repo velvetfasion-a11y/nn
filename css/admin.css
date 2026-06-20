@@ -171,6 +171,12 @@ body { background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Hel
 .select-count { font-weight: 600; }
 
 /* AUTH GATE */
+#admin-gate[hidden],
+#admin-denied[hidden],
+#admin-app[hidden] {
+  display: none !important;
+}
+
 .admin-gate {
   min-height: 100vh;
   display: flex;
