@@ -266,6 +266,25 @@ body {
   gap: 15px;
 }
 
+.product-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 64px 24px;
+  background: #fff;
+  border: 1px dashed #ddd;
+  border-radius: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.product-grid-empty p {
+  font-size: 16px;
+}
+
 @media (max-width: 1200px) {
   .product-grid { grid-template-columns: repeat(4, 1fr); }
 }

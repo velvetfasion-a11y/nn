@@ -51,7 +51,15 @@ function renderProductGrid(list = products) {
   if (!grid) return;
 
   if (!list.length) {
-    grid.innerHTML = "";
+    grid.innerHTML = `
+      <div class="product-grid-empty">
+        <p>Inga produkter att visa.</p>
+        <button type="button" class="admin-add-product-btn" data-action="create-product">
+          <span aria-hidden="true">+</span>
+          Lägg till produkt
+        </button>
+      </div>
+    `;
     return;
   }
 
@@ -423,6 +431,7 @@ function removeImage(index) {
 
 window.closeModal = closeModal;
 window.openCreateProduct = openCreateProduct;
+window.__openCreateProductImpl = openCreateProduct;
 window.saveProduct = () => {
   saveCurrentProduct().catch(() => showToast("Kunde inte spara produkten"));
 };
@@ -433,8 +442,15 @@ window.handleImageUpload = (event) => {
 window.addImageFromUrl = addImageFromUrl;
 
 async function loadAdminData() {
-  products = await seedProductsIfEmpty();
-  renderProductGrid(products);
+  try {
+    products = await seedProductsIfEmpty();
+    renderProductGrid(products);
+  } catch (error) {
+    console.error("Admin data load failed:", error);
+    products = [];
+    renderProductGrid([]);
+    showToast("Kunde inte ladda produkter. Kontrollera inloggningen.");
+  }
 }
 
 function bindAdminMenu() {
@@ -481,6 +497,13 @@ function bindUi() {
   if (productGrid && productGrid.dataset.bound !== "true") {
     productGrid.dataset.bound = "true";
     productGrid.addEventListener("click", async (event) => {
+    const createBtn = event.target.closest("[data-action='create-product']");
+    if (createBtn) {
+      event.preventDefault();
+      openCreateProduct();
+      return;
+    }
+
     const target = event.target.closest("[data-action]");
     if (!target) return;
 
@@ -544,11 +567,7 @@ function bindUi() {
 
 window.addEventListener("admin-ready", () => {
   bindUi();
-  loadAdminData().catch((error) => {
-    console.error("Admin data load failed:", error);
-    products = [];
-    renderProductGrid([]);
-  });
+  void loadAdminData();
 });
 
 bindUi();

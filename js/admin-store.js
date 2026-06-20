@@ -9,8 +9,7 @@ import {
   setDoc,
   writeBatch,
 } from "./vendor/firebase-firestore.js";
-import { getDownloadURL, ref, uploadBytes } from "./vendor/firebase-storage.js";
-import { db, storage } from "./firebase.js";
+import { db } from "./firebase.js";
 
 const productsRef = collection(db, "admin_products");
 
@@ -31,8 +30,16 @@ function mapDoc(snapshot) {
 }
 
 export async function fetchProducts() {
-  const snap = await getDocs(query(productsRef, orderBy("sortOrder", "asc")));
-  return snap.docs.map(mapDoc);
+  try {
+    const snap = await getDocs(query(productsRef, orderBy("sortOrder", "asc")));
+    return snap.docs.map(mapDoc);
+  } catch (error) {
+    console.warn("fetchProducts orderBy failed, falling back:", error);
+    const snap = await getDocs(productsRef);
+    return snap.docs
+      .map(mapDoc)
+      .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+  }
 }
 
 export async function seedProductsIfEmpty() {
@@ -64,6 +71,8 @@ export async function removeProduct(productId) {
 }
 
 export async function uploadProductImage(file) {
+  const { getDownloadURL, ref, uploadBytes } = await import("./vendor/firebase-storage.js");
+  const { storage } = await import("./firebase.js");
   const safeName = String(file.name || "image").replace(/[^\w.-]+/g, "_").slice(-80);
   const storageRef = ref(storage, `product-images/${Date.now()}-${safeName}`);
   await uploadBytes(storageRef, file, {

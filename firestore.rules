@@ -3,7 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
       return request.auth != null
-        && request.auth.uid == 'CXikFopbqfdKUy98g6gj9H6j2412';
+        && (
+          request.auth.uid == 'CXikFopbqfdKUy98g6gj9H6j2412'
+          || request.auth.token.email.lower() == 'contact@jamiljamila.com'
+        );
     }
 
     match /users/{userId} {
