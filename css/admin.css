@@ -206,6 +206,126 @@ body { background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Hel
   margin-top: 4px;
 }
 
+.admin-gate-login {
+  width: min(100%, 420px);
+  margin-top: 8px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  text-align: left;
+}
+
+.admin-gate-intro {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.admin-login-error {
+  color: #b00020;
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.admin-login-form {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-login-form label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-login-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d9d9d9;
+  font: inherit;
+}
+
+.admin-login-submit {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 16px;
+  border: none;
+  background: #1a1a1a;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-login-submit:disabled,
+.admin-login-submit.is-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.admin-login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: #888;
+  font-size: 12px;
+}
+
+.admin-login-divider::before,
+.admin-login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e5e5e5;
+}
+
+.admin-login-social {
+  display: grid;
+  gap: 10px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-social--google:hover {
+  background: #fafafa;
+}
+
+.btn-social--apple {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.btn-social--apple:hover {
+  background: #333;
+}
+
+.btn-social.is-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.social-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .admin-topbar-user {
   font-size: 11px;
   color: #888;

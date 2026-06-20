@@ -181,12 +181,9 @@ function setAuthenticated(user) {
   }
 }
 
-const ADMIN_LOGIN_FLAG = "jj-admin-login";
-
 function redirectAdminFromAccount(user) {
   if (!user || !isAdminUser(user)) return false;
   if (!/\/account\.html$/i.test(window.location.pathname)) return false;
-  sessionStorage.setItem(ADMIN_LOGIN_FLAG, "1");
   window.location.replace(`/${getAdminRedirectPage()}`);
   return true;
 }

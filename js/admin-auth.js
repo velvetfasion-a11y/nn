@@ -1,22 +1,37 @@
 import {
+  GoogleAuthProvider,
+  OAuthProvider,
   browserLocalPersistence,
+  getRedirectResult,
   onAuthStateChanged,
   setPersistence,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
   signOut,
 } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
-import { getAdminPageFromLocation, isAdminUser } from "./admin-constants.js";
+import { isAdminUser } from "./admin-constants.js";
 
 const gate = document.getElementById("admin-gate");
 const denied = document.getElementById("admin-denied");
 const app = document.getElementById("admin-app");
 const userLabel = document.getElementById("admin-user-email");
 const logoutBtn = document.getElementById("admin-logout");
+const gateStatus = document.getElementById("admin-gate-status");
+const gateLogin = document.getElementById("admin-gate-login");
+const loginForm = document.getElementById("admin-login-form");
+const loginError = document.getElementById("admin-login-error");
+const googleBtn = document.getElementById("admin-google-login");
+const appleBtn = document.getElementById("admin-apple-login");
+const loginSubmitBtn = document.getElementById("admin-login-submit");
 
-const adminPage = getAdminPageFromLocation();
-const LOGIN_URL = `/account.html?next=${encodeURIComponent(adminPage)}`;
-const ADMIN_LOGIN_FLAG = "jj-admin-login";
-const REDIRECT_GUARD_KEY = `jj-admin-redirect-ts-${adminPage}`;
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+
+const appleProvider = new OAuthProvider("apple.com");
+appleProvider.addScope("email");
+appleProvider.addScope("name");
 
 let authListenerAttached = false;
 
@@ -27,27 +42,35 @@ function showOnly(el) {
   });
 }
 
-function showGateMessage(html) {
-  if (!gate) return;
-  gate.hidden = false;
-  const message = gate.querySelector("p");
-  if (message) message.innerHTML = html;
+function setLoginError(message) {
+  if (!loginError) return;
+  loginError.textContent = message || "";
+  loginError.hidden = !message;
 }
 
-function redirectToLogin() {
-  const lastRedirect = Number(sessionStorage.getItem(REDIRECT_GUARD_KEY) || 0);
-  const now = Date.now();
+function setAuthLoading(isLoading) {
+  [googleBtn, appleBtn, loginSubmitBtn].forEach((button) => {
+    if (!button) return;
+    button.disabled = isLoading;
+    button.classList.toggle("is-loading", isLoading);
+  });
+}
 
-  if (now - lastRedirect < 4000) {
-    showGateMessage(
-      `Please sign in to open the admin panel. <a href="${LOGIN_URL}">Continue to sign in</a>`,
-    );
-    return;
+function showChecking(message = "Checking sign-in…") {
+  if (gate) gate.hidden = false;
+  if (gateStatus) {
+    gateStatus.hidden = false;
+    gateStatus.textContent = message;
   }
+  if (gateLogin) gateLogin.hidden = true;
+  setLoginError("");
+}
 
-  sessionStorage.setItem(REDIRECT_GUARD_KEY, String(now));
-  showGateMessage("Redirecting to sign in…");
-  window.location.replace(LOGIN_URL);
+function showLoginForm() {
+  if (gate) gate.hidden = false;
+  if (gateStatus) gateStatus.hidden = true;
+  if (gateLogin) gateLogin.hidden = false;
+  setLoginError("");
 }
 
 function clearAdminUi() {
@@ -58,9 +81,6 @@ function clearAdminUi() {
 }
 
 function handleAdminUser(user) {
-  sessionStorage.removeItem(ADMIN_LOGIN_FLAG);
-  sessionStorage.removeItem(REDIRECT_GUARD_KEY);
-
   if (userLabel) {
     userLabel.textContent = user.email || user.uid;
   }
@@ -69,45 +89,118 @@ function handleAdminUser(user) {
   window.dispatchEvent(new CustomEvent("admin-ready", { detail: { user } }));
 }
 
-function handleSignedOut() {
+function handleDeniedUser() {
   clearAdminUi();
-  redirectToLogin();
+  showOnly(denied);
 }
 
-function handleAuthState(user) {
+function getFriendlyAuthError(error) {
+  switch (error.code) {
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "Incorrect email or password.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again later.";
+    case "auth/popup-blocked":
+      return "Popup was blocked. Trying redirect sign-in…";
+    case "auth/unauthorized-domain":
+      return "This domain is not authorized for sign-in.";
+    default:
+      return error.message || "Could not sign in. Please try again.";
+  }
+}
+
+async function resolveSignedInUser(user) {
   if (!user) {
-    handleSignedOut();
+    showLoginForm();
     return;
   }
 
   if (!isAdminUser(user)) {
-    sessionStorage.removeItem(ADMIN_LOGIN_FLAG);
-    clearAdminUi();
-    showOnly(denied);
+    handleDeniedUser();
     return;
   }
 
   handleAdminUser(user);
 }
 
-function waitForAuthUser(timeoutMs = 5000) {
-  if (auth.currentUser) {
-    return Promise.resolve(auth.currentUser);
+async function handleProviderLogin(provider) {
+  setLoginError("");
+  setAuthLoading(true);
+  let redirecting = false;
+
+  try {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result?.user) {
+        await resolveSignedInUser(result.user);
+        if (!isAdminUser(result.user)) {
+          await signOut(auth);
+        }
+      }
+    } catch (popupError) {
+      if (
+        popupError.code === "auth/popup-blocked" ||
+        popupError.code === "auth/operation-not-supported-in-this-environment" ||
+        popupError.code === "auth/cancelled-popup-request"
+      ) {
+        redirecting = true;
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      if (popupError.code !== "auth/popup-closed-by-user") {
+        throw popupError;
+      }
+    }
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error));
+  } finally {
+    if (!redirecting) {
+      setAuthLoading(false);
+    }
+  }
+}
+
+async function handleEmailLogin(event) {
+  event.preventDefault();
+  setLoginError("");
+  setAuthLoading(true);
+
+  const email = document.getElementById("admin-login-email")?.value.trim();
+  const password = document.getElementById("admin-login-password")?.value;
+
+  if (!email || !password) {
+    setLoginError("Please enter your email and password.");
+    setAuthLoading(false);
+    return;
   }
 
-  return new Promise((resolve) => {
-    const deadline = Date.now() + timeoutMs;
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user || Date.now() >= deadline) {
-        unsubscribe();
-        resolve(user || auth.currentUser || null);
-      }
-    });
+  try {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    await resolveSignedInUser(credential.user);
+    if (!isAdminUser(credential.user)) {
+      await signOut(auth);
+    }
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error));
+  } finally {
+    setAuthLoading(false);
+  }
+}
 
-    window.setTimeout(() => {
-      unsubscribe();
-      resolve(auth.currentUser || null);
-    }, timeoutMs);
+function bindLoginUi() {
+  loginForm?.addEventListener("submit", handleEmailLogin);
+  googleBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    void handleProviderLogin(googleProvider);
+  });
+  appleBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    void handleProviderLogin(appleProvider);
   });
 }
 
@@ -121,56 +214,60 @@ function attachAuthListener() {
       return;
     }
 
-    if (!user) {
-      if (sessionStorage.getItem(ADMIN_LOGIN_FLAG) === "1") {
-        return;
-      }
-      handleSignedOut();
+    if (user) {
+      handleDeniedUser();
       return;
     }
 
-    sessionStorage.removeItem(ADMIN_LOGIN_FLAG);
     clearAdminUi();
-    showOnly(denied);
+    showLoginForm();
   });
 }
 
 async function initAdminAuth() {
-  showGateMessage("Checking sign-in…");
+  showChecking();
+  bindLoginUi();
 
   try {
     await setPersistence(auth, browserLocalPersistence);
+  } catch (error) {
+    console.error("Admin auth persistence failed:", error);
+    showLoginForm();
+    setLoginError("Could not initialize sign-in.");
+    return;
+  }
+
+  try {
+    const redirectResult = await getRedirectResult(auth);
+    if (redirectResult?.user) {
+      await resolveSignedInUser(redirectResult.user);
+      if (isAdminUser(redirectResult.user)) {
+        attachAuthListener();
+        return;
+      }
+      await signOut(auth);
+    }
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error));
+  }
+
+  try {
     await auth.authStateReady();
   } catch (error) {
     console.error("Admin auth init failed:", error);
-    redirectToLogin();
+    showLoginForm();
+    setLoginError("Could not check sign-in status.");
     return;
   }
 
   attachAuthListener();
-
-  let user = auth.currentUser;
-
-  if (!user && sessionStorage.getItem(ADMIN_LOGIN_FLAG) === "1") {
-    showGateMessage("Finishing sign-in…");
-    user = await waitForAuthUser(6000);
-  }
-
-  if (!user) {
-    sessionStorage.removeItem(ADMIN_LOGIN_FLAG);
-    redirectToLogin();
-    return;
-  }
-
-  handleAuthState(user);
+  await resolveSignedInUser(auth.currentUser);
 }
 
 logoutBtn?.addEventListener("click", async () => {
-  sessionStorage.removeItem(ADMIN_LOGIN_FLAG);
-  sessionStorage.removeItem(REDIRECT_GUARD_KEY);
   await signOut(auth);
   clearAdminUi();
-  redirectToLogin();
+  showLoginForm();
 });
 
 initAdminAuth();
