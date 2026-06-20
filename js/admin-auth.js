@@ -58,6 +58,11 @@ function showDashboard(user) {
     userLabel.textContent = user.email || user.uid || "Admin";
   }
 
+  const profileIcon = document.getElementById("admin-profile-icon");
+  if (profileIcon) {
+    profileIcon.textContent = (user.email || "J").charAt(0).toUpperCase();
+  }
+
   log("dashboard shown", {
     uid: user.uid,
     email: user.email,
