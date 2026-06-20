@@ -29,20 +29,31 @@
   <div class="admin-header-right">
     <span class="admin-topbar-user" id="admin-user-email" hidden></span>
     <div class="admin-profile-icon" id="admin-profile-icon" aria-hidden="true">J</div>
-    <button type="button" class="admin-hamburger" id="adminMenuBtn" aria-label="Meny">
-      <span class="admin-hamburger-bar"></span>
-      <span class="admin-hamburger-bar"></span>
-      <span class="admin-hamburger-bar"></span>
-    </button>
-    <button type="button" class="admin-logout-btn" id="admin-logout">Log out</button>
+    <div class="admin-menu-wrap">
+      <button type="button" class="admin-hamburger" id="adminMenuBtn" aria-label="Meny" aria-expanded="false" aria-controls="adminMenu">
+        <span class="admin-hamburger-bar"></span>
+        <span class="admin-hamburger-bar"></span>
+        <span class="admin-hamburger-bar"></span>
+      </button>
+      <nav class="admin-menu" id="adminMenu" hidden>
+        <a href="/" class="admin-menu-link">Gå till hemsida</a>
+        <button type="button" class="admin-menu-link admin-menu-logout" id="admin-logout">Logga ut</button>
+      </nav>
+    </div>
   </div>
 </header>
 
 <main class="admin-page-container">
   <div class="admin-page-head">
     <h1 class="admin-page-title">Alla Produkter</h1>
-    <div class="admin-search-box">
-      <input type="search" placeholder="Sök …" id="searchInput" oninput="filterProducts()">
+    <div class="admin-page-actions">
+      <button type="button" class="admin-add-product-btn" id="addProductBtn">
+        <span aria-hidden="true">+</span>
+        Lägg till produkt
+      </button>
+      <div class="admin-search-box">
+        <input type="search" placeholder="Sök …" id="searchInput" oninput="filterProducts()">
+      </div>
     </div>
   </div>
   <div class="product-grid" id="productGrid"></div>
@@ -52,7 +63,7 @@
   <div class="modal">
     <div class="modal-header">
       <div>
-        <p class="modal-eyebrow">Redigera produkt</p>
+        <p class="modal-eyebrow" id="modalEyebrow">Redigera produkt</p>
         <h2 class="modal-title" id="modalProductName">—</h2>
       </div>
       <button type="button" class="modal-close" onclick="closeModal()">✕</button>
@@ -87,18 +98,22 @@
       <div class="form-section">
         <p class="form-section-title">Produktbilder</p>
         <div class="image-upload-area" onclick="document.getElementById('imageFileInput').click()">
-          <input type="file" id="imageFileInput" accept="image/*" multiple onchange="handleImageUpload(event)">
+          <input type="file" id="imageFileInput" multiple onchange="handleImageUpload(event)">
           <div class="image-upload-text">
-            <strong>Ladda upp bilder</strong>
-            PNG, JPG eller WEBP — max 5 MB per bild
+            <strong>Ladda upp valfri bild</strong>
+            JPG, PNG, WEBP, HEIC m.fl. — eller klistra in en länk nedan
           </div>
         </div>
+        <form class="image-url-row" id="imageUrlForm">
+          <input type="url" id="imageUrlInput" placeholder="https://exempel.se/bild.jpg" aria-label="Bildlänk">
+          <button type="submit" class="btn btn-outline image-url-add-btn">Lägg till länk</button>
+        </form>
         <div class="image-previews" id="imagePreviews"></div>
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-danger" onclick="closeModal()">Avbryt</button>
-      <button type="button" class="btn btn-primary" onclick="saveProduct()">Spara ändringar</button>
+      <button type="button" class="btn btn-primary" id="modalSaveBtn" onclick="saveProduct()">Spara ändringar</button>
     </div>
   </div>
 </div>

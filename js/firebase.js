@@ -2,6 +2,7 @@ import { initializeApp, getApps } from "./vendor/firebase-app.js";
 import { getAnalytics, isSupported } from "./vendor/firebase-analytics.js";
 import { getAuth } from "./vendor/firebase-auth.js";
 import { getFirestore } from "./vendor/firebase-firestore.js";
+import { getStorage } from "./vendor/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || "AIzaSyDhVpX26TuxY3esDleW_pSug7etBfxzE08",
@@ -18,6 +19,7 @@ const firebaseConfig = {
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let analytics = null;
 isSupported()
@@ -28,4 +30,4 @@ isSupported()
   })
   .catch(() => {});
 
-export { app, analytics, auth, db };
+export { app, analytics, auth, db, storage };

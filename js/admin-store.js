@@ -9,7 +9,8 @@ import {
   setDoc,
   writeBatch,
 } from "./vendor/firebase-firestore.js";
-import { db } from "./firebase.js";
+import { getDownloadURL, ref, uploadBytes } from "./vendor/firebase-storage.js";
+import { db, storage } from "./firebase.js";
 
 const productsRef = collection(db, "admin_products");
 
@@ -60,6 +61,15 @@ export async function createProduct(data) {
 
 export async function removeProduct(productId) {
   await deleteDoc(doc(db, "admin_products", productId));
+}
+
+export async function uploadProductImage(file) {
+  const safeName = String(file.name || "image").replace(/[^\w.-]+/g, "_").slice(-80);
+  const storageRef = ref(storage, `product-images/${Date.now()}-${safeName}`);
+  await uploadBytes(storageRef, file, {
+    contentType: file.type || "application/octet-stream",
+  });
+  return getDownloadURL(storageRef);
 }
 
 export function recalculateStock(product) {
