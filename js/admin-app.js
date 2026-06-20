@@ -127,25 +127,43 @@ function renderVariantRows(variants) {
 }
 
 function openCreateProduct() {
-  isCreatingProduct = true;
-  currentProductId = null;
-  draftProduct = {
-    name: "",
-    type: "Fysisk",
-    sku: nextSku(),
-    price: 0,
-    variants: { ...DEFAULT_VARIANTS },
-    images: [],
-    sortOrder: products.length + 1,
-  };
+  try {
+    isCreatingProduct = true;
+    currentProductId = null;
+    draftProduct = {
+      name: "",
+      type: "Fysisk",
+      sku: nextSku(),
+      price: 0,
+      variants: { ...DEFAULT_VARIANTS },
+      images: [],
+      sortOrder: products.length + 1,
+    };
 
-  setModalMode("create");
-  document.getElementById("editName").value = "";
-  document.getElementById("editPrice").value = "";
-  document.getElementById("editSku").value = draftProduct.sku;
-  renderVariantRows(draftProduct.variants);
-  renderImagePreviews([]);
-  document.getElementById("editModal").classList.add("open");
+    setModalMode("create");
+
+    const nameInput = document.getElementById("editName");
+    const priceInput = document.getElementById("editPrice");
+    const skuInput = document.getElementById("editSku");
+    const modal = document.getElementById("editModal");
+
+    if (!nameInput || !priceInput || !skuInput || !modal) {
+      console.error("Create product modal elements missing");
+      showToast("Kunde inte öppna formuläret");
+      return;
+    }
+
+    nameInput.value = "";
+    priceInput.value = "";
+    skuInput.value = draftProduct.sku;
+    renderVariantRows(draftProduct.variants);
+    renderImagePreviews([]);
+    modal.classList.add("open");
+    nameInput.focus();
+  } catch (error) {
+    console.error("openCreateProduct failed:", error);
+    showToast("Kunde inte öppna formuläret");
+  }
 }
 
 function openEdit(id) {
@@ -404,6 +422,7 @@ function removeImage(index) {
 }
 
 window.closeModal = closeModal;
+window.openCreateProduct = openCreateProduct;
 window.saveProduct = () => {
   saveCurrentProduct().catch(() => showToast("Kunde inte spara produkten"));
 };
@@ -448,9 +467,20 @@ function bindAdminMenu() {
 
 function bindUi() {
   bindAdminMenu();
-  document.getElementById("addProductBtn")?.addEventListener("click", openCreateProduct);
 
-  document.getElementById("productGrid")?.addEventListener("click", async (event) => {
+  const addBtn = document.getElementById("addProductBtn");
+  if (addBtn && addBtn.dataset.bound !== "true") {
+    addBtn.dataset.bound = "true";
+    addBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      openCreateProduct();
+    });
+  }
+
+  const productGrid = document.getElementById("productGrid");
+  if (productGrid && productGrid.dataset.bound !== "true") {
+    productGrid.dataset.bound = "true";
+    productGrid.addEventListener("click", async (event) => {
     const target = event.target.closest("[data-action]");
     if (!target) return;
 
@@ -482,24 +512,38 @@ function bindUi() {
       }
     }
   });
+  }
 
-  document.getElementById("imageUrlForm")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    addImageFromUrl();
-  });
+  const imageUrlForm = document.getElementById("imageUrlForm");
+  if (imageUrlForm && imageUrlForm.dataset.bound !== "true") {
+    imageUrlForm.dataset.bound = "true";
+    imageUrlForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addImageFromUrl();
+    });
+  }
 
-  document.getElementById("imagePreviews")?.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-remove-image]");
-    if (!btn) return;
-    removeImage(Number(btn.dataset.removeImage));
-  });
+  const imagePreviews = document.getElementById("imagePreviews");
+  if (imagePreviews && imagePreviews.dataset.bound !== "true") {
+    imagePreviews.dataset.bound = "true";
+    imagePreviews.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-remove-image]");
+      if (!btn) return;
+      removeImage(Number(btn.dataset.removeImage));
+    });
+  }
 
-  document.getElementById("editModal")?.addEventListener("click", (event) => {
-    if (event.target.id === "editModal") closeModal();
-  });
+  const editModal = document.getElementById("editModal");
+  if (editModal && editModal.dataset.bound !== "true") {
+    editModal.dataset.bound = "true";
+    editModal.addEventListener("click", (event) => {
+      if (event.target.id === "editModal") closeModal();
+    });
+  }
 }
 
 window.addEventListener("admin-ready", () => {
+  bindUi();
   loadAdminData().catch((error) => {
     console.error("Admin data load failed:", error);
     products = [];
