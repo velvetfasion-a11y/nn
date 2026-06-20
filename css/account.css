@@ -281,13 +281,6 @@
   max-width: 480px;
 }
 
-.auth-checking {
-  max-width: 480px;
-  padding: 32px 0;
-  color: #666;
-  font-size: 14px;
-}
-
 .login-intro {
   margin: 0 0 24px;
   color: #666;
@@ -402,12 +395,6 @@
   border-radius: 4px;
   color: #1b5e20;
   font-size: 14px;
-}
-
-.profile-success.profile-success--error {
-  background: #fff5f5;
-  border-color: #e8b4b4;
-  color: #8b1a1a;
 }
 
 .account-form--secure input[readonly] {
