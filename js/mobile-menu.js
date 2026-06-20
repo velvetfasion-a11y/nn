@@ -1,5 +1,21 @@
 /** Mobile hamburger navigation (Wix dialog is not exported). */
 (function () {
+  function layoutHeaderActions() {
+    const container = document.querySelector(".comp-mb7ogqrp_r_comp-mdr142kt-container");
+    const profile = document.querySelector("#comp-mb7ogqrp_r_comp-mmp1kp50");
+    const menu = document.querySelector("#comp-mb7ogqrp_r_comp-mmp2pfoi");
+    if (!container || !profile || !menu || container.querySelector(".header-actions")) return;
+
+    const profileWrap =
+      profile.closest(".comp-mb7ogqrp_r_comp-mmp1kp50-presets-wrapper") || profile;
+    const menuWrap = menu.closest(".comp-mb7ogqrp_r_comp-mmp2pfoi-presets-wrapper") || menu;
+
+    const actions = document.createElement("div");
+    actions.className = "header-actions";
+    container.appendChild(actions);
+    actions.append(profileWrap, menuWrap);
+  }
+
   function getLinkHref(linkEl) {
     if (!linkEl) return "#";
     if (linkEl.tagName === "A") return linkEl.getAttribute("href") || "#";
@@ -13,7 +29,10 @@
     overlay.hidden = true;
     overlay.innerHTML = `
       <div class="mobile-nav-panel" role="dialog" aria-modal="true" aria-label="Menu">
-        <button type="button" class="mobile-nav-close" aria-label="Close menu">×</button>
+        <div class="mobile-nav-top">
+          <a class="mobile-nav-account" href="/account.html#my-profile" data-mobile-nav-account>Sign in</a>
+          <button type="button" class="mobile-nav-close" aria-label="Close menu">×</button>
+        </div>
         <nav class="mobile-nav-list" aria-label="Mobile navigation"></nav>
       </div>
     `;
@@ -71,6 +90,8 @@
   }
 
   function init() {
+    layoutHeaderActions();
+
     const hamburger = document.querySelector(".hamburger-open-button");
     const menuRoot = document.querySelector(".wixui-horizontal-menu");
     if (!hamburger || !menuRoot) return;
@@ -121,6 +142,8 @@
     overlay.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", close);
     });
+
+    window.dispatchEvent(new CustomEvent("mobile-menu-ready"));
   }
 
   if (document.readyState === "loading") {

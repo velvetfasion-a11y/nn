@@ -1,10 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import {
-  browserLocalPersistence,
-  getAuth,
-  setPersistence,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -23,13 +19,6 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const persistenceReady = Promise.race([
-  setPersistence(auth, browserLocalPersistence),
-  new Promise((resolve) => window.setTimeout(resolve, 2000)),
-]).catch((error) => {
-  console.warn("Firebase persistence:", error);
-});
-
 let analytics = null;
 isSupported()
   .then((supported) => {
@@ -39,4 +28,4 @@ isSupported()
   })
   .catch(() => {});
 
-export { app, analytics, auth, db, persistenceReady };
+export { app, analytics, auth, db };

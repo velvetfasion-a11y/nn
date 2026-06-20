@@ -8,12 +8,6 @@ export default defineConfig({
   build: {
     cssMinify: false,
   },
-  resolve: {
-    dedupe: ["firebase", "@firebase/app", "@firebase/auth", "@firebase/firestore"],
-  },
-  optimizeDeps: {
-    include: ["firebase/app", "firebase/auth", "firebase/firestore", "firebase/functions"],
-  },
   server: {
     hmr: {
       overlay: true,

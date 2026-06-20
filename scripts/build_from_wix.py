@@ -8,7 +8,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 URL = "https://scandinavianorigin4.wixsite.com/jamil-jamila"
-FIREBASE_IMPORTMAP = (ROOT / "partials" / "firebase-importmap.html").read_text(encoding="utf-8").strip()
 
 IMG_MAP = {
     "2a3c64_4b6b00e6fb7b449cb0e7ceb059881edc~mv2.png": "assets/images/logo.png",
@@ -255,11 +254,12 @@ def build() -> None:
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/collections.css">
-  {FIREBASE_IMPORTMAP}
+  <script type="importmap" src="importmap.json"></script>
   <script src="js/wix-viewport.js"></script>
 </head>
 <body>
 {body}
+<script type="importmap" src="/importmap.json"></script>
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>

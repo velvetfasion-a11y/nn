@@ -2,8 +2,12 @@ import {
   EmailAuthProvider,
   GoogleAuthProvider,
   OAuthProvider,
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
+  getRedirectResult,
+  onAuthStateChanged,
   reauthenticateWithCredential,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
@@ -14,19 +18,10 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
-import { isAdminUser, isAdminEmail, ADMIN_EMAIL } from "./admin-constants.js";
-import {
-  clearNextQueryParam,
-  prepareAuthSession,
-  redirectToAdminPanel,
-  subscribeAuthState,
-  wantsAdminRedirect,
-} from "./auth-init.js";
-import { syncAuthNav } from "./auth-nav.js";
+import { isAdminUser, normalizeAdminPage } from "./admin-constants.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
-const authChecking = document.getElementById("auth-checking");
 const accountPanels = document.querySelectorAll(".account-panel:not(#my-profile)");
 const navLinks = document.querySelectorAll("[data-account-nav]");
 const loginForm = document.getElementById("email-login-form");
@@ -52,14 +47,6 @@ appleProvider.addScope("name");
 let authMode = "login";
 let currentUser = null;
 
-function setAuthChecking(isChecking) {
-  if (authChecking) authChecking.hidden = !isChecking;
-  if (isChecking) {
-    if (loginView) loginView.hidden = true;
-    if (profileView) profileView.hidden = true;
-  }
-}
-
 function setLoginError(message) {
   if (!loginError) return;
   loginError.textContent = message || "";
@@ -70,18 +57,6 @@ function setProfileSuccess(message) {
   if (!profileSuccess) return;
   profileSuccess.textContent = message || "";
   profileSuccess.hidden = !message;
-  if (message) {
-    profileSuccess.classList.remove("profile-success--error");
-  }
-}
-
-function setProfileError(message) {
-  if (!profileSuccess) return;
-  profileSuccess.textContent = message || "";
-  profileSuccess.hidden = !message;
-  if (message) {
-    profileSuccess.classList.add("profile-success--error");
-  }
 }
 
 function setAuthLoading(isLoading) {
@@ -173,105 +148,47 @@ async function loadSecureProfile(user) {
   }
 }
 
-function shouldGoToAdmin(user, emailHint = "") {
-  if (isAdminUser(user)) return true;
-  return isAdminEmail(emailHint);
-}
+function maybeRedirectAdmin(user) {
+  if (!isAdminUser(user)) return;
 
-function sendAdminToPanel(user, emailHint = "") {
-  if (!shouldGoToAdmin(user, emailHint)) return false;
-  clearNextQueryParam();
-  sessionStorage.setItem("jj-admin-pending", String(Date.now()));
-  redirectToAdminPanel();
-  return true;
-}
-
-function showAccountDashboard(user) {
-  if (shouldGoToAdmin(user)) {
-    sendAdminToPanel(user);
-    return;
+  const next = new URLSearchParams(window.location.search).get("next");
+  const adminPage = normalizeAdminPage(next);
+  if (adminPage) {
+    window.location.replace(`/${adminPage}`);
   }
-
-  if (loginView) loginView.hidden = true;
-  if (profileView) profileView.hidden = false;
-  if (logoutBtn) logoutBtn.hidden = false;
-
-  if (window.location.hash !== "#my-profile") {
-    window.location.hash = "my-profile";
-  }
-
-  accountPanels.forEach((panel) => {
-    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
-    panel.classList.toggle("account-panel--locked", false);
-    if (!alwaysOpen && panel.id !== "my-profile") {
-      panel.classList.remove("account-panel--locked");
-    }
-  });
-
-  navLinks.forEach((link) => {
-    link.classList.remove("account-nav__link--locked");
-  });
-
-  setLoginError("");
-  loadSecureProfile(user)
-    .then(() => {
-      setProfileError("");
-      setProfileSuccess("Signed in successfully.");
-    })
-    .catch((error) => {
-      console.warn("Profile load failed:", error);
-      fillProfileForm(splitName(user.displayName), user);
-      setProfileSuccess("");
-      setProfileError(
-        "Signed in, but your profile could not be loaded from Firestore. Check that firestore rules are deployed.",
-      );
-    });
-}
-
-function showLoginForm() {
-  if (loginView) loginView.hidden = false;
-  if (profileView) profileView.hidden = true;
-  if (logoutBtn) logoutBtn.hidden = true;
-
-  accountPanels.forEach((panel) => {
-    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
-    panel.classList.toggle("account-panel--locked", !alwaysOpen);
-  });
-
-  navLinks.forEach((link) => {
-    const nav = link.dataset.accountNav;
-    if (nav !== "my-profile" && !ALWAYS_AVAILABLE.has(nav)) {
-      link.classList.add("account-nav__link--locked");
-    } else {
-      link.classList.remove("account-nav__link--locked");
-    }
-  });
-
-  setProfileSuccess("");
-  setProfileError("");
 }
 
 function setAuthenticated(user) {
   currentUser = user;
   const isLoggedIn = !!user;
 
-  if (isLoggedIn && shouldGoToAdmin(user)) {
-    setAuthChecking(true);
-    if (authChecking) {
-      const msg = authChecking.querySelector("p");
-      if (msg) msg.textContent = "Opening admin panel…";
-    }
-    sendAdminToPanel(user);
-    return;
-  }
+  if (loginView) loginView.hidden = isLoggedIn;
+  if (profileView) profileView.hidden = !isLoggedIn;
+  if (logoutBtn) logoutBtn.hidden = !isLoggedIn;
 
-  syncAuthNav(user);
-  setAuthChecking(false);
+  accountPanels.forEach((panel) => {
+    const alwaysOpen = ALWAYS_AVAILABLE.has(panel.id);
+    panel.classList.toggle("account-panel--locked", !isLoggedIn && !alwaysOpen);
+  });
+
+  navLinks.forEach((link) => {
+    const nav = link.dataset.accountNav;
+    if (!isLoggedIn && nav !== "my-profile" && !ALWAYS_AVAILABLE.has(nav)) {
+      link.classList.add("account-nav__link--locked");
+    } else {
+      link.classList.remove("account-nav__link--locked");
+    }
+  });
 
   if (isLoggedIn) {
-    showAccountDashboard(user);
+    setLoginError("");
+    maybeRedirectAdmin(user);
+    loadSecureProfile(user).catch(() => {
+      setProfileSuccess("");
+      fillProfileForm(splitName(user.displayName), user);
+    });
   } else {
-    showLoginForm();
+    setProfileSuccess("");
   }
 }
 
@@ -294,7 +211,7 @@ function getFriendlyAuthError(error) {
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled in Firebase Authentication.";
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in. Add localhost and jamiljamila.com under Firebase Console → Authentication → Settings → Authorized domains.";
+      return "This domain is not authorized for sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.";
     case "auth/account-exists-with-different-credential":
       return "An account already exists with this email using a different sign-in method.";
     default:
@@ -303,10 +220,6 @@ function getFriendlyAuthError(error) {
 }
 
 function prefersAuthRedirect() {
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    return false;
-  }
-
   return (
     window.matchMedia("(max-width: 900px)").matches ||
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -320,9 +233,6 @@ async function handleProviderLogin(provider) {
   try {
     if (!prefersAuthRedirect()) {
       await signInWithPopup(auth, provider);
-      if (auth.currentUser && sendAdminToPanel(auth.currentUser)) {
-        return;
-      }
       return;
     }
 
@@ -367,14 +277,6 @@ async function handleEmailAuth(event) {
     } else {
       await signInWithEmailAndPassword(auth, email, password);
     }
-
-    if (sendAdminToPanel(auth.currentUser, email)) {
-      return;
-    }
-
-    if (auth.currentUser) {
-      showAccountDashboard(auth.currentUser);
-    }
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   } finally {
@@ -411,11 +313,10 @@ async function handleProfileSave(event) {
       displayName: [firstName, lastName].filter(Boolean).join(" "),
     });
 
-    setProfileError("");
     setProfileSuccess("Profile saved securely.");
   } catch (error) {
     setProfileSuccess("");
-    setProfileError("Could not save profile. Check Firestore rules and deploy firestore.rules.");
+    window.alert("Could not save profile. Please try again.");
   }
 }
 
@@ -481,20 +382,16 @@ logoutBtn?.addEventListener("click", async () => {
   window.location.hash = "my-profile";
 });
 
-function initAuth() {
-  setAuthChecking(true);
+async function initAuth() {
+  await setPersistence(auth, browserLocalPersistence);
 
-  if (wantsAdminRedirect()) {
-    const loginEmailField = document.getElementById("login-email");
-    if (loginEmailField && !loginEmailField.value) {
-      loginEmailField.value = ADMIN_EMAIL;
-    }
+  onAuthStateChanged(auth, setAuthenticated);
+
+  try {
+    await getRedirectResult(auth);
+  } catch (error) {
+    setLoginError(getFriendlyAuthError(error));
   }
-
-  prepareAuthSession({ redirectResult: true }).catch((error) => {
-    console.warn("Account auth bootstrap failed:", error);
-  });
-  subscribeAuthState(setAuthenticated);
 }
 
 initAuth();
