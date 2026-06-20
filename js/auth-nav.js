@@ -8,8 +8,29 @@ const LOCKED_WHEN_LOGGED_OUT = new Set([
   "liked-items",
 ]);
 
+function getProfileDestination(user) {
+  return isAdminUser(user) ? "/jamiljamila-admin.html" : "/account.html#my-profile";
+}
+
+function bindProfileNavigation() {
+  const trigger = document.querySelector("#comp-mb7ogqrp_r_comp-mmp1kp50 ._login_101h2_1");
+  if (!trigger || trigger.dataset.authNavBound === "true") return;
+
+  trigger.dataset.authNavBound = "true";
+  trigger.addEventListener(
+    "click",
+    function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = getProfileDestination(auth.currentUser);
+    },
+    true,
+  );
+}
+
 export function syncAuthNav(user) {
   const isLoggedIn = !!user;
+  const isAdmin = isAdminUser(user);
 
   document.querySelectorAll("[data-requires-auth]").forEach((link) => {
     const locked = !isLoggedIn;
@@ -32,18 +53,29 @@ export function syncAuthNav(user) {
   });
 
   document.querySelectorAll("[data-admin-only]").forEach((link) => {
-    link.hidden = !isAdminUser(user);
+    link.hidden = !isAdmin;
   });
 
   const mobileAccountLink = document.querySelector("[data-mobile-nav-account]");
   if (mobileAccountLink) {
-    mobileAccountLink.textContent = isLoggedIn ? "Account" : "Sign in";
+    if (!isLoggedIn) {
+      mobileAccountLink.textContent = "Sign in";
+      mobileAccountLink.href = "/account.html#my-profile";
+    } else if (isAdmin) {
+      mobileAccountLink.textContent = "Admin";
+      mobileAccountLink.href = "/jamiljamila-admin.html";
+    } else {
+      mobileAccountLink.textContent = "Account";
+      mobileAccountLink.href = "/account.html#my-profile";
+    }
   }
 
   const headerTrigger = document.querySelector("#comp-mb7ogqrp_r_comp-mmp1kp50 ._login_101h2_1");
   if (headerTrigger) {
-    headerTrigger.setAttribute("aria-label", isLoggedIn ? "Account" : "Sign in");
+    headerTrigger.setAttribute("aria-label", !isLoggedIn ? "Sign in" : isAdmin ? "Admin" : "Account");
   }
+
+  bindProfileNavigation();
 }
 
 function blockLockedAuthLink(event) {

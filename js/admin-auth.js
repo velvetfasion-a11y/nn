@@ -28,15 +28,28 @@ function clearAdminUi() {
   if (count) count.textContent = "0";
 }
 
-onAuthStateChanged(auth, (user) => {
+function handleAdminUser(user) {
+  if (userLabel) {
+    userLabel.textContent = user.email || user.uid;
+  }
+
+  showOnly(app);
+  window.dispatchEvent(new CustomEvent("admin-ready", { detail: { user } }));
+}
+
+function handleSignedOut() {
+  clearAdminUi();
+  if (gate) {
+    gate.hidden = false;
+    const message = gate.querySelector("p");
+    if (message) message.textContent = "Redirecting to sign in…";
+  }
+  redirectToLogin();
+}
+
+function handleAuthState(user) {
   if (!user) {
-    clearAdminUi();
-    if (gate) {
-      gate.hidden = false;
-      const message = gate.querySelector("p");
-      if (message) message.textContent = "Redirecting to sign in…";
-    }
-    redirectToLogin();
+    handleSignedOut();
     return;
   }
 
@@ -46,16 +59,26 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  if (userLabel) {
-    userLabel.textContent = user.email || user.uid;
+  handleAdminUser(user);
+}
+
+async function initAdminAuth() {
+  try {
+    await auth.authStateReady();
+  } catch (error) {
+    console.error("Admin auth init failed:", error);
+    redirectToLogin();
+    return;
   }
 
-  showOnly(app);
-  window.dispatchEvent(new CustomEvent("admin-ready", { detail: { user } }));
-});
+  handleAuthState(auth.currentUser);
+  onAuthStateChanged(auth, handleAuthState);
+}
 
 logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
   clearAdminUi();
   redirectToLogin();
 });
+
+initAdminAuth();

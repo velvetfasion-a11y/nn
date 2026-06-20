@@ -18,7 +18,7 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from "./vendor/firebase-firestore.js";
 import { auth, db } from "./firebase.js";
 import { submitProfileCreated } from "./email-api.js";
-import { isAdminUser, normalizeAdminPage } from "./admin-constants.js";
+import { isAdminUser, getAdminRedirectPage } from "./admin-constants.js";
 
 const loginView = document.getElementById("login-view");
 const profileView = document.getElementById("profile-view");
@@ -181,16 +181,18 @@ function setAuthenticated(user) {
   }
 }
 
+function redirectAdminFromAccount(user) {
+  if (!user || !isAdminUser(user)) return false;
+  if (!/\/account\.html$/i.test(window.location.pathname)) return false;
+  window.location.replace(`/${getAdminRedirectPage()}`);
+  return true;
+}
+
 function navigateAfterSignIn(user) {
-  const params = new URLSearchParams(window.location.search);
-  const next = normalizeAdminPage(params.get("next"));
+  if (redirectAdminFromAccount(user)) return;
 
-  if (next && isAdminUser(user)) {
-    window.location.replace(`/${next}`);
-    return;
-  }
-
-  const returnTo = params.get("return") || params.get("redirect");
+  const returnTo = new URLSearchParams(window.location.search).get("return")
+    || new URLSearchParams(window.location.search).get("redirect");
   if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     window.location.replace(returnTo);
     return;
@@ -202,6 +204,7 @@ function navigateAfterSignIn(user) {
 
 async function completeSignIn(user) {
   if (!user) return;
+  if (redirectAdminFromAccount(user)) return;
   setAuthenticated(user);
   navigateAfterSignIn(user);
 }
@@ -425,12 +428,18 @@ async function initAuth() {
     const redirectResult = await getRedirectResult(auth);
     if (redirectResult?.user) {
       await completeSignIn(redirectResult.user);
+      return;
     }
   } catch (error) {
     setLoginError(getFriendlyAuthError(error));
   }
 
-  onAuthStateChanged(auth, setAuthenticated);
+  onAuthStateChanged(auth, handleAuthState);
+}
+
+function handleAuthState(user) {
+  if (redirectAdminFromAccount(user)) return;
+  setAuthenticated(user);
 }
 
 initAuth();
