@@ -16,7 +16,9 @@
 
     navLinks.forEach((link) => {
       const target = link.getAttribute("data-account-nav");
-      link.classList.toggle("is-active", target === resolvedId);
+      const isActive = target === resolvedId;
+      link.classList.toggle("is-active", isActive);
+      link.classList.toggle("active", isActive);
     });
 
     const activePanel = document.getElementById(resolvedId);

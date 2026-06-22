@@ -89,7 +89,9 @@ function fillProfileForm(profile, user) {
   if (lastName) lastName.value = profile.lastName || "";
   if (emailInput) {
     emailInput.value = profile.email || user?.email || "";
-    emailInput.readOnly = getPrimaryProvider(user) !== "password";
+    const canEditEmail = getPrimaryProvider(user) === "password";
+    emailInput.readOnly = !canEditEmail;
+    emailInput.disabled = !canEditEmail;
   }
   if (phone) phone.value = profile.phone || "";
 

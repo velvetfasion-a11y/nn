@@ -107,6 +107,9 @@ function setModalMode(mode) {
   const eyebrow = document.getElementById("modalEyebrow");
   const title = document.getElementById("modalProductName");
   const saveBtn = document.getElementById("modalSaveBtn");
+  const deleteBtn = document.getElementById("modalDeleteBtn");
+
+  if (deleteBtn) deleteBtn.hidden = mode === "create";
 
   if (mode === "create") {
     if (eyebrow) eyebrow.textContent = "Ny produkt";
@@ -283,6 +286,26 @@ async function deleteProduct(id) {
   showToast("Produkt borttagen");
 }
 
+async function confirmDeleteProduct() {
+  if (isCreatingProduct || !currentProductId) return;
+
+  const product = getProduct(currentProductId);
+  if (!product) return;
+
+  const confirmed = window.confirm(
+    `Ta bort "${product.name}"?\n\nDetta går inte att ångra.`,
+  );
+  if (!confirmed) return;
+
+  try {
+    await deleteProduct(currentProductId);
+    closeModal();
+  } catch (error) {
+    console.error("Delete product failed:", error);
+    showToast("Kunde inte ta bort produkten");
+  }
+}
+
 function filterProducts() {
   const q = document.getElementById("searchInput").value.toLowerCase();
   const filtered = q
@@ -432,6 +455,7 @@ function removeImage(index) {
 window.closeModal = closeModal;
 window.openCreateProduct = openCreateProduct;
 window.__openCreateProductImpl = openCreateProduct;
+window.confirmDeleteProduct = confirmDeleteProduct;
 window.saveProduct = () => {
   saveCurrentProduct().catch(() => showToast("Kunde inte spara produkten"));
 };

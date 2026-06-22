@@ -2,46 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>My Profile | Jamil Jamila</title>
   <link rel="icon" href="assets/images/logo.png" type="image/png">
-  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/account.css?v=2">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body class="account-page">
-  <header class="account-topbar">
-    <a class="account-topbar__logo" href="/">
-      <img src="assets/images/logo.png" alt="Jamil &amp; Jamila">
-      <span class="account-topbar__title">Jamil &amp; Jamila</span>
-    </a>
-    <a href="/">← Back to store</a>
-  </header>
 
   <div class="account-layout">
-    <nav class="account-nav" aria-label="Account">
-      <div class="account-nav__main">
-        <a href="#my-profile" data-account-nav="my-profile">My Profile</a>
-        <a href="#order-history" data-account-nav="order-history" data-requires-auth class="account-nav__link--locked" aria-disabled="true" tabindex="-1">Order History</a>
-        <a href="#saved-addresses" data-account-nav="saved-addresses" data-requires-auth class="account-nav__link--locked" aria-disabled="true" tabindex="-1">Saved Addresses</a>
-        <a href="#liked-items" data-account-nav="liked-items" data-requires-auth class="account-nav__link--locked" aria-disabled="true" tabindex="-1">Liked Items</a>
-        <a href="/admin.html" data-admin-only hidden>Admin Panel</a>
+    <aside class="sidebar account-nav" aria-label="Account">
+      <div class="nav-group account-nav__main">
+        <a href="#my-profile" class="nav-link" data-account-nav="my-profile">My Profile</a>
+        <a href="#order-history" class="nav-link" data-account-nav="order-history" data-requires-auth>Order History</a>
+        <a href="#saved-addresses" class="nav-link" data-account-nav="saved-addresses" data-requires-auth>Saved Addresses</a>
+        <a href="#liked-items" class="nav-link" data-account-nav="liked-items" data-requires-auth>Liked Items</a>
+        <a href="/jamiljamila-admin.html" class="nav-link" data-admin-only hidden>Admin Panel</a>
       </div>
-      <div class="account-nav__bottom">
-        <a href="#support" data-account-nav="support" data-always-available>Support</a>
-        <a href="#settings" data-account-nav="settings" data-always-available>Settings</a>
+      <div class="nav-group sidebar-footer account-nav__bottom">
+        <a href="#support" class="nav-link" data-account-nav="support" data-always-available>Support</a>
+        <a href="#settings" class="nav-link" data-account-nav="settings" data-always-available>Settings</a>
+        <a href="/" class="nav-link nav-link--store">← Back to store</a>
       </div>
-    </nav>
+    </aside>
 
-    <main class="account-main">
+    <main class="main-content account-main">
       <section id="my-profile" class="account-panel account-section is-active" data-title="My Profile">
-        <div id="login-view">
-          <h1>Log In</h1>
-          <div class="card login-card">
+        <div id="login-view" class="login-view">
+          <div class="page-header">
+            <h1>Log In</h1>
+          </div>
+          <div class="login-card">
             <p class="login-intro">Sign in to manage your profile, orders, and saved items.</p>
             <p id="login-error" class="login-error" hidden></p>
 
-            <form id="email-login-form" class="login-form">
+            <form id="email-login-form" class="login-form profile-form">
               <div class="form-group">
                 <label for="login-email">Email Address</label>
                 <input type="email" id="login-email" name="email" autocomplete="email" required>
@@ -50,7 +46,7 @@
                 <label for="login-password">Password</label>
                 <input type="password" id="login-password" name="password" autocomplete="current-password" minlength="6" required>
               </div>
-              <button type="submit" id="login-submit-btn" class="btn btn-login-submit">Log In</button>
+              <button type="submit" id="login-submit-btn" class="save-btn btn-login-submit">Log In</button>
               <p class="auth-mode-toggle-wrap">
                 <a href="#" id="auth-mode-toggle">Don't have an account? Create one</a>
               </p>
@@ -80,13 +76,13 @@
         </div>
 
         <div id="profile-view" hidden>
-          <div class="account-section__header">
+          <div class="page-header">
             <h1>My Profile</h1>
-            <button type="button" id="logout-btn" class="btn btn-outline">Log Out</button>
+            <button type="button" id="logout-btn" class="logout-btn">Log Out</button>
           </div>
-          <div class="card">
-            <p id="profile-success" class="profile-success" hidden></p>
-            <form id="profile-form" class="account-form account-form--secure">
+          <p id="profile-success" class="profile-success" hidden></p>
+          <form id="profile-form" class="profile-form account-form account-form--secure">
+            <div class="form-row">
               <div class="form-group">
                 <label for="firstName">First Name</label>
                 <input type="text" id="firstName" name="firstName" required>
@@ -95,22 +91,24 @@
                 <label for="lastName">Last Name</label>
                 <input type="text" id="lastName" name="lastName" required>
               </div>
-              <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
-              </div>
-              <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone">
-              </div>
-              <button type="submit" class="btn">Save Changes</button>
-            </form>
-          </div>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+            <button type="submit" class="save-btn">Save Changes</button>
+          </form>
         </div>
       </section>
 
       <section id="order-history" class="account-panel account-section" data-title="Order History">
-        <h1>Order History</h1>
+        <div class="page-header">
+          <h1>Order History</h1>
+        </div>
 
         <div class="card">
           <div class="order-header">
@@ -136,9 +134,9 @@
       </section>
 
       <section id="saved-addresses" class="account-panel account-section" data-title="Saved Addresses">
-        <div class="account-section__header">
+        <div class="page-header">
           <h1>Saved Addresses</h1>
-          <button class="btn" type="button">+ Add New</button>
+          <button class="btn btn-outline" type="button">+ Add New</button>
         </div>
 
         <div class="address-grid">
@@ -157,11 +155,13 @@
       </section>
 
       <section id="support" class="account-panel account-section" data-title="Support">
-        <h1>Support</h1>
+        <div class="page-header">
+          <h1>Support</h1>
+        </div>
         <p class="account-intro">Need help with an order? Send us a message and our team will get back to you within 24 hours.</p>
 
         <div class="card">
-          <form class="account-form" data-success="Message sent. We'll be in touch within 24 hours.">
+          <form class="account-form profile-form" data-success="Message sent. We'll be in touch within 24 hours.">
             <div class="form-group">
               <label for="subject">Subject / Order Number</label>
               <input type="text" id="subject" name="subject" required>
@@ -170,13 +170,15 @@
               <label for="message">How can we help?</label>
               <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <button type="submit" class="btn">Send Message</button>
+            <button type="submit" class="save-btn">Send Message</button>
           </form>
         </div>
       </section>
 
       <section id="liked-items" class="account-panel account-section account-section--wide" data-title="Liked Items">
-        <h1>Liked Items</h1>
+        <div class="page-header">
+          <h1>Liked Items</h1>
+        </div>
 
         <div class="product-grid">
           <div class="product-card">
@@ -196,7 +198,9 @@
       </section>
 
       <section id="settings" class="account-panel account-section" data-title="Settings">
-        <h1>Settings</h1>
+        <div class="page-header">
+          <h1>Settings</h1>
+        </div>
 
         <div class="card" style="margin-bottom: 32px;">
           <h3>Notifications</h3>
@@ -218,7 +222,7 @@
 
         <div class="card" id="password-card">
           <h3>Change Password</h3>
-          <form id="password-form" class="account-form account-form--secure">
+          <form id="password-form" class="profile-form account-form account-form--secure">
             <div class="form-group">
               <label for="currentPassword">Current Password</label>
               <input type="password" id="currentPassword" required>
