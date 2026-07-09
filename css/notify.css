@@ -1,5 +1,5 @@
 .notify-section {
-  background: #0a0a0a;
+  background: #000000;
   color: #ffffff;
   padding: 100px 24px;
   text-align: center;
@@ -40,147 +40,251 @@
   margin: 0 auto;
 }
 
-.notify-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #888;
-  margin: 0 0 24px;
-}
-
-.notify-heading {
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  margin: 0 0 28px;
-  text-transform: uppercase;
-  font-family: inherit;
-}
-
-.notify-heading-divider {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 56px;
-  margin: 0 auto 28px;
-}
-
-.notify-heading-divider span {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: #555;
-}
-
-.notify-sub {
-  font-size: 15px;
-  color: #aaa;
-  margin: 0 0 48px;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-}
-
-.notify-form {
-  width: 100%;
-}
-
-.notify-input-row {
-  display: flex;
-  gap: 0;
-  border: 1px solid #333;
-  border-radius: 0;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.notify-input-row:focus-within {
-  border-color: #fff;
-}
-
-.notify-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #fff;
-  font-size: 14px;
-  padding: 16px 20px;
-  font-family: inherit;
-  letter-spacing: 0.01em;
-}
-
-.notify-input::placeholder {
-  color: #555;
-}
-
-.notify-btn {
-  background: #fff;
-  color: #0a0a0a;
-  border: none;
-  padding: 16px 28px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: inherit;
-  transition: background 0.2s, color 0.2s;
-  white-space: nowrap;
-}
-
-.notify-btn:hover {
-  background: #e0e0e0;
-}
-
-.btn-arrow {
-  font-size: 16px;
-  transition: transform 0.2s;
-}
-
-.notify-btn:hover .btn-arrow {
-  transform: translateX(3px);
-}
-
-.notify-privacy {
-  margin: 14px 0 0;
-  font-size: 11px;
-  color: #555;
-  letter-spacing: 0.05em;
-}
-
-.notify-success {
-  display: none;
+.jj-notify-trigger {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  padding: 14px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
   color: #fff;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  padding: 16px 0;
-  animation: notify-fade-in 0.4s ease;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
-.notify-success.visible {
+.jj-notify-trigger:hover {
+  background: #fff;
+  color: #0a0a0a;
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.jj-notify-trigger__arrow {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.jj-notify-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.jj-notify-modal.is-open {
   display: flex;
 }
 
-@keyframes notify-fade-in {
+.jj-notify-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.jj-notify-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  animation: jj-notify-modal-enter 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes jj-notify-modal-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(20px) scale(0.985);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
+
+.jj-notify-modal__topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 24px 24px 8px;
+}
+
+.jj-notify-modal__close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.jj-notify-modal__close:hover {
+  color: #fff;
+}
+
+.jj-notify-modal__content {
+  padding: 0 32px 40px;
+  text-align: center;
+}
+
+.jj-notify-modal__eyebrow {
+  margin: 0 0 24px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.jj-notify-modal__title {
+  margin: 0 0 18px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(38px, 4.2vw, 42px);
+  font-weight: 600;
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.jj-notify-modal__divider {
+  width: 32px;
+  height: 1px;
+  margin: 0 auto 28px;
+  background: linear-gradient(to right, transparent, #c9a962, transparent);
+}
+
+.jj-notify-modal__sub {
+  margin: 0 auto 36px;
+  max-width: 300px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.jj-notify-modal__input-row {
+  display: flex;
+  width: 100%;
+}
+
+.jj-notify-modal__input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: none;
+  color: #fff;
+  min-height: 54px;
+  padding: 15px 20px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  border-radius: 18px 0 0 18px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.jj-notify-modal__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.jj-notify-modal__input:focus {
+  border-color: #c9a962;
+  box-shadow: 0 0 0 1px #c9a962;
+}
+
+.jj-notify-modal__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 28px;
+  border: 1px solid #fff;
+  background: #fff;
+  color: #000;
+  border-radius: 0 18px 18px 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.jj-notify-modal__btn:hover {
+  background: #c9a962;
+  border-color: #c9a962;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.jj-notify-modal__btn:disabled {
+  opacity: 0.75;
+  cursor: wait;
+  transform: none;
+}
+
+.jj-notify-modal__btn-arrow {
+  font-size: 14px;
+}
+
+.jj-notify-modal__trust {
+  margin: 18px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.jj-notify-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #000;
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 600;
+}
+
+.jj-notify-toast__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #c9a962;
+}
+
+.jj-notify-toast.is-hiding {
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* legacy notify section styles removed (replaced by modal trigger + modal) */
 
 @media (max-width: 480px) {
   .notify-section {
@@ -188,12 +292,28 @@
     padding-right: 16px;
   }
 
-  .notify-input-row {
+  .jj-notify-modal__content {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .jj-notify-modal__title {
+    font-size: 34px;
+  }
+
+  .jj-notify-modal__input-row {
     flex-direction: column;
   }
 
-  .notify-btn {
+  .jj-notify-modal__input {
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 18px;
+  }
+
+  .jj-notify-modal__btn {
+    margin-top: 10px;
+    border-radius: 18px;
     justify-content: center;
-    border-top: 1px solid #333;
+    min-height: 48px;
   }
 }

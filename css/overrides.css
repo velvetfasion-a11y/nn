@@ -235,3 +235,22 @@ body {
   color: #1a1a1a !important;
   -webkit-text-fill-color: #1a1a1a !important;
 }
+
+/* Hide footer social media icons */
+#site-root #comp-kbgakxmn_r_comp-mmp2ozo3,
+#site-root .comp-kbgakxmn_r_comp-mmp2ozo3-presets-wrapper,
+#site-root :where(.comp-kbgakxmn_r_comp-mmp2ozo3),
+.jj-social-under-notify,
+.notify-section .link-bar,
+#notify-section .link-bar,
+#notify-section-top .link-bar {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+

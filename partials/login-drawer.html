@@ -1,0 +1,98 @@
+<div id="jj-login-drawer" class="jj-login-drawer" aria-hidden="true">
+  <div class="jj-login-drawer__backdrop" data-jj-close-login tabindex="-1"></div>
+  <aside
+    class="jj-login-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="jj-login-drawer-title"
+  >
+    <button type="button" class="jj-login-drawer__close" data-jj-close-login aria-label="Close">&times;</button>
+
+    <div id="jj-login-drawer-signed-out" class="jj-login-drawer__body">
+      <p class="jj-login-drawer__note">Mandatory fields*</p>
+      <h2 id="jj-login-drawer-title" class="jj-login-drawer__title">Sign In</h2>
+
+      <section class="jj-login-drawer__section">
+        <h3 class="jj-login-drawer__section-title">I already have an account</h3>
+        <p id="jj-drawer-login-error" class="jj-login-drawer__error" hidden></p>
+
+        <form id="jj-drawer-login-form" class="jj-login-drawer__form" novalidate>
+          <div class="jj-login-drawer__field">
+            <label for="jj-drawer-login-email">Login*</label>
+            <input
+              type="email"
+              id="jj-drawer-login-email"
+              name="email"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <div class="jj-login-drawer__field">
+            <label for="jj-drawer-login-password">Password*</label>
+            <div class="jj-login-drawer__password-wrap">
+              <input
+                type="password"
+                id="jj-drawer-login-password"
+                name="password"
+                autocomplete="current-password"
+                minlength="6"
+                required
+              >
+              <button
+                type="button"
+                class="jj-login-drawer__password-toggle"
+                id="jj-drawer-password-toggle"
+                aria-label="Show password"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="jj-drawer-login-submit" class="jj-login-drawer__btn jj-login-drawer__btn--primary">
+            Continue
+          </button>
+        </form>
+
+        <p class="jj-login-drawer__helper">
+          <a href="/account.html#settings" class="jj-login-drawer__link" data-jj-close-on-click>Forgot your password?</a>
+        </p>
+      </section>
+
+      <div class="jj-login-drawer__divider" aria-hidden="true"></div>
+
+      <section class="jj-login-drawer__section">
+        <h3 class="jj-login-drawer__section-title">I don&rsquo;t have an account</h3>
+        <p class="jj-login-drawer__copy">
+          Enjoy added benefits and a richer experience by creating a personal account.
+        </p>
+        <button type="button" id="jj-drawer-create-account" class="jj-login-drawer__btn jj-login-drawer__btn--outline">
+          Create an account
+        </button>
+      </section>
+
+      <div class="jj-login-drawer__or"><span>or</span></div>
+
+      <div class="jj-login-drawer__social">
+        <button type="button" id="jj-drawer-google-login" class="jj-login-drawer__social-btn jj-login-drawer__social-btn--google">
+          Continue with Google
+        </button>
+        <button type="button" id="jj-drawer-apple-login" class="jj-login-drawer__social-btn jj-login-drawer__social-btn--apple">
+          Continue with Apple
+        </button>
+      </div>
+    </div>
+
+    <div id="jj-login-drawer-signed-in" class="jj-login-drawer__body" hidden>
+      <h2 class="jj-login-drawer__title">Welcome back</h2>
+      <p class="jj-login-drawer__copy">You are signed in to your Jamil Jamila account.</p>
+      <a href="/account.html#my-profile" class="jj-login-drawer__btn jj-login-drawer__btn--primary" id="jj-drawer-account-link">
+        Go to my account
+      </a>
+      <button type="button" id="jj-drawer-logout" class="jj-login-drawer__btn jj-login-drawer__btn--outline">
+        Sign out
+      </button>
+    </div>
+  </aside>
+</div>

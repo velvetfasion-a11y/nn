@@ -1,0 +1,203 @@
+/* Hide legacy Wix collection carousel (Collection 01 / 02 / 03) */
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300&display=swap");
+#comp-mmp1hupx {
+  display: none !important;
+}
+
+/* Use the original Wix COLLECTIONS title placement */
+#comp-mmq66nkt {
+  display: block !important;
+}
+
+/* Hide the custom title section (it was injected above the hero) */
+.jj-product-carousel--title {
+  display: none !important;
+}
+
+/* Style the Wix COLLECTIONS heading with Jost */
+#comp-mmq66nkt h2 {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+}
+
+.jj-product-carousel {
+  background: #fff;
+}
+
+.jj-product-carousel--title {
+  padding: 32px 0 8px;
+}
+
+.jj-product-carousel--track {
+  padding: 24px 0 64px;
+}
+
+.jj-product-carousel__inner {
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.jj-product-carousel__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  min-height: 48px;
+}
+
+.jj-product-carousel--title .jj-product-carousel__header {
+  margin-bottom: 0;
+}
+
+.jj-product-carousel__header--track {
+  justify-content: flex-end;
+  margin-bottom: 24px;
+  min-height: 36px;
+}
+
+.jj-product-carousel__title {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(1.6rem, 5vw, 2.75rem);
+  line-height: 1;
+  color: #000;
+}
+
+.collections-heading {
+  font-family: "Jost", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.jj-product-carousel__nav {
+  display: none;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.jj-product-carousel__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #1f1c18;
+  border-radius: 999px;
+  background: transparent;
+  color: #1f1c18;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.jj-product-carousel__arrow:hover {
+  background: #1f1c18;
+  color: #fff;
+}
+
+.jj-product-carousel__track {
+  --jj-gap: 16px;
+  --jj-per-view: 1;
+  display: flex;
+  gap: var(--jj-gap);
+  overflow-x: auto;
+  padding-bottom: 24px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.jj-product-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.jj-product-card {
+  flex: 0 0 auto;
+  width: calc(
+    (100% - (var(--jj-per-view) - 1) * var(--jj-gap)) / var(--jj-per-view)
+  );
+  scroll-snap-align: start;
+}
+
+.jj-product-card__media {
+  aspect-ratio: 4 / 3.6;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.jj-product-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jj-product-card__name {
+  margin: 0 0 4px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1f1c18;
+}
+
+.jj-product-card__price {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #5c5248;
+}
+
+/* Cards per view — chosen so a whole number of cards always fits,
+   never leaving a half-image visible at the edge. */
+.jj-product-carousel__track {
+  --jj-per-view: 1;
+}
+
+@media (min-width: 560px) {
+  .jj-product-carousel__track {
+    --jj-per-view: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .jj-product-carousel__nav {
+    display: flex;
+  }
+
+  .jj-product-carousel__track {
+    --jj-per-view: 3;
+  }
+}
+
+@media (min-width: 1200px) {
+  .jj-product-carousel__track {
+    --jj-per-view: 4;
+  }
+}
+
+@media (max-width: 767px) {
+  .jj-product-carousel--title {
+    padding-top: 24px;
+    padding-bottom: 4px;
+  }
+
+  .jj-product-carousel--track {
+    padding-top: 16px;
+    padding-bottom: 48px;
+  }
+
+  .jj-product-carousel__inner {
+    padding: 0 20px;
+  }
+}

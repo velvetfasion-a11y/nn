@@ -1,0 +1,155 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap");
+
+/* Bottom notify + footer — unified black */
+#notify-section.notify-section,
+#notify-section.notify-section--bottom {
+  background: #000000 !important;
+}
+
+/* Footer content stack */
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg-container) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-kbgakgyt),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg) {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Footer — pure black background */
+#site-root footer#comp-kbgakxmn,
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-kbgakgyt),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg-container),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr17w8k),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozf91),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozes),
+#site-root footer#comp-kbgakxmn :where(._background_x7ip3_1) {
+  --bg: 0, 0, 0 !important;
+  --bg-overlay-color: #000000 !important;
+  --backgroundColor: #000000 !important;
+  background-color: #000000 !important;
+}
+
+/* Hide old Wix column blocks */
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmq54zx0),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oxu2),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oyaj),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oyp1),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oz5b),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oxzq),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oydo),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oyui),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2oz9x) {
+  display: none !important;
+}
+
+/* Logo — top left of bottom black section */
+#notify-section .jj-footer-logo {
+  position: absolute;
+  top: clamp(1.25rem, 2.5vw, 1.75rem);
+  left: clamp(1rem, 4vw, 2rem);
+  width: clamp(34px, 4.5vw, 48px);
+  padding: 0;
+  z-index: 6;
+  pointer-events: auto;
+}
+
+#notify-section .jj-footer-logo .comp-kbgakxmn_r_comp-mmq54zrs,
+#notify-section .jj-footer-logo :where(.comp-kbgakxmn_r_comp-mmq54zrs) {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  inset: auto !important;
+  grid-area: auto !important;
+}
+
+/* Footer link row */
+#site-root footer#comp-kbgakxmn .jj-footer-titles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: min(1200px, 100%);
+  margin: clamp(0.5rem, 1.5vw, 1rem) auto clamp(0.75rem, 1.5vw, 1rem);
+  padding: 0 clamp(1rem, 4vw, 2rem);
+  box-sizing: border-box;
+  position: relative !important;
+  inset: auto !important;
+  grid-area: auto !important;
+  z-index: 5;
+  pointer-events: auto;
+  order: 10;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.85rem, 2.5vw, 2.25rem);
+  width: 100%;
+  min-width: 0;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles__link {
+  font-family: "Jost", sans-serif !important;
+  font-size: clamp(0.68rem, 1.1vw, 0.82rem) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.16em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  white-space: nowrap;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles__link:hover {
+  opacity: 0.75;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles__locale span {
+  font-size: 0.7em;
+  margin-left: 0.2em;
+}
+
+@media (max-width: 720px) {
+  #site-root footer#comp-kbgakxmn .jj-footer-titles__links {
+    justify-content: flex-start;
+  }
+}
+
+/* Divider + copyright block */
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozdz) {
+  position: relative !important;
+  width: 100% !important;
+  margin: 0 !important;
+  inset: auto !important;
+  grid-area: auto !important;
+  order: 20;
+}
+
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozdz) .line,
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozdz) ._line_1fluj_31 {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozkt),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozkt) p {
+  color: rgba(255, 255, 255, 0.72) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.72) !important;
+  font-family: "Jost", sans-serif !important;
+  font-size: clamp(0.62rem, 1vw, 0.75rem) !important;
+  letter-spacing: 0.08em !important;
+  text-align: left !important;
+  margin-left: clamp(1rem, 4vw, 2rem) !important;
+}

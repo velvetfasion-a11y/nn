@@ -1,35 +1,15 @@
 <section class="notify-section notify-section--bottom" id="notify-section">
+  <div class="jj-footer-logo" id="jj-footer-logo-slot"></div>
   <div class="notify-inner">
-    <p class="notify-eyebrow">Coming Soon</p>
-    <h2 class="notify-heading">GET NOTIFIED<br>WHEN WE LAUNCH</h2>
-    <div class="notify-heading-divider" aria-hidden="true">
-      <span></span>
-      <span></span>
-    </div>
-    <p class="notify-sub">Be first to access new collections and exclusive drops.</p>
-
-    <form class="notify-form">
-      <div class="notify-input-row">
-        <input
-          class="notify-input"
-          type="email"
-          placeholder="Your email address"
-          required
-        />
-        <button class="notify-btn" type="submit">
-          <span class="btn-text">Notify Me</span>
-          <span class="btn-arrow">→</span>
-        </button>
-      </div>
-      <p class="notify-privacy">No spam. Unsubscribe anytime.</p>
-    </form>
-
-    <div class="notify-success">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M6 10L9 13L14 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span>You're on the list. We'll be in touch.</span>
-    </div>
+    <button
+      type="button"
+      class="jj-notify-trigger"
+      data-jj-open-notify
+      aria-haspopup="dialog"
+      aria-controls="jj-notify-modal"
+    >
+      <span>GET NOTIFIED</span>
+      <span class="jj-notify-trigger__arrow" aria-hidden="true">→</span>
+    </button>
   </div>
 </section>

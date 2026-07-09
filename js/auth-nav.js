@@ -12,20 +12,32 @@ function getProfileDestination(user) {
   return isAdminUser(user) ? "/jamiljamila-admin.html" : "/account.html#my-profile";
 }
 
+function openAccountUi(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (auth.currentUser) {
+    window.location.href = getProfileDestination(auth.currentUser);
+    return;
+  }
+
+  if (typeof window.openLoginDrawer === "function") {
+    window.openLoginDrawer();
+  }
+}
+
 function bindProfileNavigation() {
   const trigger = document.querySelector("#comp-mb7ogqrp_r_comp-mmp1kp50 ._login_101h2_1");
   if (!trigger || trigger.dataset.authNavBound === "true") return;
 
   trigger.dataset.authNavBound = "true";
-  trigger.addEventListener(
-    "click",
-    function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      window.location.href = getProfileDestination(auth.currentUser);
-    },
-    true,
-  );
+  trigger.addEventListener("click", openAccountUi, true);
+
+  document.querySelectorAll("[data-open-login-drawer]").forEach((node) => {
+    if (node.dataset.authNavBound === "true") return;
+    node.dataset.authNavBound = "true";
+    node.addEventListener("click", openAccountUi, true);
+  });
 }
 
 export function syncAuthNav(user) {
@@ -60,7 +72,7 @@ export function syncAuthNav(user) {
   if (mobileAccountLink) {
     if (!isLoggedIn) {
       mobileAccountLink.textContent = "Sign in";
-      mobileAccountLink.href = "/account.html#my-profile";
+      mobileAccountLink.href = "#";
     } else if (isAdmin) {
       mobileAccountLink.textContent = "Admin";
       mobileAccountLink.href = "/jamiljamila-admin.html";
@@ -86,6 +98,11 @@ function blockLockedAuthLink(event) {
 
   event.preventDefault();
   event.stopPropagation();
+
+  if (typeof window.openLoginDrawer === "function") {
+    window.openLoginDrawer();
+    return;
+  }
 
   if (link.classList.contains("account-nav__link--locked")) {
     window.location.hash = "my-profile";

@@ -11,13 +11,13 @@ URL = "https://scandinavianorigin4.wixsite.com/jamil-jamila"
 
 IMG_MAP = {
     "2a3c64_4b6b00e6fb7b449cb0e7ceb059881edc~mv2.png": "assets/images/logo.png",
-    "2a3c64_3ae14754231845c8bc7d986f2100d358~mv2.jpg": "assets/images/women.jpg",
+    "2a3c64_3ae14754231845c8bc7d986f2100d358~mv2.jpg": "assets/images/XsigP.jpg",
     "2a3c64_4279be5a0a374b2e9726c187c3e773bc~mv2.jpg": "assets/images/men.jpg",
     "2a3c64_9e4b6987c835451a86eb31b944f70f3e~mv2.jpg": "assets/images/kids.jpg",
     "2a3c64_12b108123d354893aaf64ba36af98f83~mv2.jpg": "assets/images/collection-01.jpg",
     "2a3c64_6442108a194944e89bcdb13e4bbc52e0~mv2.jpg": "assets/images/collection-02.jpg",
     "2a3c64_d7e9277d72994018bc662f50b7bd621a~mv2.jpg": "assets/images/collection-03.jpg",
-    "2a3c64_843c938a93b046ab971453c30fbd3403~mv2.jpg": "assets/images/about.jpg",
+    "2a3c64_843c938a93b046ab971453c30fbd3403~mv2.jpg": "assets/images/IMG_8558.JPG",
     "2a3c64_854949dc49fc4a27a187337bdcb82e76~mv2.jpg": "assets/images/accessories.jpg",
 }
 
@@ -134,11 +134,67 @@ def remove_accessories_section(content: str) -> str:
     return content
 
 
+def inject_hero_header(content: str) -> str:
+    block = (ROOT / "partials" / "hero-header.html").read_text(encoding="utf-8")
+    marker = '<div id="site-root"'
+    if marker in content and "jj-site-header" not in content:
+        content = content.replace(marker, f"{block}\n{marker}", 1)
+    return content
+
+
+def inject_product_carousel_title(content: str) -> str:
+    block = (ROOT / "partials" / "product-carousel-title.html").read_text(encoding="utf-8")
+    marker = '<div id="site-root"'
+    if marker in content and "jj-product-carousel--title" not in content:
+        content = content.replace(marker, f"{block}\n{marker}", 1)
+    return content
+
+
+def inject_product_carousel_track(content: str) -> str:
+    block = (ROOT / "partials" / "product-carousel-track.html").read_text(encoding="utf-8")
+    if "jj-product-carousel--track" in content:
+        return content
+    replaced, count = re.subn(
+        r"</section>\s*<section id=\"comp-mhs1bc6l\"",
+        f"</section>\n{block.rstrip()}\n<section id=\"comp-mhs1bc6l\"",
+        content,
+        count=1,
+    )
+    return replaced if count == 1 else content
+
+
+def inject_product_carousel(content: str) -> str:
+    return inject_product_carousel_track(inject_product_carousel_title(content))
+
+
 def inject_collections_categories(content: str) -> str:
     block = (ROOT / "partials" / "collections-categories.html").read_text(encoding="utf-8")
     marker = 'assets/images/kids.jpg" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"></div></div></div>'
     if marker in content and "collections-categories" not in content:
         content = content.replace(marker, f"{marker}\n{block}", 1)
+    return content
+
+
+def inject_about_us_content(content: str) -> str:
+    block = (ROOT / "partials" / "about-us-content.html").read_text(encoding="utf-8")
+    marker = '<div id="comp-mmp1mf4f" class="_root_mubql_1 container builder-root comp-mmp1mf4f">'
+    if marker in content and 'class="jj-about"' not in content:
+        content = content.replace(marker, f"{block}\n{marker}", 1)
+    return content
+
+
+def inject_about_us_caption(content: str) -> str:
+    block = (ROOT / "partials" / "about-us-image-caption.html").read_text(encoding="utf-8")
+    marker = (
+        'src="assets/images/IMG_8558.JPG" alt="" loading="lazy" decoding="async" '
+        'style="width:100%;height:100%;object-fit:cover;display:block"></div></div></div>'
+    )
+    replacement = (
+        'src="assets/images/IMG_8558.JPG" alt="" loading="lazy" decoding="async" '
+        f'style="width:100%;height:100%;object-fit:cover;display:block"></div>\n{block}</div></div>'
+    )
+    if "jj-about-hero-caption" not in content and marker in content:
+        content = content.replace(marker, replacement, 1)
     return content
 
 
@@ -160,6 +216,41 @@ def inject_notify_sections(content: str) -> str:
     return content
 
 
+def replace_footer_titles(content: str) -> str:
+    replacements = [
+        ('<h6>WOMEN</h6>', "<h6>LOCATION</h6>"),
+        ('<h6>MEN</h6>', "<h6>CLIENT SERVICE</h6>"),
+        ('<h6>KIDS</h6>', "<h6>ABOUT US</h6>"),
+        ('<h6>COMPANY</h6>', "<h6>LEGAL</h6>"),
+    ]
+    for old, new in replacements:
+        content = content.replace(old, new, 1)
+    return content
+
+
+def inject_footer_titles(content: str) -> str:
+    block = (ROOT / "partials" / "footer-titles.html").read_text(encoding="utf-8")
+    marker = '<div id="comp-kbgakxmn_r_comp-mmp2ozdz"'
+    if marker in content and "jj-footer-titles" not in content:
+        content = content.replace(marker, f"{block}{marker}", 1)
+    return content
+
+
+def remove_social_bar(content: str) -> str:
+    marker = "comp-kbgakxmn_r_comp-mmp2ozo3-presets-wrapper"
+    start = content.find(marker)
+    if start == -1:
+        return content
+
+    start = content.rfind("<div", 0, start)
+    end_marker = "</nav></div></div>"
+    end = content.find(end_marker, start)
+    if end == -1:
+        return content
+
+    return content[:start] + content[end + len(end_marker) :]
+
+
 def extract_body(wix: str) -> str:
     body = re.search(r"<body[^>]*>(.*)</body>", wix, re.DOTALL).group(1)
     body = re.sub(r"<script[^>]*>.*?</script>", "", body, flags=re.DOTALL)
@@ -167,8 +258,22 @@ def extract_body(wix: str) -> str:
     if start == -1:
         start = body.find('<div id="main_MF"')
     end = body.find('<div id="SCROLL_TO_BOTTOM"')
-    return remove_accessories_section(
-        inject_collections_categories(inject_notify_sections(clean_html(body[start:end])))
+    return inject_footer_titles(
+        replace_footer_titles(
+            remove_social_bar(
+                remove_accessories_section(
+                    inject_hero_header(
+                        inject_product_carousel(
+                            inject_collections_categories(
+                                inject_about_us_content(
+                                    inject_about_us_caption(inject_notify_sections(clean_html(body[start:end])))
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
     )
 
 
@@ -248,24 +353,34 @@ def build() -> None:
   <title>Home | Jamil Jamila</title>
   <link rel="icon" href="assets/images/logo.png" type="image/png">
   <link rel="stylesheet" href="css/wix.css">
-  <link rel="stylesheet" href="css/overrides.css">
+  <link rel="stylesheet" href="css/overrides.css?v=2">
   <link rel="stylesheet" href="css/notify.css">
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
-  <link rel="stylesheet" href="css/collections.css">
+  <link rel="stylesheet" href="css/login-drawer.css?v=2">
+  <link rel="stylesheet" href="css/collections.css?v=2">
+  <link rel="stylesheet" href="css/hero-header.css?v=26">
+  <link rel="stylesheet" href="css/product-carousel.css?v=6">
+  <link rel="stylesheet" href="css/about-us.css?v=9">
+  <link rel="stylesheet" href="css/footer.css?v=7">
   <script src="js/wix-viewport.js"></script>
 </head>
 <body>
 {body}
+<script src="js/login-drawer-ui.js" defer></script>
 <script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/login-drawer.js"></script>
 <script type="module" src="js/auth-nav.js"></script>
 <script src="js/motion.js" defer></script>
 <script src="js/menu.js" defer></script>
 <script src="js/mobile-menu.js" defer></script>
 <script type="module" src="js/notify.js"></script>
 <script src="js/profile-menu.js" defer></script>
-<script src="js/links.js" defer></script>
+<script src="js/hero-header.js?v=19" defer></script>
+<script src="js/product-carousel.js?v=2" defer></script>
+<script src="js/links.js?v=3" defer></script>
+<script src="js/footer.js?v=4" defer></script>
 <script src="js/ai-knowledge.js" defer></script>
 <script src="js/ai-chat.js" defer></script>
 </body>

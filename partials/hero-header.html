@@ -1,0 +1,168 @@
+<header class="jj-site-header" id="jj-site-header">
+  <div class="jj-site-header__inner">
+    <a class="jj-brand" href="/" aria-label="Jamil Jamila home">JAMIL JAMILA</a>
+
+    <nav class="jj-nav" id="jj-nav" aria-label="Main">
+      <a href="/" class="jj-nav__link">HOME</a>
+      <a href="#jj-his" class="jj-nav__link" data-jj-scroll="comp-mmq8486o">HIS</a>
+      <a href="#jj-hers" class="jj-nav__link" data-jj-scroll="comp-mmq82nh7">HERS</a>
+      <a href="#jj-kids" class="jj-nav__link" data-jj-scroll="comp-mmq84fyo">KIDS</a>
+    </nav>
+
+    <div class="jj-header-actions">
+      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-search-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </button>
+      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-wishlist-btn" aria-label="Wishlist">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </button>
+      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-profile-link" data-open-login-drawer aria-label="Account">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </button>
+      <button type="button" class="jj-notify-btn" id="jj-header-notify-btn" data-jj-open-notify>GET NOTIFIED</button>
+      <button type="button" class="jj-menu-btn" id="jj-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="jj-nav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="jj-hero" id="jj-hero" aria-label="Featured collection">
+  <div class="jj-hero__frame">
+    <div class="jj-hero__visual">
+      <div class="jj-hero__media" role="img" aria-label="Jamil Jamila collection"></div>
+      <div class="jj-hero__gradient" aria-hidden="true"></div>
+    </div>
+    <div class="jj-hero__inner">
+      <div class="jj-hero__content">
+        <p class="jj-hero__eyebrow">COMING SOON</p>
+        <button type="button" class="jj-hero__cta-btn" id="jj-hero-notify-btn" data-jj-open-notify>GET NOTIFIED WHEN LAUNCHED</button>
+        <div class="jj-hero__link-wrap">
+          <a href="#jj-collections" class="jj-hero__cta" id="jj-hero-cta" data-jj-scroll="comp-mmq82nh7">EXPLORE COLLECTION</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="jj-waitlist-modal" class="jj-waitlist-modal" aria-hidden="true" role="dialog" aria-labelledby="jj-waitlist-title" aria-modal="true">
+  <div class="jj-waitlist-modal__backdrop" data-jj-close-modal></div>
+  <div class="jj-waitlist-modal__panel" role="document">
+    <div class="jj-waitlist-modal__header">
+      <div>
+        <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title">Join the circle</h3>
+        <p class="jj-waitlist-modal__sub">Wear the moment, before anyone else.</p>
+      </div>
+      <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal aria-label="Close">&times;</button>
+    </div>
+
+    <section class="notify-section jj-waitlist-notify">
+      <form class="notify-form jj-waitlist-form" id="jj-waitlist-form">
+        <input class="notify-input jj-waitlist-input" type="email" placeholder="your@email.com" autocomplete="email" required>
+        <button class="notify-btn jj-waitlist-submit" type="submit">RESERVE MY PLACE</button>
+        <p class="jj-waitlist-note">Cancel anytime</p>
+      </form>
+      <div class="notify-success jj-waitlist-success" id="jj-waitlist-success">
+        <span>Thank you. A personal note will arrive in your inbox soon.</span>
+      </div>
+    </section>
+  </div>
+</div>
+<div id="jj-login-drawer" class="jj-login-drawer" aria-hidden="true">
+  <div class="jj-login-drawer__backdrop" data-jj-close-login tabindex="-1"></div>
+  <aside
+    class="jj-login-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="jj-login-drawer-title"
+  >
+    <button type="button" class="jj-login-drawer__close" data-jj-close-login aria-label="Close">&times;</button>
+
+    <div id="jj-login-drawer-signed-out" class="jj-login-drawer__body">
+      <p class="jj-login-drawer__note">Mandatory fields*</p>
+      <h2 id="jj-login-drawer-title" class="jj-login-drawer__title">Sign In</h2>
+
+      <section class="jj-login-drawer__section">
+        <h3 class="jj-login-drawer__section-title">I already have an account</h3>
+        <p id="jj-drawer-login-error" class="jj-login-drawer__error" hidden></p>
+
+        <form id="jj-drawer-login-form" class="jj-login-drawer__form" novalidate>
+          <div class="jj-login-drawer__field">
+            <label for="jj-drawer-login-email">Login*</label>
+            <input
+              type="email"
+              id="jj-drawer-login-email"
+              name="email"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <div class="jj-login-drawer__field">
+            <label for="jj-drawer-login-password">Password*</label>
+            <div class="jj-login-drawer__password-wrap">
+              <input
+                type="password"
+                id="jj-drawer-login-password"
+                name="password"
+                autocomplete="current-password"
+                minlength="6"
+                required
+              >
+              <button
+                type="button"
+                class="jj-login-drawer__password-toggle"
+                id="jj-drawer-password-toggle"
+                aria-label="Show password"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="jj-drawer-login-submit" class="jj-login-drawer__btn jj-login-drawer__btn--primary">
+            Continue
+          </button>
+        </form>
+
+        <p class="jj-login-drawer__helper">
+          <a href="/account.html#settings" class="jj-login-drawer__link" data-jj-close-on-click>Forgot your password?</a>
+        </p>
+      </section>
+
+      <div class="jj-login-drawer__divider" aria-hidden="true"></div>
+
+      <section class="jj-login-drawer__section">
+        <h3 class="jj-login-drawer__section-title">I don&rsquo;t have an account</h3>
+        <p class="jj-login-drawer__copy">
+          Enjoy added benefits and a richer experience by creating a personal account.
+        </p>
+        <button type="button" id="jj-drawer-create-account" class="jj-login-drawer__btn jj-login-drawer__btn--outline">
+          Create an account
+        </button>
+      </section>
+
+      <div class="jj-login-drawer__or"><span>or</span></div>
+
+      <div class="jj-login-drawer__social">
+        <button type="button" id="jj-drawer-google-login" class="jj-login-drawer__social-btn jj-login-drawer__social-btn--google">
+          Continue with Google
+        </button>
+        <button type="button" id="jj-drawer-apple-login" class="jj-login-drawer__social-btn jj-login-drawer__social-btn--apple">
+          Continue with Apple
+        </button>
+      </div>
+    </div>
+
+    <div id="jj-login-drawer-signed-in" class="jj-login-drawer__body" hidden>
+      <h2 class="jj-login-drawer__title">Welcome back</h2>
+      <p class="jj-login-drawer__copy">You are signed in to your Jamil Jamila account.</p>
+      <a href="/account.html#my-profile" class="jj-login-drawer__btn jj-login-drawer__btn--primary" id="jj-drawer-account-link">
+        Go to my account
+      </a>
+      <button type="button" id="jj-drawer-logout" class="jj-login-drawer__btn jj-login-drawer__btn--outline">
+        Sign out
+      </button>
+    </div>
+  </aside>
+</div>
