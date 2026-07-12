@@ -393,11 +393,11 @@ def build() -> None:
   <link rel="stylesheet" href="css/login-drawer.css?v=2">
   <link rel="stylesheet" href="css/collections.css?v=4">
   <link rel="stylesheet" href="css/hero-header.css?v=29">
-  <link rel="stylesheet" href="css/product-carousel.css?v=12">
+  <link rel="stylesheet" href="css/product-carousel.css?v=11">
   <link rel="stylesheet" href="css/about-us.css?v=11">
   <link rel="stylesheet" href="css/footer.css?v=9">
   <link rel="stylesheet" href="css/site-image-frames.css?v=2">
-  <link rel="stylesheet" href="css/luxe-layout.css?v=15">
+  <link rel="stylesheet" href="css/luxe-layout.css?v=13">
   <script src="js/i18n-data.js"></script>
   <script>
   (function () {{
@@ -424,7 +424,7 @@ def build() -> None:
 <script src="js/profile-menu.js" defer></script>
 <script src="js/hero-header.js?v=20" defer></script>
 <script type="module" src="js/site-content.js"></script>
-<script src="js/product-carousel.js?v=8" defer></script>
+<script src="js/product-carousel.js?v=7" defer></script>
 <script src="js/links.js?v=3" defer></script>
 <script src="js/footer.js?v=4" defer></script>
 <script src="js/ai-knowledge.js" defer></script>

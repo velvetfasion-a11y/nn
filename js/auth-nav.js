@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
-import { isAdminUser } from "./admin-constants.js";
+import { isAdminUser, adminPageUrl } from "./admin-constants.js";
 
 const LOCKED_WHEN_LOGGED_OUT = new Set([
   "order-history",
@@ -9,7 +9,7 @@ const LOCKED_WHEN_LOGGED_OUT = new Set([
 ]);
 
 function getProfileDestination(user) {
-  return isAdminUser(user) ? "/jamiljamila-admin.html" : "/account.html#my-profile";
+  return isAdminUser(user) ? adminPageUrl() : "/account.html#my-profile";
 }
 
 function openAccountUi(event) {
@@ -66,6 +66,7 @@ export function syncAuthNav(user) {
 
   document.querySelectorAll("[data-admin-only]").forEach((link) => {
     link.hidden = !isAdmin;
+    if (isAdmin) link.href = adminPageUrl();
   });
 
   const mobileAccountLink = document.querySelector("[data-mobile-nav-account]");
@@ -75,7 +76,7 @@ export function syncAuthNav(user) {
       mobileAccountLink.href = "#";
     } else if (isAdmin) {
       mobileAccountLink.textContent = "Admin";
-      mobileAccountLink.href = "/jamiljamila-admin.html";
+      mobileAccountLink.href = adminPageUrl();
     } else {
       mobileAccountLink.textContent = "Account";
       mobileAccountLink.href = "/account.html#my-profile";

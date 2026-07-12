@@ -110,7 +110,6 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  will-change: transform;
 }
 
 #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) img[data-jj-focus-hidden] {

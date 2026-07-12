@@ -37,14 +37,15 @@ export const notifySignup = onCall(
     const signup = await recordLaunchSignup(email, name);
 
     try {
-      await handleLaunchSignup({ email, isNew: signup.isNew });
+      await handleLaunchSignup({ email, isNew: signup.isNew, signup });
     } catch (error) {
       console.error("notifySignup email error:", error);
       throw new HttpsError(
         "internal",
-        signup.isNew
-          ? "Your email was saved, but we could not send confirmation emails yet. Please try again shortly."
-          : "We could not resend your verification email. Please try again shortly.",
+        error?.message ||
+          (signup.isNew
+            ? "Your email was saved, but we could not send confirmation emails yet. Please try again shortly."
+            : "We could not resend your verification email. Please try again shortly."),
       );
     }
 

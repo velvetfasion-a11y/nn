@@ -7,6 +7,11 @@ import {
   uploadProductImage,
 } from "./admin-store.js";
 import { initSiteContentAdmin, reloadSiteContentAdmin } from "./admin-site-content.js";
+import {
+  initSubscribersAdmin,
+  reloadSubscribersAdmin,
+  updateSubscriberOverviewCount,
+} from "./admin-subscribers.js";
 
 let products = [];
 let currentProductId = null;
@@ -20,6 +25,7 @@ const VIEWS = {
   overview: "admin-view-overview",
   products: "admin-view-products",
   content: "admin-view-content",
+  subscribers: "admin-view-subscribers",
   "product-new": "admin-view-product-form",
   "product-edit": "admin-view-product-form",
 };
@@ -98,6 +104,7 @@ function parseHash() {
   if (hash.startsWith("product/edit/")) return "product-edit";
   if (hash === "products") return "products";
   if (hash === "content") return "content";
+  if (hash === "subscribers") return "subscribers";
   if (hash === "overview") return "overview";
   return "overview";
 }
@@ -115,6 +122,7 @@ function navigate(view, productId = null) {
   }
   if (view === "products") window.location.hash = "products";
   else if (view === "content") window.location.hash = "content";
+  else if (view === "subscribers") window.location.hash = "subscribers";
   else if (view === "overview") window.location.hash = "overview";
   showView(view);
 }
@@ -141,6 +149,7 @@ function onHashChange() {
   showView(view);
   if (view === "products") renderProductTable(getFilteredProducts());
   if (view === "content") void reloadSiteContentAdmin();
+  if (view === "subscribers") void reloadSubscribersAdmin();
 }
 
 function getFilteredProducts() {
@@ -590,6 +599,13 @@ async function loadAdminData() {
     renderProductTable([]);
     showToast("Kunde inte ladda produkter. Kontrollera inloggningen.");
   }
+
+  try {
+    await initSubscribersAdmin();
+  } catch (error) {
+    console.error("Subscriber load failed:", error);
+    updateSubscriberOverviewCount();
+  }
 }
 
 let uiBound = false;
@@ -647,6 +663,12 @@ function bindUi() {
   });
 
   bindImageUpload();
+
+  document.getElementById("subscriberRefreshBtn")?.addEventListener("click", () => {
+    reloadSubscribersAdmin()
+      .then(() => showToast("Prenumerantlistan uppdaterades"))
+      .catch(() => showToast("Kunde inte ladda prenumeranter"));
+  });
 }
 
 window.addEventListener("admin-ready", () => {

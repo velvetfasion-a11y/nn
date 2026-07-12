@@ -3,10 +3,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-
-const ADMIN_UID = "CXikFopbqfdKUy98g6gj9H6j2412";
-const ADMIN_EMAIL = "contact@jamiljamila.com";
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || "AIzaSyDhVpX26TuxY3esDleW_pSug7etBfxzE08";
+import {
+  FIREBASE_API_KEY,
+  isAdminIdentity,
+} from "./admin-config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -36,7 +36,7 @@ async function verifyTokenViaRest(idToken) {
 
   const uid = user.localId;
   const email = user.email?.toLowerCase();
-  if (uid === ADMIN_UID || email === ADMIN_EMAIL.toLowerCase()) {
+  if (isAdminIdentity({ uid, email: user.email })) {
     return { uid, email: user.email };
   }
   return null;
@@ -50,8 +50,7 @@ async function verifyAdmin(req) {
   try {
     ensureAdminApp();
     const decoded = await getAuth().verifyIdToken(token);
-    if (decoded.uid === ADMIN_UID) return decoded;
-    if (decoded.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) return decoded;
+    if (isAdminIdentity({ uid: decoded.uid, email: decoded.email })) return decoded;
   } catch (error) {
     console.warn("admin-upload token verify via admin SDK failed:", error?.message);
   }

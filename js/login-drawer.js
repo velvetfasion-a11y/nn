@@ -13,7 +13,7 @@ import {
   updateProfile,
 } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
-import { isAdminUser } from "./admin-constants.js";
+import { isAdminUser, adminPageUrl } from "./admin-constants.js";
 
 const drawer = document.getElementById("jj-login-drawer");
 const signedOutView = document.getElementById("jj-login-drawer-signed-out");
@@ -103,7 +103,7 @@ function syncSignedInState(user) {
   if (signedInView) signedInView.hidden = !isLoggedIn;
 
   if (accountLink) {
-    accountLink.href = isAdmin ? "/jamiljamila-admin.html" : "/account.html#my-profile";
+    accountLink.href = isAdmin ? adminPageUrl() : "/account.html#my-profile";
     accountLink.textContent = isAdmin ? "Go to admin" : "Go to my account";
   }
 }
@@ -111,7 +111,7 @@ function syncSignedInState(user) {
 export function openLoginDrawer() {
   if (auth.currentUser) {
     const destination = isAdminUser(auth.currentUser)
-      ? "/jamiljamila-admin.html"
+      ? adminPageUrl()
       : "/account.html#my-profile";
     window.location.href = destination;
     return;
@@ -156,7 +156,7 @@ async function completeSignIn(user) {
 
   if (isAdminUser(user)) {
     closeLoginDrawer();
-    window.location.href = "/jamiljamila-admin.html";
+    window.location.href = adminPageUrl();
     return;
   }
 

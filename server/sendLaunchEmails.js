@@ -1,9 +1,3 @@
-import {
-  devRelaxTrialEnabled,
-  isTrialRecipientLimitError,
-  parseMailerSendApiError,
-} from "./mailersendErrors.js";
-
 const API_TOKEN = () => process.env.MAILERSEND_API_TOKEN;
 
 const USER_TEMPLATE_ID =
@@ -56,6 +50,23 @@ function formatSignupTime(date = new Date()) {
   }).format(date);
 }
 
+function mailerSendErrorMessage(status, body) {
+  const text = String(body || "");
+  if (status === 401) {
+    return "MailerSend rejected the API token (401). Check MAILERSEND_API_TOKEN in .env and restart the server.";
+  }
+  if (status === 403) {
+    return "MailerSend rejected the send (403). Create a new API token with Full access → Email in MailerSend.";
+  }
+  if (status === 422 && text.includes("MS42225")) {
+    return "MailerSend trial recipient limit reached. Upgrade to the Free plan at mailersend.com (Dashboard → Plans) to send welcome emails to new subscribers.";
+  }
+  if (status === 422 && text.includes("MS42209")) {
+    return "MailerSend rejected the request (422). Check template IDs and from-address domain in .env.";
+  }
+  return `MailerSend API error (${status}): ${text}`;
+}
+
 async function sendMailerSendTemplate({
   apiToken,
   fromEmail,
@@ -87,7 +98,7 @@ async function sendMailerSendTemplate({
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(parseMailerSendApiError(response.status, body));
+    throw new Error(mailerSendErrorMessage(response.status, body));
   }
 }
 
@@ -116,13 +127,14 @@ export async function sendUserVerificationEmail(recipientEmail) {
   });
 }
 
-/** Email 2 — internal notification to contact@jamiljamila.com. */
-export async function sendAdminSignupNotification(recipientEmail) {
+/** Email 2 — internal notification to the admin inbox. */
+export async function sendAdminSignupNotification(recipientEmail, meta = {}) {
   const subscriberEmail = recipientEmail.trim();
   if (!isValidEmail(subscriberEmail)) {
     throw new Error("A valid subscriber email is required.");
   }
 
+  const stats = meta.stats || {};
   const now = new Date();
 
   await sendMailerSendTemplate({
@@ -134,53 +146,44 @@ export async function sendAdminSignupNotification(recipientEmail) {
     templateId: ADMIN_TEMPLATE_ID,
     personalizationData: {
       subscriber_email: subscriberEmail,
-      date: formatSignupDate(now),
-      time: formatSignupTime(now),
-      total_count: "1",
-      week_count: "1",
-      today_count: "1",
+      date: meta.date || formatSignupDate(now),
+      time: meta.time || formatSignupTime(now),
+      total_count: String(stats.total_count ?? meta.total_count ?? 1),
+      week_count: String(stats.week_count ?? meta.week_count ?? 1),
+      today_count: String(stats.today_count ?? meta.today_count ?? 1),
     },
   });
 }
 
 /**
  * Send both launch signup emails when a user submits the form.
- * Runs Email 1 (user) and Email 2 (admin) in parallel.
- * @param {string} recipientEmail - Email address from the website form
+ * Admin notification is sent first so internal alerts still arrive.
  */
-export async function sendLaunchEmails(recipientEmail) {
+export async function sendLaunchEmails(recipientEmail, meta = {}) {
   const email = recipientEmail.trim();
   if (!isValidEmail(email)) {
     throw new Error("A valid email is required.");
   }
 
-  const [userResult, adminResult] = await Promise.allSettled([
-    sendUserVerificationEmail(email),
-    sendAdminSignupNotification(email),
-  ]);
-
-  if (userResult.status === "rejected") {
-    if (isTrialRecipientLimitError(userResult.reason) && devRelaxTrialEnabled()) {
-      console.warn(
-        "MailerSend trial limit — signup saved without user verification email (MAILERSEND_DEV_RELAX_TRIAL=true).",
-      );
-      if (adminResult.status === "rejected") {
-        console.warn(
-          "Admin notification also failed:",
-          adminResult.reason?.message || adminResult.reason,
-        );
-      }
-      return;
-    }
-    throw userResult.reason;
+  try {
+    await sendAdminSignupNotification(email, meta);
+  } catch (error) {
+    console.warn("Admin notification failed:", error?.message || error);
   }
 
-  if (adminResult.status === "rejected") {
-    console.warn(
-      "Admin notification failed:",
-      adminResult.reason?.message || adminResult.reason,
-    );
+  await sendUserVerificationEmail(email);
+}
+
+export async function verifyMailerSendToken() {
+  const token = requireApiToken();
+  const response = await fetch("https://api.mailersend.com/v1/domains", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(mailerSendErrorMessage(response.status, body));
   }
+  return true;
 }
 
 // Backwards-compatible alias used elsewhere in the project.

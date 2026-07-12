@@ -6,11 +6,18 @@ import { isLocalDev } from "./is-dev.js";
 const functions = getFunctions(app, "europe-west1");
 
 async function callLocalApi(path, payload) {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  let response;
+  try {
+    response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    throw new Error(
+      "Could not reach the email API. Run npm run dev (not just vite) so the server on port 3001 is running.",
+    );
+  }
 
   const data = await response.json().catch(() => ({}));
 
@@ -34,7 +41,12 @@ export async function submitLaunchSignup(email, name = {}) {
     lastName: name.lastName || "",
   };
 
-  const saved = await saveLaunchSignupLocal(email, name);
+  let saved = { duplicate: false };
+  try {
+    saved = await saveLaunchSignupLocal(email, name);
+  } catch (error) {
+    console.warn("Firestore signup save failed:", error);
+  }
 
   try {
     if (isLocalDev()) {

@@ -2,7 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import { handleAdminUpload } from "./admin-upload.js";
-import { handleLaunchSignup, handleProfileCreated } from "./email.js";
+import { handleLaunchSignup, handleProfileCreated, verifyMailerSendToken } from "./email.js";
 import { recordLaunchSignup } from "./subscribers.js";
 
 const app = express();
@@ -20,6 +20,19 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+app.get("/api/email-health", async (_req, res) => {
+  try {
+    await verifyMailerSendToken();
+    res.json({ ok: true, provider: "mailersend" });
+  } catch (error) {
+    console.error("email-health failed:", error);
+    res.status(503).json({
+      ok: false,
+      error: error?.message || "MailerSend is not configured correctly.",
+    });
+  }
+});
+
 app.post("/api/notify-signup", async (req, res) => {
   const email = req.body?.email?.trim();
   const name = {
@@ -34,13 +47,12 @@ app.post("/api/notify-signup", async (req, res) => {
   try {
     const signup = await recordLaunchSignup(email);
     try {
-      await handleLaunchSignup({ email, isNew: signup.isNew });
+      await handleLaunchSignup({ email, isNew: signup.isNew, signup });
     } catch (error) {
       console.error("notify-signup emails failed:", error);
       return res.status(500).json({
-        error:
-          error?.message ||
-          "Could not send emails. Check MailerSend settings in .env, then restart npm run dev.",
+        error: error?.message ||
+          "Could not send emails. Check MailerSend API token permissions in .env, then restart npm run dev.",
       });
     }
     return res.json({ ok: true, duplicate: !signup.isNew });
@@ -66,7 +78,9 @@ app.post("/api/profile-created", async (req, res) => {
     return res.json({ ok: true });
   } catch (error) {
     console.error("profile-created failed:", error);
-    return res.status(500).json({ error: "Could not send emails. Please try again." });
+    return res.status(500).json({
+      error: error?.message || "Could not send emails. Please try again.",
+    });
   }
 });
 

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site-image-frames.css?v=4">
-  <link rel="stylesheet" href="css/admin.css?v=14">
+  <link rel="stylesheet" href="css/admin.css?v=15">
 </head>
 <body class="admin-body">
 
@@ -40,6 +40,7 @@
       <a href="#overview" data-view="overview" class="active">Översikt</a>
       <a href="#content" data-view="content">Webbplats</a>
       <a href="#products" data-view="products">Produkter</a>
+      <a href="#subscribers" data-view="subscribers">Prenumeranter</a>
       <a href="#orders" data-view="orders" aria-disabled="true">Ordrar</a>
     </nav>
 
@@ -53,10 +54,10 @@
           <div class="admin-stat-label">Produkter</div>
           <div class="admin-stat-value" id="overviewProductCount">0</div>
         </a>
-        <div class="admin-stat">
-          <div class="admin-stat-label">Butiker</div>
-          <div class="admin-stat-value">1</div>
-        </div>
+        <a href="#subscribers" class="admin-stat admin-stat-link" data-view-link="subscribers">
+          <div class="admin-stat-label">Prenumeranter</div>
+          <div class="admin-stat-value" id="overviewSubscriberCount">0</div>
+        </a>
         <div class="admin-stat">
           <div class="admin-stat-label">Status</div>
           <div class="admin-stat-value" style="font-size:1.2rem">Live</div>
@@ -68,6 +69,7 @@
         <ul class="admin-list">
           <li><a href="#content" data-view-link="content">Webbplats &amp; bilder <span>→</span></a></li>
           <li><a href="#products" data-view-link="products">Produkter (tabellvy) <span>→</span></a></li>
+          <li><a href="#subscribers" data-view-link="subscribers">Prenumeranter (e-postlista) <span>→</span></a></li>
           <li><a href="#product/new" data-view-link="product-new">Ny produkt <span>→</span></a></li>
           <li><a href="/" target="_blank" rel="noopener">Visa webbplatsen <span>→</span></a></li>
         </ul>
@@ -103,6 +105,36 @@
         <div class="admin-table-empty" id="productTableEmpty" hidden>
           <p>Inga produkter ännu. Lägg till din första produkt för att visa den i butiken.</p>
           <button type="button" class="admin-btn" data-action="create-product">+ Lägg till produkt</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prenumeranter -->
+    <section id="admin-view-subscribers" class="admin-view" hidden>
+      <div class="admin-products-head">
+        <div>
+          <h1>Prenumeranter</h1>
+          <p class="admin-sub" style="margin-bottom:0">E-postadresser som registrerat sig via «Get Notified» på webbplatsen</p>
+        </div>
+        <div class="admin-products-actions">
+          <input type="search" class="admin-search" id="subscriberSearchInput" placeholder="Sök e-post …" aria-label="Sök prenumeranter">
+          <button type="button" class="admin-btn-outline" id="subscriberRefreshBtn">Uppdatera</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table admin-table--subscribers">
+          <thead>
+            <tr>
+              <th>E-post</th>
+              <th>Namn</th>
+              <th>Registrerad</th>
+            </tr>
+          </thead>
+          <tbody id="subscriberTableBody"></tbody>
+        </table>
+        <div class="admin-table-empty" id="subscriberTableEmpty" hidden>
+          <p>Inga prenumeranter ännu. När någon skickar in sin e-post via formuläret på webbplatsen visas de här.</p>
         </div>
       </div>
     </section>
@@ -201,6 +233,6 @@
 </div>
 
 <script type="module" src="js/admin-auth.js?v=6"></script>
-<script type="module" src="js/admin-app.js?v=14"></script>
+<script type="module" src="js/admin-app.js?v=15"></script>
 </body>
 </html>

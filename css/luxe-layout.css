@@ -243,23 +243,54 @@ body {
 
 #site-root :where(.comp-mmq82nh7) img,
 #site-root :where(.comp-mmq8486o) img,
-#site-root :where(.comp-mmq84fyo) img,
-#site-root :where(.comp-mmq82nh7) .jj-image-frame__fill,
-#site-root :where(.comp-mmq8486o) .jj-image-frame__fill,
-#site-root :where(.comp-mmq84fyo) .jj-image-frame__fill {
+#site-root :where(.comp-mmq84fyo) img {
   filter: brightness(0.94);
-  transition: transform 0.65s cubic-bezier(0.25, 0.1, 0.25, 1),
-    filter 0.65s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Slow outer “extension”, fast inner zoom — fill is the visible layer */
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._image3_1rm3u_5,
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._imageLayer_1rm3u_20 {
+  transform: scale(1);
+  transition: transform 1.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) .jj-image-frame__fill {
+  filter: brightness(0.94);
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
 }
 
 #site-root :where(.comp-mmq82nh7):hover img,
 #site-root :where(.comp-mmq8486o):hover img,
-#site-root :where(.comp-mmq84fyo):hover img,
+#site-root :where(.comp-mmq84fyo):hover img {
+  filter: brightness(1);
+}
+
+#site-root :where(.comp-mmq82nh7):hover ._image3_1rm3u_5,
+#site-root :where(.comp-mmq82nh7):hover ._imageLayer_1rm3u_20,
+#site-root :where(.comp-mmq8486o):hover ._image3_1rm3u_5,
+#site-root :where(.comp-mmq8486o):hover ._imageLayer_1rm3u_20,
+#site-root :where(.comp-mmq84fyo):hover ._image3_1rm3u_5,
+#site-root :where(.comp-mmq84fyo):hover ._imageLayer_1rm3u_20 {
+  transform: scale(1.035);
+}
+
 #site-root :where(.comp-mmq82nh7):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq8486o):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq84fyo):hover .jj-image-frame__fill {
   filter: brightness(1);
   transform: scale(calc(var(--jj-focus-scale, 1) * 1.045));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._image3_1rm3u_5,
+  #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._imageLayer_1rm3u_20,
+  #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) .jj-image-frame__fill {
+    transition: none;
+  }
 }
 
 /* ── Product carousel ── */

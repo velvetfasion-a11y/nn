@@ -368,6 +368,25 @@ body {
   color: var(--jj-foreground);
 }
 
+.admin-subscriber-email {
+  color: var(--jj-foreground);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-subscriber-email:hover {
+  color: var(--jj-gold-deep);
+  text-decoration: underline;
+}
+
+.admin-subscriber-muted {
+  color: var(--jj-ink-mute);
+}
+
+.admin-table--subscribers td:first-child {
+  min-width: 220px;
+}
+
 /* BADGES */
 .status-badge {
   display: inline-flex;

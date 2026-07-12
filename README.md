@@ -27,7 +27,26 @@ Add these to `.env` (see `.env.example`):
 
 Emails are sent via the **MailerSend HTTP API** only (`MAILERSEND_API_TOKEN`).
 
-**If you see a trial / recipient limit error:** MailerSend trial accounts can only send to a few unique addresses (error `MS42225`). Upgrade to MailerSend’s **Free** or **Hobby** plan (Settings → Billing) and complete identity verification so visitors can receive welcome emails. For local testing only, set `MAILERSEND_DEV_RELAX_TRIAL=true` in `.env` — signups will succeed and admin notifications still send, but new visitors won’t get the welcome email until you upgrade.
+If signups fail with a **trial recipient limit** message, upgrade your MailerSend account to the Free plan (Dashboard → Plans). The trial only allows a handful of unique recipients; the Free plan allows 500 emails/month to any address.
+
+Local email check: `curl http://localhost:3001/api/email-health` (requires `npm run dev`).
+
+### Admin panel
+
+Admin access is configured in `.env` (see `.env.example`):
+
+- `ADMIN_EMAIL` — Firebase Auth email allowed into the admin panel
+- `ADMIN_UID` — Firebase Auth UID (optional extra check)
+- `ADMIN_PAGE` — URL path for the admin panel (default `jamiljamila-admin.html`)
+- `ADMIN_PAGES` — comma-separated list of valid admin HTML entry points
+
+After changing admin values, sync Firebase rules and restart dev:
+
+```bash
+npm run sync:admin
+firebase deploy --only firestore:rules,storage
+npm run dev
+```
 
 ### Production (jamiljamila.com)
 
