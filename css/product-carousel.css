@@ -117,6 +117,11 @@
   -ms-overflow-style: none;
 }
 
+.jj-product-carousel__track.is-continuous {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
 .jj-product-carousel__track::-webkit-scrollbar {
   display: none;
 }
@@ -127,6 +132,10 @@
     (100% - (var(--jj-per-view) - 1) * var(--jj-gap)) / var(--jj-per-view)
   );
   scroll-snap-align: start;
+}
+
+.jj-product-carousel__track.is-continuous .jj-product-card {
+  scroll-snap-align: none;
 }
 
 .jj-product-card__media {

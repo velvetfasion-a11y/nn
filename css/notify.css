@@ -1,5 +1,5 @@
 .notify-section {
-  background: #000000;
+  background: var(--jj-footer-black, #141210);
   color: #ffffff;
   padding: 100px 24px;
   text-align: center;

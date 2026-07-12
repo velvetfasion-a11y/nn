@@ -6,104 +6,251 @@
   if (!track) return;
 
   const AUTOPLAY_MS = 2500;
-  const cards = Array.from(track.querySelectorAll(".jj-product-card"));
-  if (!cards.length) return;
+  const originalCards = Array.from(track.querySelectorAll(".jj-product-card"));
+  const count = originalCards.length;
+  if (!count) return;
 
-  function cardStep() {
-    if (cards.length < 2) return cards[0].offsetWidth;
-    return cards[1].offsetLeft - cards[0].offsetLeft;
-  }
+  originalCards.forEach((card) => {
+    card.dataset.jjCarousel = "original";
+  });
 
-  function maxScroll() {
-    return track.scrollWidth - track.clientWidth;
-  }
+  const beforeFragment = document.createDocumentFragment();
+  const afterFragment = document.createDocumentFragment();
 
-  function currentIndex() {
-    return Math.round(track.scrollLeft / cardStep());
-  }
+  originalCards.forEach((card) => {
+    const before = card.cloneNode(true);
+    before.dataset.jjCarousel = "clone";
+    before.setAttribute("aria-hidden", "true");
+    beforeFragment.appendChild(before);
 
-  function goToIndex(index) {
-    const step = cardStep();
-    const maxIndex = cards.length - 1;
-    const clamped = Math.max(0, Math.min(index, maxIndex));
-    const target = Math.min(clamped * step, maxScroll());
-    track.scrollTo({ left: target, behavior: "smooth" });
-  }
+    const after = card.cloneNode(true);
+    after.dataset.jjCarousel = "clone";
+    after.setAttribute("aria-hidden", "true");
+    afterFragment.appendChild(after);
+  });
 
-  function snapToNearest() {
-    goToIndex(currentIndex());
-  }
+  track.insertBefore(beforeFragment, track.firstChild);
+  track.appendChild(afterFragment);
 
-  function advance() {
-    // Loop back to the start once we've reached the end.
-    if (track.scrollLeft >= maxScroll() - 1) {
-      track.scrollTo({ left: 0, behavior: "smooth" });
-      return;
-    }
-    goToIndex(currentIndex() + 1);
-  }
-
+  let loopWidth = 0;
+  let isJumping = false;
+  let isPaused = false;
   let timer = null;
 
-  function startAutoplay() {
-    stopAutoplay();
-    timer = window.setInterval(advance, AUTOPLAY_MS);
+  function allCards() {
+    return Array.from(track.querySelectorAll(".jj-product-card"));
   }
 
-  function stopAutoplay() {
+  function originals() {
+    return track.querySelectorAll('.jj-product-card[data-jj-carousel="original"]');
+  }
+
+  function cardStep() {
+    const items = originals();
+    if (items.length < 2) return items[0]?.offsetWidth || 0;
+    return items[1].offsetLeft - items[0].offsetLeft;
+  }
+
+  function measureLoopWidth() {
+    const items = originals();
+    if (!items.length) return 0;
+    const first = items[0];
+    const last = items[items.length - 1];
+    loopWidth = last.offsetLeft + last.offsetWidth - first.offsetLeft;
+    return loopWidth;
+  }
+
+  function loopStart() {
+    return originals()[0]?.offsetLeft || 0;
+  }
+
+  function nearestCardIndex() {
+    const cards = allCards();
+    let nearest = 0;
+    let nearestDist = Infinity;
+
+    cards.forEach((card, index) => {
+      const dist = Math.abs(track.scrollLeft - card.offsetLeft);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = index;
+      }
+    });
+
+    return nearest;
+  }
+
+  function normalizeScroll() {
+    if (isJumping || !loopWidth) return;
+
+    const start = loopStart();
+    const x = track.scrollLeft;
+
+    if (x >= start + loopWidth - 1) {
+      isJumping = true;
+      track.scrollLeft = x - loopWidth;
+      requestAnimationFrame(() => {
+        isJumping = false;
+      });
+      return;
+    }
+
+    if (x < start) {
+      isJumping = true;
+      track.scrollLeft = x + loopWidth;
+      requestAnimationFrame(() => {
+        isJumping = false;
+      });
+    }
+  }
+
+  function scrollToCard(index, smooth) {
+    const cards = allCards();
+    const clamped = Math.max(0, Math.min(index, cards.length - 1));
+    track.scrollTo({
+      left: cards[clamped].offsetLeft,
+      behavior: smooth ? "smooth" : "auto",
+    });
+  }
+
+  function clearAutoplay() {
     if (timer !== null) {
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
       timer = null;
     }
   }
 
+  function scheduleNext(delay) {
+    clearAutoplay();
+    if (isPaused) return;
+    timer = window.setTimeout(advance, delay ?? AUTOPLAY_MS);
+  }
+
+  function advance() {
+    if (isPaused) return;
+    scrollToCard(nearestCardIndex() + 1, true);
+  }
+
+  function retreat() {
+    scrollToCard(nearestCardIndex() - 1, true);
+  }
+
+  function onSlideSettled() {
+    normalizeScroll();
+    scheduleNext();
+  }
+
+  function initPosition() {
+    measureLoopWidth();
+    isJumping = true;
+    track.scrollLeft = loopStart();
+    isJumping = false;
+  }
+
   prevBtn?.addEventListener("click", () => {
-    goToIndex(currentIndex() - 1);
-    startAutoplay();
+    retreat();
+    scheduleNext(AUTOPLAY_MS);
   });
 
   nextBtn?.addEventListener("click", () => {
     advance();
-    startAutoplay();
+    scheduleNext(AUTOPLAY_MS);
   });
 
-  // Pause while the user is interacting, resume afterwards.
-  track.addEventListener("mouseenter", stopAutoplay);
-  track.addEventListener("mouseleave", startAutoplay);
-  track.addEventListener("touchstart", stopAutoplay, { passive: true });
-  track.addEventListener("focusin", stopAutoplay);
-  track.addEventListener("focusout", startAutoplay);
-
-  // After manual scrolling settles, snap to the nearest whole card.
-  let snapTimer = null;
-  track.addEventListener("scroll", () => {
-    if (timer !== null) return;
-    window.clearTimeout(snapTimer);
-    snapTimer = window.setTimeout(snapToNearest, 120);
+  track.addEventListener("mouseenter", () => {
+    isPaused = true;
+    clearAutoplay();
   });
 
-  let touchResume = null;
+  track.addEventListener("mouseleave", () => {
+    isPaused = false;
+    scheduleNext();
+  });
+
+  track.addEventListener("focusin", () => {
+    isPaused = true;
+    clearAutoplay();
+  });
+
+  track.addEventListener("focusout", () => {
+    isPaused = false;
+    scheduleNext();
+  });
+
+  let touchTimer = null;
   track.addEventListener(
-    "touchend",
+    "touchstart",
     () => {
-      window.clearTimeout(touchResume);
-      touchResume = window.setTimeout(() => {
-        snapToNearest();
-        startAutoplay();
-      }, 200);
+      isPaused = true;
+      clearAutoplay();
     },
     { passive: true }
   );
 
+  track.addEventListener(
+    "touchend",
+    () => {
+      window.clearTimeout(touchTimer);
+      touchTimer = window.setTimeout(() => {
+        scrollToCard(nearestCardIndex(), true);
+        window.setTimeout(() => {
+          normalizeScroll();
+          isPaused = false;
+          scheduleNext();
+        }, 220);
+      }, 120);
+    },
+    { passive: true }
+  );
+
+  if ("onscrollend" in track) {
+    track.addEventListener(
+      "scrollend",
+      () => {
+        if (isJumping) return;
+        onSlideSettled();
+      },
+      { passive: true }
+    );
+  } else {
+    let settleTimer = null;
+    track.addEventListener(
+      "scroll",
+      () => {
+        if (isJumping || isPaused) return;
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(onSlideSettled, 320);
+      },
+      { passive: true }
+    );
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      stopAutoplay();
+      isPaused = true;
+      clearAutoplay();
     } else {
-      startAutoplay();
+      isPaused = false;
+      scheduleNext();
     }
   });
 
-  window.addEventListener("resize", snapToNearest);
+  window.addEventListener("resize", () => {
+    const index = nearestCardIndex();
+    measureLoopWidth();
+    scrollToCard(index, false);
+    normalizeScroll();
+    scheduleNext();
+  });
 
-  startAutoplay();
+  function boot() {
+    initPosition();
+    scheduleNext();
+  }
+
+  if (document.readyState === "complete") {
+    requestAnimationFrame(boot);
+  } else {
+    window.addEventListener("load", () => requestAnimationFrame(boot), { once: true });
+  }
 })();

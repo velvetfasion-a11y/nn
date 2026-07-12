@@ -1,0 +1,536 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600&family=Jost:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500&display=swap");
+
+:root {
+  --jj-bg: #f7f4ef;
+  --jj-foreground: #2a2824;
+  --jj-ink-soft: #4a4740;
+  --jj-ink-mute: #7a756c;
+  --jj-gold: #b8956c;
+  --jj-gold-deep: #8f7048;
+  --jj-line: #e2ddd0;
+  --jj-black: #141210;
+}
+
+body {
+  background: var(--jj-bg);
+  color: var(--jj-foreground);
+  font-family: "EB Garamond", "Cormorant Garamond", Georgia, serif;
+}
+
+/* ── Header (keep JAMIL JAMILA brand) ── */
+.jj-site-header {
+  background: color-mix(in oklab, var(--jj-bg) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid color-mix(in oklab, var(--jj-line) 70%, transparent);
+}
+
+.jj-site-header__inner {
+  max-width: 1600px;
+  height: 84px;
+  padding: 0 40px;
+}
+
+.jj-nav {
+  gap: 44px;
+}
+
+.jj-nav__link {
+  position: relative;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--jj-foreground);
+  transition: color 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-nav__link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--jj-gold);
+  transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), left 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-nav__link:hover {
+  color: var(--jj-gold-deep);
+}
+
+.jj-nav__link:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.jj-icon-btn,
+.jj-menu-btn {
+  width: 38px;
+  height: 38px;
+  color: var(--jj-foreground);
+  transition: color 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-icon-btn:hover,
+.jj-menu-btn:hover {
+  color: var(--jj-gold-deep);
+}
+
+.jj-notify-btn {
+  padding: 11px 26px;
+  border: 1px solid var(--jj-foreground);
+  border-radius: 0;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--jj-foreground);
+}
+
+.jj-notify-btn:hover {
+  background: var(--jj-foreground);
+  color: var(--jj-bg);
+}
+
+/* ── Hero (keep sticky + parallax structure) ── */
+.jj-hero {
+  background: var(--jj-black);
+  padding-top: 84px;
+}
+
+.jj-hero__media {
+  filter: contrast(1.02) saturate(0.95);
+  transform: scale(1.1765);
+}
+
+.jj-hero__gradient {
+  background:
+    radial-gradient(120% 60% at 50% 100%, rgba(0, 0, 0, 0.7) 0%, transparent 60%),
+    linear-gradient(rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.05) 35%, rgba(0, 0, 0, 0.55) 100%);
+  transform: scale(1.1765);
+}
+
+.jj-hero__content {
+  max-width: 640px;
+}
+
+.jj-hero__eyebrow {
+  margin: 0 0 22px;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.6em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.jj-hero__title {
+  margin: 0 0 34px;
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.jj-hero__cta-btn {
+  margin: 0 0 26px;
+  padding: 16px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 0;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.42em;
+}
+
+.jj-hero__cta-btn:hover {
+  background: #fff;
+  color: var(--jj-foreground);
+}
+
+.jj-hero__cta {
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  padding-bottom: 4px;
+}
+
+.jj-hero__cta:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+/* ── Collections (Wix section) ── */
+#site-root :where(.comp-mmq60t9h) {
+  background: var(--jj-bg) !important;
+}
+
+#site-root :where(.comp-mmq60t9h) .comp-mmq60t9h-container {
+  padding: clamp(64px, 8vw, 120px) clamp(20px, 4vw, 56px) clamp(48px, 6vw, 88px) !important;
+}
+
+#site-root :where(.comp-mmq66nkt) {
+  padding: 0 0 clamp(36px, 4vw, 64px) !important;
+}
+
+#site-root :where(.comp-mmq66nkt) h2 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+#site-root :where(.comp-mmq66nkt) h2::after {
+  content: "The Collections";
+  order: 1;
+  display: block;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jj-foreground);
+}
+
+#site-root :where(.comp-mmq66nkt) h2::before {
+  content: "";
+  order: 2;
+  display: block;
+  width: 52px;
+  height: 1px;
+  margin: 22px auto 0;
+  background: var(--jj-gold);
+}
+
+.comp-mmq60t8v .collections-categories__label {
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.comp-mmq60t8v .collections-categories__btn {
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  color: #fff;
+  font-family: "Jost", sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  min-width: auto;
+}
+
+.comp-mmq60t8v .collections-categories__btn:hover {
+  background: #fff;
+  color: var(--jj-foreground);
+  transform: none;
+}
+
+#site-root :where(.comp-mmq82nh7) img,
+#site-root :where(.comp-mmq8486o) img,
+#site-root :where(.comp-mmq84fyo) img {
+  filter: brightness(0.94);
+  transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1), filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+#site-root :where(.comp-mmq82nh7):hover img,
+#site-root :where(.comp-mmq8486o):hover img,
+#site-root :where(.comp-mmq84fyo):hover img {
+  filter: brightness(1);
+  transform: scale(1.045);
+}
+
+/* ── Product carousel ── */
+.jj-product-carousel {
+  background: var(--jj-bg);
+  padding: clamp(40px, 6vw, 88px) 0 clamp(64px, 8vw, 112px);
+}
+
+.comp-mmq60t8v + .jj-product-carousel--track {
+  padding-top: clamp(28px, 4vw, 56px);
+}
+
+.jj-product-carousel__inner {
+  max-width: 1600px;
+  padding: 0 clamp(20px, 4vw, 56px);
+}
+
+.jj-product-carousel__header,
+.jj-product-carousel__header--track {
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  min-height: auto;
+}
+
+.jj-product-carousel__title {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jj-foreground);
+  text-align: left;
+}
+
+.jj-product-carousel__arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.jj-product-carousel__track {
+  --jj-gap: 20px;
+}
+
+.jj-product-card__media {
+  aspect-ratio: 4 / 5;
+  margin-bottom: 18px;
+  background: #ede8df;
+}
+
+.jj-product-card__media img {
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-product-card:hover .jj-product-card__media img {
+  transform: scale(1.04);
+}
+
+.jj-product-card__name {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--jj-foreground);
+}
+
+.jj-product-card__price {
+  font-family: "Jost", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--jj-ink-mute);
+}
+
+/* ── About ── */
+#comp-mmp1huq3,
+#comp-mmp1huq3 .comp-mmp1huq3-container,
+#comp-mmp1huq3 .comp-mmp1huq55,
+#comp-mmp1huq3 .comp-mmp1mf51,
+#comp-mmp1huq3 .comp-mmp1mf4i2 {
+  background-color: var(--jj-bg) !important;
+  --bg-overlay-color: var(--jj-bg) !important;
+}
+
+#comp-mmp1huq3 .jj-about-hero-caption__title {
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+#comp-mmp1huq3 .jj-about-hero-caption__cta {
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.42em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.75);
+  padding-bottom: 6px;
+}
+
+#comp-mmp1huq3 #comp-mmp1mf24 img {
+  filter: brightness(0.88);
+}
+
+#comp-mmp1huq3 .jj-about {
+  max-width: 820px !important;
+  padding: clamp(80px, 10vw, 140px) clamp(24px, 5vw, 48px) !important;
+  text-align: center !important;
+}
+
+#comp-mmp1huq3 .jj-about__eyebrow {
+  display: inline-block;
+  margin-bottom: 28px;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--jj-gold-deep);
+}
+
+#comp-mmp1huq3 .jj-about__title {
+  margin: 0 0 20px !important;
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif !important;
+  font-size: clamp(2rem, 4.4vw, 3.2rem) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+}
+
+#comp-mmp1huq3 .jj-about__rule {
+  width: 52px;
+  height: 1px;
+  margin: 0 auto 56px;
+  border: 0;
+  background: var(--jj-gold);
+}
+
+#comp-mmp1huq3 .jj-about p {
+  color: var(--jj-ink-soft);
+  line-height: 1.85;
+}
+
+#comp-mmp1huq3 .jj-about p:first-of-type::first-letter {
+  float: left;
+  padding: 6px 12px 0 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 3.4em;
+  line-height: 0.9;
+  color: var(--jj-gold-deep);
+}
+
+#comp-mmp1huq3 .jj-about__cta {
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  padding: 18px 46px;
+  border-radius: 0;
+}
+
+#comp-mmp1huq3 .jj-about__cta:hover {
+  background: var(--jj-foreground);
+  color: var(--jj-bg);
+}
+
+/* ── Footer / notify ── */
+#notify-section.notify-section {
+  background: var(--jj-black) !important;
+  color: #e8e2d4;
+  padding: clamp(80px, 10vw, 120px) 24px clamp(48px, 6vw, 72px);
+}
+
+#site-root footer#comp-kbgakxmn,
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-kbgakgyt),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr13kdg-container),
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mdr17w8k),
+#site-root footer#comp-kbgakxmn :where(._background_x7ip3_1) {
+  --bg: 20, 18, 16 !important;
+  --bg-overlay-color: var(--jj-black) !important;
+  --backgroundColor: var(--jj-black) !important;
+  background-color: var(--jj-black) !important;
+}
+
+#notify-section .notify-section__eyebrow {
+  display: block;
+  margin: 0 0 18px;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--jj-gold);
+}
+
+#notify-section .notify-section__title {
+  margin: 0 0 36px;
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.jj-notify-trigger {
+  border-radius: 0;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  padding: 16px 34px;
+  font-family: "Jost", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.42em;
+  gap: 14px;
+}
+
+.jj-notify-trigger:hover {
+  background: var(--jj-gold);
+  color: var(--jj-black);
+  border-color: var(--jj-gold);
+  transform: none;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles {
+  padding-top: 48px;
+}
+
+#site-root footer#comp-kbgakxmn .jj-footer-titles__link {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+#site-root footer#comp-kbgakxmn :where(.comp-mmp1mf4kt) p,
+#site-root footer#comp-kbgakxmn :where(.comp-kbgakxmn_r_comp-mmp2ozkt) p {
+  color: rgba(255, 255, 255, 0.45) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* ── Waitlist modal ── */
+.jj-waitlist-modal__panel {
+  border-radius: 0;
+  background: var(--jj-bg);
+}
+
+.jj-waitlist-modal__title {
+  font-family: Cinzel, "Cormorant Garamond", Georgia, serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.jj-waitlist-notify .notify-input {
+  border-radius: 0;
+}
+
+.jj-waitlist-notify .notify-btn {
+  border-radius: 0;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .jj-site-header__inner {
+    height: 72px;
+    padding: 0 20px;
+  }
+
+  .jj-hero {
+    padding-top: 72px;
+  }
+
+  .jj-nav {
+    top: 72px;
+  }
+}
+
+@media (min-width: 768px) {
+  .jj-product-carousel__nav {
+    display: flex;
+  }
+}

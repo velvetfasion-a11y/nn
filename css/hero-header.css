@@ -505,6 +505,34 @@
     display: none;
   }
 
+  .jj-site-header__inner {
+    gap: 10px;
+  }
+
+  .jj-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: clamp(17px, 4.8vw, 22px);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .jj-header-actions {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  #jj-profile-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+
   .jj-menu-btn {
     display: inline-flex;
   }
@@ -515,8 +543,29 @@
     letter-spacing: 1.2px;
   }
 
+  .jj-hero__visual {
+    aspect-ratio: auto;
+    min-height: max(560px, calc(100svh - 72px));
+  }
+
+  .jj-hero__media {
+    background-position: center 40%;
+  }
+
   .jj-hero__inner {
     padding-bottom: 58px;
+  }
+}
+
+@media (max-width: 420px) {
+  .jj-notify-btn {
+    padding: 7px 10px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  .jj-site-header__inner {
+    padding: 0 14px;
   }
 }
 

@@ -11,7 +11,7 @@ URL = "https://scandinavianorigin4.wixsite.com/jamil-jamila"
 
 IMG_MAP = {
     "2a3c64_4b6b00e6fb7b449cb0e7ceb059881edc~mv2.png": "assets/images/logo.png",
-    "2a3c64_3ae14754231845c8bc7d986f2100d358~mv2.jpg": "assets/images/XsigP.jpg",
+    "2a3c64_3ae14754231845c8bc7d986f2100d358~mv2.jpg": "assets/images/image-1.jpg",
     "2a3c64_4279be5a0a374b2e9726c187c3e773bc~mv2.jpg": "assets/images/men.jpg",
     "2a3c64_9e4b6987c835451a86eb31b944f70f3e~mv2.jpg": "assets/images/kids.jpg",
     "2a3c64_12b108123d354893aaf64ba36af98f83~mv2.jpg": "assets/images/collection-01.jpg",
@@ -134,6 +134,32 @@ def remove_accessories_section(content: str) -> str:
     return content
 
 
+def remove_standard_terms_section(content: str) -> str:
+    """Remove the Standard Terms (shipping/returns) section from the page."""
+    marker = '<section id="comp-mhs1bc6l"'
+    start = content.find(marker)
+    if start == -1:
+        return content
+
+    depth = 0
+    i = start
+    while i < len(content):
+        open_idx = content.find("<section", i)
+        close_idx = content.find("</section>", i)
+        if close_idx == -1:
+            break
+        if open_idx != -1 and open_idx < close_idx:
+            depth += 1
+            i = open_idx + len("<section")
+            continue
+        depth -= 1
+        i = close_idx + len("</section>")
+        if depth == 0:
+            return content[:start] + content[i:]
+
+    return content
+
+
 def inject_hero_header(content: str) -> str:
     block = (ROOT / "partials" / "hero-header.html").read_text(encoding="utf-8")
     marker = '<div id="site-root"'
@@ -151,12 +177,16 @@ def inject_product_carousel_title(content: str) -> str:
 
 
 def inject_product_carousel_track(content: str) -> str:
-    block = (ROOT / "partials" / "product-carousel-track.html").read_text(encoding="utf-8")
-    if "jj-product-carousel--track" in content:
-        return content
+    block = (ROOT / "partials" / "product-carousel-track.html").read_text(encoding="utf-8").strip()
+    content = re.sub(
+        r'\n?<section class="jj-product-carousel jj-product-carousel--track"[\s\S]*?</section>\n?',
+        "\n",
+        content,
+        count=1,
+    )
     replaced, count = re.subn(
-        r"</section>\s*<section id=\"comp-mhs1bc6l\"",
-        f"</section>\n{block.rstrip()}\n<section id=\"comp-mhs1bc6l\"",
+        r"</section>\s*<section id=\"comp-mmp1hupq\"",
+        f"</section>\n{block}\n<section id=\"comp-mmp1hupq\"",
         content,
         count=1,
     )
@@ -261,12 +291,14 @@ def extract_body(wix: str) -> str:
     return inject_footer_titles(
         replace_footer_titles(
             remove_social_bar(
-                remove_accessories_section(
-                    inject_hero_header(
-                        inject_product_carousel(
-                            inject_collections_categories(
-                                inject_about_us_content(
-                                    inject_about_us_caption(inject_notify_sections(clean_html(body[start:end])))
+                remove_standard_terms_section(
+                    remove_accessories_section(
+                        inject_hero_header(
+                            inject_product_carousel(
+                                inject_collections_categories(
+                                    inject_about_us_content(
+                                        inject_about_us_caption(inject_notify_sections(clean_html(body[start:end])))
+                                    )
                                 )
                             )
                         )
@@ -353,17 +385,18 @@ def build() -> None:
   <title>Home | Jamil Jamila</title>
   <link rel="icon" href="assets/images/logo.png" type="image/png">
   <link rel="stylesheet" href="css/wix.css">
-  <link rel="stylesheet" href="css/overrides.css?v=2">
+  <link rel="stylesheet" href="css/overrides.css?v=3">
   <link rel="stylesheet" href="css/notify.css">
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/login-drawer.css?v=2">
   <link rel="stylesheet" href="css/collections.css?v=2">
-  <link rel="stylesheet" href="css/hero-header.css?v=26">
-  <link rel="stylesheet" href="css/product-carousel.css?v=6">
-  <link rel="stylesheet" href="css/about-us.css?v=9">
-  <link rel="stylesheet" href="css/footer.css?v=7">
+  <link rel="stylesheet" href="css/hero-header.css?v=28">
+  <link rel="stylesheet" href="css/product-carousel.css?v=7">
+  <link rel="stylesheet" href="css/about-us.css?v=11">
+  <link rel="stylesheet" href="css/footer.css?v=8">
+  <link rel="stylesheet" href="css/luxe-layout.css?v=4">
   <script src="js/wix-viewport.js"></script>
 </head>
 <body>
@@ -378,7 +411,7 @@ def build() -> None:
 <script type="module" src="js/notify.js"></script>
 <script src="js/profile-menu.js" defer></script>
 <script src="js/hero-header.js?v=19" defer></script>
-<script src="js/product-carousel.js?v=2" defer></script>
+<script src="js/product-carousel.js?v=6" defer></script>
 <script src="js/links.js?v=3" defer></script>
 <script src="js/footer.js?v=4" defer></script>
 <script src="js/ai-knowledge.js" defer></script>

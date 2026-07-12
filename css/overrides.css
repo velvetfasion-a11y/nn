@@ -254,3 +254,8 @@ body {
   pointer-events: none !important;
 }
 
+/* Hide Standard Terms (shipping/returns) Wix section */
+#comp-mhs1bc6l {
+  display: none !important;
+}
+

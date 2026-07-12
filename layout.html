@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jamil Jamila — Layout</title>
+  <link rel="icon" href="assets/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       HEADER
+       ════════════════════════════════════════ -->
+  <header class="jj-site-header" id="jj-site-header">
+    <div class="jj-site-header__inner">
+      <a class="jj-brand" href="/" aria-label="Jamil Jamila home">JAMIL JAMILA</a>
+
+      <nav class="jj-nav" id="jj-nav" aria-label="Main">
+        <a href="/" class="jj-nav__link">HOME</a>
+        <a href="#jj-his" class="jj-nav__link" data-jj-scroll="jj-his">HIS</a>
+        <a href="#jj-hers" class="jj-nav__link" data-jj-scroll="jj-hers">HERS</a>
+        <a href="#jj-kids" class="jj-nav__link" data-jj-scroll="jj-kids">KIDS</a>
+      </nav>
+
+      <div class="jj-header-actions">
+        <button type="button" class="jj-icon-btn jj-icon-btn--desktop" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+        <button type="button" class="jj-icon-btn jj-icon-btn--desktop" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </button>
+        <button type="button" class="jj-notify-btn" data-jj-open-notify>GET NOTIFIED</button>
+        <button type="button" class="jj-menu-btn" id="jj-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="jj-nav">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════
+       HERO
+       ════════════════════════════════════════ -->
+  <section class="jj-hero" id="jj-hero" aria-label="Featured collection">
+    <div class="jj-hero__frame">
+      <div class="jj-hero__visual">
+        <div class="jj-hero__media" role="img" aria-label="Jamil Jamila collection"></div>
+        <div class="jj-hero__gradient" aria-hidden="true"></div>
+      </div>
+      <div class="jj-hero__inner">
+        <div class="jj-hero__content">
+          <p class="jj-hero__eyebrow">COMING SOON</p>
+          <button type="button" class="jj-hero__cta-btn" data-jj-open-notify>GET NOTIFIED WHEN LAUNCHED</button>
+          <div class="jj-hero__link-wrap">
+            <a href="#jj-collections" class="jj-hero__cta" data-jj-scroll="jj-collections">EXPLORE COLLECTION</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       COLLECTIONS (HERS / HIS / KIDS)
+       ════════════════════════════════════════ -->
+  <section class="jj-collections" id="jj-collections" aria-label="Collections">
+    <h2 class="jj-collections__heading">COLLECTIONS</h2>
+    <div class="jj-collections__grid">
+      <article class="jj-collections__card jj-collections__card--hers" id="jj-hers">
+        <img src="assets/images/women.jpg" alt="Her collection" loading="lazy" decoding="async">
+        <div class="jj-collections__overlay">
+          <h3 class="jj-collections__label">WOMEN</h3>
+          <a href="#" class="jj-collections__btn">EXPLORE</a>
+        </div>
+      </article>
+      <article class="jj-collections__card" id="jj-his">
+        <img src="assets/images/men.jpg" alt="His collection" loading="lazy" decoding="async">
+        <div class="jj-collections__overlay">
+          <h3 class="jj-collections__label">MEN</h3>
+          <a href="#" class="jj-collections__btn">EXPLORE</a>
+        </div>
+      </article>
+      <article class="jj-collections__card" id="jj-kids">
+        <img src="assets/images/kids.jpg" alt="Kids collection" loading="lazy" decoding="async">
+        <div class="jj-collections__overlay">
+          <h3 class="jj-collections__label">KIDS</h3>
+          <a href="#" class="jj-collections__btn">EXPLORE</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       PRODUCT CAROUSEL
+       ════════════════════════════════════════ -->
+  <section class="jj-product-carousel" id="jj-shop" aria-label="Shop carousel">
+    <div class="jj-product-carousel__inner">
+      <div class="jj-product-carousel__header">
+        <div class="jj-product-carousel__nav">
+          <button type="button" class="jj-product-carousel__arrow" id="jj-product-prev" aria-label="Previous products">←</button>
+          <button type="button" class="jj-product-carousel__arrow" id="jj-product-next" aria-label="Next products">→</button>
+        </div>
+      </div>
+
+      <div class="jj-product-carousel__track" id="jj-product-scroll">
+        <article class="jj-product-card">
+          <div class="jj-product-card__media">
+            <img src="assets/images/women.jpg" alt="The Silk Midi Dress" loading="lazy" decoding="async">
+          </div>
+          <div class="jj-product-card__meta">
+            <h3 class="jj-product-card__name">The Silk Midi Dress</h3>
+            <p class="jj-product-card__price">420 €</p>
+          </div>
+        </article>
+        <article class="jj-product-card">
+          <div class="jj-product-card__media">
+            <img src="assets/images/men.jpg" alt="The Tailored Wool Blazer" loading="lazy" decoding="async">
+          </div>
+          <div class="jj-product-card__meta">
+            <h3 class="jj-product-card__name">The Tailored Wool Blazer</h3>
+            <p class="jj-product-card__price">890 €</p>
+          </div>
+        </article>
+        <article class="jj-product-card">
+          <div class="jj-product-card__media">
+            <img src="assets/images/kids.jpg" alt="The Relaxed Linen Set" loading="lazy" decoding="async">
+          </div>
+          <div class="jj-product-card__meta">
+            <h3 class="jj-product-card__name">The Relaxed Linen Set</h3>
+            <p class="jj-product-card__price">680 €</p>
+          </div>
+        </article>
+        <article class="jj-product-card">
+          <div class="jj-product-card__media">
+            <img src="assets/images/collection-01.jpg" alt="Embroidered Silk Kaftan" loading="lazy" decoding="async">
+          </div>
+          <div class="jj-product-card__meta">
+            <h3 class="jj-product-card__name">Embroidered Silk Kaftan</h3>
+            <p class="jj-product-card__price">1,250 €</p>
+          </div>
+        </article>
+        <article class="jj-product-card">
+          <div class="jj-product-card__media">
+            <img src="assets/images/collection-02.jpg" alt="The Nordic Wool Coat" loading="lazy" decoding="async">
+          </div>
+          <div class="jj-product-card__meta">
+            <h3 class="jj-product-card__name">The Nordic Wool Coat</h3>
+            <p class="jj-product-card__price">520 €</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       ABOUT US
+       ════════════════════════════════════════ -->
+  <section class="jj-about-section" aria-label="About us">
+    <div class="jj-about-hero">
+      <img src="assets/images/IMG_8558.JPG" alt="Her collection editorial" loading="lazy" decoding="async">
+      <div class="jj-about-hero-caption">
+        <p class="jj-about-hero-caption__title">Her Collection</p>
+        <a href="#jj-collections" class="jj-about-hero-caption__cta" data-jj-scroll="jj-collections">Shop Now</a>
+      </div>
+    </div>
+
+    <section class="jj-about">
+      <h2 class="jj-about__title">Jamil Jamila</h2>
+
+      <p>Founded in Stockholm, Jamil Jamila is built on the principle of quiet confidence, honoring self expression through considered design. Its spirit of care and craftsmanship shapes every piece, positioning Jamil Jamila at the meeting point of Scandinavian minimalism and Middle Eastern heritage. To wear Jamil Jamila is to embrace a life lived with intention, one that honors both restraint and warmth, structure and softness, simplicity and depth.</p>
+
+      <p>It is a conscious vision rooted in lasting value, committed to uncompromising quality in garments made to be worn for years, not seasons. Throughout, the house holds to the belief that true luxury lies in what endures, and that beauty carries greater meaning when it is made honestly.</p>
+
+      <p>Every fabric is chosen with care. Every seam is considered. Every decision is made in service of longevity over excess, and of the people and hands behind each garment. This is the standard Jamil Jamila was founded on, and the standard it continues to hold.</p>
+
+      <a href="#philosophy" class="jj-about__cta">Our Philosophy</a>
+    </section>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       BOTTOM: GET NOTIFIED + FOOTER
+       ════════════════════════════════════════ -->
+  <div class="jj-bottom">
+    <section class="notify-section" id="notify-section">
+      <div class="jj-footer-logo">
+        <img src="assets/images/logo.png" alt="Jamil Jamila" loading="lazy" decoding="async">
+      </div>
+      <div class="notify-inner">
+        <button type="button" class="jj-notify-trigger" data-jj-open-notify>
+          <span>GET NOTIFIED</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <footer class="jj-footer">
+      <nav class="jj-footer-titles" aria-label="Footer links">
+        <div class="jj-footer-titles__links">
+          <a href="#" class="jj-footer-titles__link">LOCATION</a>
+          <a href="#" class="jj-footer-titles__link">CLIENT SERVICE</a>
+          <a href="#" class="jj-footer-titles__link">ABOUT US</a>
+          <a href="#" class="jj-footer-titles__link">LEGAL</a>
+          <a href="#" class="jj-footer-titles__link">SWEDEN – EN <span aria-hidden="true">▾</span></a>
+        </div>
+      </nav>
+      <div class="jj-footer__divider" aria-hidden="true"></div>
+      <p class="jj-footer__copy">© 2024 JAMIL JAMILA. ALL RIGHTS RESERVED.</p>
+    </footer>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       WAITLIST MODAL
+       ════════════════════════════════════════ -->
+  <div id="jj-waitlist-modal" class="jj-waitlist-modal" aria-hidden="true" role="dialog" aria-labelledby="jj-waitlist-title" aria-modal="true">
+    <div class="jj-waitlist-modal__backdrop" data-jj-close-modal></div>
+    <div class="jj-waitlist-modal__panel" role="document">
+      <div class="jj-waitlist-modal__header">
+        <div>
+          <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title">Join the circle</h3>
+          <p class="jj-waitlist-modal__sub">Wear the moment, before anyone else.</p>
+        </div>
+        <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal aria-label="Close">&times;</button>
+      </div>
+
+      <form class="jj-waitlist-form" id="jj-waitlist-form">
+        <input class="jj-waitlist-input" type="email" placeholder="your@email.com" autocomplete="email" required>
+        <button class="jj-waitlist-submit" type="submit">RESERVE MY PLACE</button>
+        <p class="jj-waitlist-note">Cancel anytime</p>
+      </form>
+      <div class="jj-waitlist-success" id="jj-waitlist-success">
+        <span>Thank you. A personal note will arrive in your inbox soon.</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/layout.js" defer></script>
+</body>
+</html>
