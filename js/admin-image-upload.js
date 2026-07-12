@@ -1,7 +1,15 @@
 import { auth } from "./firebase.js";
 
-const FIREBASE_API_KEY =
-  import.meta.env?.VITE_FIREBASE_API_KEY || "AIzaSyDhVpX26TuxY3esDleW_pSug7etBfxzE08";
+function getFirebaseApiKey() {
+  const runtime = typeof window !== "undefined" ? window.__JJ_FIREBASE__ : null;
+  return (
+    import.meta.env?.VITE_FIREBASE_API_KEY ||
+    runtime?.apiKey ||
+    "AIzaSyDhVpX26TuxY3esDleW_pSug7etBfxzE08"
+  );
+}
+
+const FIREBASE_API_KEY = getFirebaseApiKey();
 
 function isLocalDev() {
   const host = window.location.hostname;

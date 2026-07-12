@@ -45,7 +45,7 @@ export async function recordLaunchSignup(email, name = {}) {
   const ref = db.collection("launch_subscribers").doc(subscriberId(normalized));
   const snap = await ref.get();
   const now = new Date();
-  const isNew = !snap.exists();
+  const isNew = !snap.exists;
 
   if (isNew) {
     await ref.set({
@@ -71,7 +71,7 @@ export async function recordLaunchSignup(email, name = {}) {
     if (ts >= todayStart) todayCount += 1;
   });
 
-  const subscribedAt = snap.exists()
+  const subscribedAt = snap.exists
     ? snap.data().createdAt?.toDate?.() || now
     : now;
 

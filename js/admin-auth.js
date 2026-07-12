@@ -94,7 +94,7 @@ function getFriendlyAuthError(error) {
     case "auth/popup-blocked":
       return "Popup blockerades. Försöker omdirigera…";
     case "auth/unauthorized-domain":
-      return "Domänen jamiljamila.com måste läggas till i Firebase → Authentication → Settings → Authorized domains.";
+      return "Domänerna jamiljamila.com och www.jamiljamila.com måste läggas till i Firebase → Authentication → Settings → Authorized domains.";
     case "auth/operation-not-allowed":
       return "Inloggningsmetoden är inte aktiverad i Firebase Authentication.";
     default:
@@ -209,7 +209,7 @@ async function handleEmailLogin(event) {
   setLoginError("");
   setLoginLoading(true);
 
-  const email = loginEmail?.value?.trim();
+  const email = loginEmail?.value?.trim().toLowerCase();
   const password = loginPassword?.value || "";
 
   try {

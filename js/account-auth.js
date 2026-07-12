@@ -193,8 +193,14 @@ function redirectAdminFromAccount(user) {
 function navigateAfterSignIn(user) {
   if (redirectAdminFromAccount(user)) return;
 
-  const returnTo = new URLSearchParams(window.location.search).get("return")
-    || new URLSearchParams(window.location.search).get("redirect");
+  const params = new URLSearchParams(window.location.search);
+  const next = getAdminRedirectPage();
+  if (params.get("next") && isAdminUser(user)) {
+    window.location.replace(`/${next}`);
+    return;
+  }
+
+  const returnTo = params.get("return") || params.get("redirect");
   if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     window.location.replace(returnTo);
     return;
@@ -230,7 +236,7 @@ function getFriendlyAuthError(error) {
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled in Firebase Authentication.";
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.";
+      return "This domain is not authorized for sign-in. Add jamiljamila.com and www.jamiljamila.com in Firebase → Authentication → Authorized domains.";
     case "auth/account-exists-with-different-credential":
       return "An account already exists with this email using a different sign-in method.";
     default:
@@ -278,7 +284,7 @@ async function handleEmailAuth(event) {
   setLoginError("");
   setAuthLoading(true);
 
-  const email = document.getElementById("login-email")?.value.trim();
+  const email = document.getElementById("login-email")?.value.trim().toLowerCase();
   const password = document.getElementById("login-password")?.value;
 
   if (!email || !password) {

@@ -34,7 +34,23 @@
     openLoginDrawer();
   }
 
+  function bindFormGuard() {
+    const form = document.getElementById("jj-drawer-login-form");
+    if (!form || form.dataset.submitGuard === "true") return;
+    form.dataset.submitGuard = "true";
+    form.setAttribute("action", "");
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+      },
+      true,
+    );
+  }
+
   function bindUi() {
+    bindFormGuard();
+
     document.querySelectorAll("[data-open-login-drawer], #jj-profile-link").forEach((node) => {
       if (node.dataset.loginUiBound === "true") return;
       node.dataset.loginUiBound = "true";

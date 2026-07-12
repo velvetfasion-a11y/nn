@@ -37,7 +37,7 @@
             <p class="login-intro">Sign in to manage your profile, orders, and saved items.</p>
             <p id="login-error" class="login-error" hidden></p>
 
-            <form id="email-login-form" class="login-form profile-form">
+            <form id="email-login-form" class="login-form profile-form" action="" method="post" novalidate>
               <div class="form-group">
                 <label for="login-email">Email Address</label>
                 <input type="email" id="login-email" name="email" autocomplete="email" required>
@@ -238,8 +238,11 @@
     </main>
   </div>
 
-  <script type="module" src="js/account-auth.js"></script>
-  <script type="module" src="js/auth-nav.js"></script>
+  <script src="js/firebase-config.public.js?v=1"></script>
+  <script src="js/admin-config.public.js?v=2"></script>
+  <script src="js/auth-form-guard.js?v=1"></script>
+  <script type="module" src="js/account-auth.js?v=2"></script>
+  <script type="module" src="js/auth-nav.js?v=2"></script>
   <script src="js/account.js" defer></script>
   <script src="js/ai-knowledge.js" defer></script>
   <script src="js/ai-chat.js" defer></script>

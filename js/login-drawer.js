@@ -65,7 +65,7 @@ function getFriendlyAuthError(error) {
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled.";
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in.";
+      return "This domain is not authorized for sign-in. Add jamiljamila.com in Firebase → Authentication → Authorized domains, or log in at /jamiljamila-admin.html";
     default:
       return error.message || "Could not sign in. Please try again.";
   }
@@ -156,7 +156,7 @@ async function completeSignIn(user) {
 
   if (isAdminUser(user)) {
     closeLoginDrawer();
-    window.location.href = adminPageUrl();
+    window.location.replace(adminPageUrl());
     return;
   }
 
@@ -203,7 +203,7 @@ async function handleEmailAuth(event) {
   setLoginError("");
   setAuthLoading(true);
 
-  const email = document.getElementById("jj-drawer-login-email")?.value.trim();
+  const email = document.getElementById("jj-drawer-login-email")?.value.trim().toLowerCase();
   const password = passwordInput?.value;
 
   if (!email || !password) {
@@ -230,6 +230,8 @@ async function handleEmailAuth(event) {
     setAuthLoading(false);
   }
 }
+
+window.__jjHandleDrawerLogin = handleEmailAuth;
 
 function bindUi() {
   drawer?.querySelectorAll("[data-jj-close-login]").forEach((node) => {
@@ -307,4 +309,11 @@ async function init() {
   syncSignedInState(auth.currentUser);
 }
 
-init();
+init().catch((error) => {
+  console.error("[login-drawer] init failed:", error);
+  if (loginError) {
+    loginError.hidden = false;
+    loginError.textContent =
+      "Sign-in could not start. Refresh the page or use jamiljamila.com/jamiljamila-admin.html to log in.";
+  }
+});

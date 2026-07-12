@@ -412,11 +412,14 @@ def build() -> None:
 </head>
 <body>
 {body}
+<script src="js/firebase-config.public.js?v=1"></script>
+<script src="js/admin-config.public.js?v=2"></script>
+<script src="js/auth-form-guard.js?v=1"></script>
 <script src="js/i18n.js" defer></script>
-<script src="js/login-drawer-ui.js" defer></script>
-<script type="module" src="js/firebase.js"></script>
-<script type="module" src="js/login-drawer.js"></script>
-<script type="module" src="js/auth-nav.js"></script>
+<script src="js/login-drawer-ui.js?v=4" defer></script>
+<script type="module" src="js/firebase.js?v=2"></script>
+<script type="module" src="js/login-drawer.js?v=4"></script>
+<script type="module" src="js/auth-nav.js?v=2"></script>
 <script src="js/motion.js" defer></script>
 <script src="js/menu.js" defer></script>
 <script src="js/mobile-menu.js" defer></script>
