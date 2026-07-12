@@ -126,6 +126,72 @@
   margin-left: 0.2em;
 }
 
+.jj-footer-locale {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.jj-footer-locale__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.jj-footer-locale__caret {
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.jj-footer-locale__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 30;
+  min-width: 160px;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  background: #1c1a18;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.jj-footer-locale__option {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "Jost", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+
+.jj-footer-locale__option:hover,
+.jj-footer-locale__option[aria-selected="true"] {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+html[dir="rtl"] .jj-footer-locale__menu {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .jj-footer-locale__option {
+  text-align: right;
+}
+
 @media (max-width: 720px) {
   #site-root footer#comp-kbgakxmn .jj-footer-titles__links {
     justify-content: flex-start;

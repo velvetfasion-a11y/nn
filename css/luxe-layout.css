@@ -194,7 +194,7 @@ body {
 }
 
 #site-root :where(.comp-mmq66nkt) h2::after {
-  content: "The Collections";
+  content: var(--jj-collections-heading, "The Collections");
   order: 1;
   display: block;
   font-family: "Cormorant Garamond", Georgia, serif;
@@ -243,16 +243,23 @@ body {
 
 #site-root :where(.comp-mmq82nh7) img,
 #site-root :where(.comp-mmq8486o) img,
-#site-root :where(.comp-mmq84fyo) img {
+#site-root :where(.comp-mmq84fyo) img,
+#site-root :where(.comp-mmq82nh7) .jj-image-frame__fill,
+#site-root :where(.comp-mmq8486o) .jj-image-frame__fill,
+#site-root :where(.comp-mmq84fyo) .jj-image-frame__fill {
   filter: brightness(0.94);
-  transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1), filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: transform 0.65s cubic-bezier(0.25, 0.1, 0.25, 1),
+    filter 0.65s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 #site-root :where(.comp-mmq82nh7):hover img,
 #site-root :where(.comp-mmq8486o):hover img,
-#site-root :where(.comp-mmq84fyo):hover img {
+#site-root :where(.comp-mmq84fyo):hover img,
+#site-root :where(.comp-mmq82nh7):hover .jj-image-frame__fill,
+#site-root :where(.comp-mmq8486o):hover .jj-image-frame__fill,
+#site-root :where(.comp-mmq84fyo):hover .jj-image-frame__fill {
   filter: brightness(1);
-  transform: scale(1.045);
+  transform: scale(calc(var(--jj-focus-scale, 1) * 1.045));
 }
 
 /* ── Product carousel ── */
@@ -298,20 +305,41 @@ body {
 
 .jj-product-carousel__track {
   --jj-gap: 20px;
+  --jj-card-ratio: 3 / 4;
+  align-items: stretch;
 }
 
 .jj-product-card__media {
-  aspect-ratio: 4 / 5;
+  position: relative;
+  width: 100%;
   margin-bottom: 18px;
+  overflow: hidden;
   background: #ede8df;
 }
 
+/* Reliable 3:4 frame even when img is position:absolute */
+.jj-product-card__media::before {
+  content: "";
+  display: block;
+  padding-top: 133.333%;
+}
+
 .jj-product-card__media img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover !important;
+  object-position: center center;
   transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.jj-product-card:hover .jj-product-card__media img {
-  transform: scale(1.04);
+.jj-product-card:hover .jj-product-card__media img,
+.jj-product-card:hover .jj-product-card__media .jj-image-frame__fill {
+  transform: scale(calc(var(--jj-focus-scale, 1) * 1.04));
 }
 
 .jj-product-card__name {

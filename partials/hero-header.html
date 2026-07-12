@@ -3,21 +3,21 @@
     <a class="jj-brand" href="/" aria-label="Jamil Jamila home">JAMIL JAMILA</a>
 
     <nav class="jj-nav" id="jj-nav" aria-label="Main">
-      <a href="/" class="jj-nav__link">HOME</a>
-      <a href="#jj-his" class="jj-nav__link" data-jj-scroll="comp-mmq8486o">HIS</a>
-      <a href="#jj-hers" class="jj-nav__link" data-jj-scroll="comp-mmq82nh7">HERS</a>
-      <a href="#jj-kids" class="jj-nav__link" data-jj-scroll="comp-mmq84fyo">KIDS</a>
+      <a href="/" class="jj-nav__link" data-i18n="nav.home">HOME</a>
+      <a href="#jj-his" class="jj-nav__link" data-jj-scroll="comp-mmq8486o" data-i18n="nav.his">HIS</a>
+      <a href="#jj-hers" class="jj-nav__link" data-jj-scroll="comp-mmq82nh7" data-i18n="nav.hers">HERS</a>
+      <a href="#jj-kids" class="jj-nav__link" data-jj-scroll="comp-mmq84fyo" data-i18n="nav.kids">KIDS</a>
     </nav>
 
     <div class="jj-header-actions">
-      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-search-btn" aria-label="Search">
+      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-search-btn" data-i18n-aria="header.search" aria-label="Search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </button>
-      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-wishlist-btn" aria-label="Wishlist">
+      <button type="button" class="jj-icon-btn jj-icon-btn--desktop" id="jj-wishlist-btn" data-i18n-aria="header.wishlist" aria-label="Wishlist">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
       </button>
-      <button type="button" class="jj-notify-btn" id="jj-header-notify-btn" data-jj-open-notify>GET NOTIFIED</button>
-      <button type="button" class="jj-icon-btn" id="jj-profile-link" data-open-login-drawer aria-label="Account">
+      <button type="button" class="jj-notify-btn" id="jj-header-notify-btn" data-jj-open-notify data-i18n="header.getNotified">GET NOTIFIED</button>
+      <button type="button" class="jj-icon-btn" id="jj-profile-link" data-open-login-drawer data-i18n-aria="header.account" aria-label="Account">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       </button>
       <button type="button" class="jj-menu-btn" id="jj-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="jj-nav">
@@ -27,7 +27,7 @@
   </div>
 </header>
 
-<section class="jj-hero" id="jj-hero" aria-label="Featured collection">
+<section class="jj-hero" id="jj-hero" data-i18n-aria="hero.aria" aria-label="Featured collection">
   <div class="jj-hero__frame">
     <div class="jj-hero__visual">
       <div class="jj-hero__media" role="img" aria-label="Jamil Jamila collection"></div>
@@ -35,11 +35,11 @@
     </div>
     <div class="jj-hero__inner">
       <div class="jj-hero__content">
-        <p class="jj-hero__eyebrow">Coming Soon</p>
-        <h1 class="jj-hero__title">A House of Quiet Confidence</h1>
-        <button type="button" class="jj-hero__cta-btn" id="jj-hero-notify-btn" data-jj-open-notify>Get Notified When Launched</button>
+        <p class="jj-hero__eyebrow" data-i18n="hero.comingSoon">Coming Soon</p>
+        <h1 class="jj-hero__title" data-i18n="hero.title">A House of Quiet Confidence</h1>
+        <button type="button" class="jj-hero__cta-btn" id="jj-hero-notify-btn" data-jj-open-notify data-i18n="hero.notifyBtn">Get Notified When Launched</button>
         <div class="jj-hero__link-wrap">
-          <a href="#collections" class="jj-hero__cta" id="jj-hero-cta" data-jj-scroll="comp-mmq66nkt">Explore Collection</a>
+          <a href="#collections" class="jj-hero__cta" id="jj-hero-cta" data-jj-scroll="comp-mmq66nkt" data-i18n="hero.explore">Explore Collection</a>
         </div>
       </div>
     </div>
@@ -51,20 +51,20 @@
   <div class="jj-waitlist-modal__panel" role="document">
     <div class="jj-waitlist-modal__header">
       <div>
-        <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title">Join the circle</h3>
-        <p class="jj-waitlist-modal__sub">Wear the moment, before anyone else.</p>
+        <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title" data-i18n="waitlist.title">Join the circle</h3>
+        <p class="jj-waitlist-modal__sub" data-i18n="waitlist.sub">Wear the moment, before anyone else.</p>
       </div>
-      <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal aria-label="Close">&times;</button>
+      <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal data-i18n-aria="waitlist.close" aria-label="Close">&times;</button>
     </div>
 
     <section class="notify-section jj-waitlist-notify">
       <form class="notify-form jj-waitlist-form" id="jj-waitlist-form">
-        <input class="notify-input jj-waitlist-input" type="email" placeholder="your@email.com" autocomplete="email" required>
-        <button class="notify-btn jj-waitlist-submit" type="submit">RESERVE MY PLACE</button>
-        <p class="jj-waitlist-note">Cancel anytime</p>
+        <input class="notify-input jj-waitlist-input" type="email" data-i18n-placeholder="waitlist.placeholder" placeholder="your@email.com" autocomplete="email" required>
+        <button class="notify-btn jj-waitlist-submit" type="submit" data-i18n="waitlist.submit">RESERVE MY PLACE</button>
+        <p class="jj-waitlist-note" data-i18n="waitlist.note">Cancel anytime</p>
       </form>
       <div class="notify-success jj-waitlist-success" id="jj-waitlist-success">
-        <span>Thank you. A personal note will arrive in your inbox soon.</span>
+        <span data-i18n="waitlist.success">Thank you. A personal note will arrive in your inbox soon.</span>
       </div>
     </section>
   </div>

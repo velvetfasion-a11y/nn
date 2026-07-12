@@ -97,6 +97,12 @@
     }
   });
 
+  document.addEventListener("jj:locale-change", () => {
+    if (!menuBtn || !window.JJ_I18N) return;
+    const open = nav?.classList.contains("is-open");
+    menuBtn.setAttribute("aria-label", window.JJ_I18N.t(open ? "header.closeMenu" : "header.openMenu"));
+  });
+
   document.querySelector('.jj-nav__link[href="/"]')?.addEventListener("click", (event) => {
     if (window.location.pathname === "/" || window.location.pathname.endsWith("/index.html")) {
       event.preventDefault();

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import { handleAdminUpload } from "./admin-upload.js";
 import { handleLaunchSignup, handleProfileCreated } from "./email.js";
 import { recordLaunchSignup } from "./subscribers.js";
 
@@ -8,6 +9,7 @@ const app = express();
 const port = Number(process.env.API_PORT || 3001);
 
 app.use(cors());
+app.post("/api/admin-upload", express.json({ limit: "8mb" }), handleAdminUpload);
 app.use(express.json({ limit: "32kb" }));
 
 function isValidEmail(email) {
@@ -37,7 +39,8 @@ app.post("/api/notify-signup", async (req, res) => {
       console.error("notify-signup emails failed:", error);
       return res.status(500).json({
         error:
-          "Could not send emails. Check MailerSend API token permissions in .env, then restart npm run dev.",
+          error?.message ||
+          "Could not send emails. Check MailerSend settings in .env, then restart npm run dev.",
       });
     }
     return res.json({ ok: true, duplicate: !signup.isNew });

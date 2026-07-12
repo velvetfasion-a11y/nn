@@ -1,9 +1,23 @@
 <nav class="jj-footer-titles" aria-label="Footer links">
   <div class="jj-footer-titles__links">
-    <a href="#" class="jj-footer-titles__link">LOCATION</a>
-    <a href="#" class="jj-footer-titles__link">CLIENT SERVICE</a>
-    <a href="#" class="jj-footer-titles__link">ABOUT US</a>
-    <a href="#" class="jj-footer-titles__link">LEGAL</a>
-    <a href="#" class="jj-footer-titles__link jj-footer-titles__locale">SWEDEN – EN <span aria-hidden="true">▾</span></a>
+    <a href="#" class="jj-footer-titles__link" data-i18n="footer.location">LOCATION</a>
+    <a href="#" class="jj-footer-titles__link" data-i18n="footer.clientService">CLIENT SERVICE</a>
+    <a href="#" class="jj-footer-titles__link" data-i18n="footer.aboutUs">ABOUT US</a>
+    <a href="#" class="jj-footer-titles__link" data-i18n="footer.legal">LEGAL</a>
+    <div class="jj-footer-locale" id="jj-footer-locale">
+      <button
+        type="button"
+        class="jj-footer-titles__link jj-footer-locale__toggle"
+        id="jj-locale-toggle"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-controls="jj-locale-menu"
+        data-i18n-aria="footer.chooseLanguage"
+      >
+        <span data-i18n="locale.display">SWEDEN – EN</span>
+        <span class="jj-footer-locale__caret" aria-hidden="true">▾</span>
+      </button>
+      <ul class="jj-footer-locale__menu" id="jj-locale-menu" role="listbox" hidden></ul>
+    </div>
   </div>
 </nav>

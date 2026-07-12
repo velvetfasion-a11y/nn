@@ -4,16 +4,25 @@ import {
   recalculateStock,
   removeProduct,
   saveProduct,
-  seedProductsIfEmpty,
   uploadProductImage,
 } from "./admin-store.js";
+import { initSiteContentAdmin, reloadSiteContentAdmin } from "./admin-site-content.js";
 
 let products = [];
 let currentProductId = null;
 let isCreatingProduct = false;
 let draftProduct = null;
+let currentView = "overview";
 
 const DEFAULT_VARIANTS = { XS: 0, S: 0, M: 0, L: 0, XL: 0 };
+
+const VIEWS = {
+  overview: "admin-view-overview",
+  products: "admin-view-products",
+  content: "admin-view-content",
+  "product-new": "admin-view-product-form",
+  "product-edit": "admin-view-product-form",
+};
 
 function escapeHtml(value) {
   return String(value)
@@ -24,63 +33,171 @@ function escapeHtml(value) {
 }
 
 function formatPrice(n) {
-  return Number(n).toLocaleString("sv-SE") + ",00 kr";
+  return Number(n).toLocaleString("sv-SE") + " €";
 }
 
 function stockBadge(p) {
   if (p.stockLevel === "ok") {
-    return '<span class="status-badge in-lager">• I lager</span>';
+    return '<span class="status-badge in-lager">I lager</span>';
   }
   if (p.stockLevel === "low") {
-    return '<span class="status-badge low-lager">• Lågt lager</span>';
+    return '<span class="status-badge low-lager">Lågt lager</span>';
   }
-  return '<span class="status-badge out-of-lager">• Slut i lager</span>';
+  return '<span class="status-badge out-of-lager">Slut</span>';
 }
 
-function productImageMarkup(p) {
+function totalStock(product) {
+  return Object.values(product.variants || {}).reduce(
+    (sum, qty) => sum + (Number(qty) || 0),
+    0,
+  );
+}
+
+function updateOverviewCount() {
+  const el = document.getElementById("overviewProductCount");
+  if (el) el.textContent = String(products.length);
+}
+
+function setActiveTab(view) {
+  document.querySelectorAll(".admin-tabs a[data-view]").forEach((tab) => {
+    const tabView = tab.dataset.view;
+    const isForm = view === "product-new" || view === "product-edit";
+    tab.classList.toggle(
+      "active",
+      tabView === view || (isForm && tabView === "products"),
+    );
+  });
+}
+
+function showView(view) {
+  currentView = view;
+
+  Object.entries(VIEWS).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const show =
+      key === view ||
+      (view === "product-new" && key === "product-new") ||
+      (view === "product-edit" && key === "product-edit");
+    if (key === "product-new" || key === "product-edit") return;
+    el.hidden = !show;
+  });
+
+  const formView = document.getElementById("admin-view-product-form");
+  if (formView) {
+    formView.hidden = view !== "product-new" && view !== "product-edit";
+  }
+
+  setActiveTab(view);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function parseHash() {
+  const hash = (window.location.hash || "#overview").slice(1);
+  if (hash === "product/new") return "product-new";
+  if (hash.startsWith("product/edit/")) return "product-edit";
+  if (hash === "products") return "products";
+  if (hash === "content") return "content";
+  if (hash === "overview") return "overview";
+  return "overview";
+}
+
+function navigate(view, productId = null) {
+  if (view === "product-new") {
+    window.location.hash = "product/new";
+    openCreateProduct();
+    return;
+  }
+  if (view === "product-edit" && productId) {
+    window.location.hash = `product/edit/${productId}`;
+    openEdit(productId);
+    return;
+  }
+  if (view === "products") window.location.hash = "products";
+  else if (view === "content") window.location.hash = "content";
+  else if (view === "overview") window.location.hash = "overview";
+  showView(view);
+}
+
+function onHashChange() {
+  const view = parseHash();
+  if (view === "product-new") {
+    if (!isCreatingProduct) openCreateProduct();
+    else showView("product-new");
+    return;
+  }
+  if (view === "product-edit") {
+    const id = window.location.hash.split("/").pop();
+    if (id && id !== currentProductId && !isCreatingProduct) {
+      openEdit(id);
+    } else {
+      showView("product-edit");
+    }
+    return;
+  }
+  isCreatingProduct = false;
+  draftProduct = null;
+  currentProductId = null;
+  showView(view);
+  if (view === "products") renderProductTable(getFilteredProducts());
+  if (view === "content") void reloadSiteContentAdmin();
+}
+
+function getFilteredProducts() {
+  const q = document.getElementById("searchInput")?.value.toLowerCase().trim();
+  if (!q) return products;
+  return products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(q) ||
+      String(p.sku).toLowerCase().includes(q),
+  );
+}
+
+function productThumbMarkup(p) {
   if (p.images?.length) {
-    return `<img src="${escapeHtml(p.images[0])}" alt="${escapeHtml(p.name)}" class="product-image">`;
+    return `<img src="${escapeHtml(p.images[0])}" alt="" class="admin-prod-thumb">`;
   }
-
-  const label = escapeHtml(p.name.split(" ").slice(0, 1).join(" ").toUpperCase());
-  return `<div class="product-image-placeholder">${label}</div>`;
+  return `<div class="admin-prod-thumb admin-prod-thumb-placeholder">—</div>`;
 }
 
-function renderProductGrid(list = products) {
-  const grid = document.getElementById("productGrid");
-  if (!grid) return;
+function renderProductTable(list = products) {
+  const tbody = document.getElementById("productTableBody");
+  const empty = document.getElementById("productTableEmpty");
+  const table = tbody?.closest("table");
+  if (!tbody || !empty) return;
+
+  updateOverviewCount();
 
   if (!list.length) {
-    grid.innerHTML = `
-      <div class="product-grid-empty">
-        <p>Inga produkter att visa.</p>
-        <button type="button" class="admin-add-product-btn" data-action="create-product">
-          <span aria-hidden="true">+</span>
-          Lägg till produkt
-        </button>
-      </div>
-    `;
+    tbody.innerHTML = "";
+    empty.hidden = false;
+    if (table) table.hidden = true;
     return;
   }
 
-  grid.innerHTML = list
+  empty.hidden = true;
+  if (table) table.hidden = false;
+
+  tbody.innerHTML = list
     .map(
       (p) => `
-    <article class="product-card" data-product-id="${escapeHtml(p.id)}">
-      <input type="checkbox" class="product-card-checkbox" aria-label="Välj ${escapeHtml(p.name)}">
-      ${productImageMarkup(p)}
-      <div class="product-details">
-        <h3 class="product-name">${escapeHtml(p.name)}</h3>
-        <p class="product-variants">${Object.keys(p.variants || {}).length} varianter</p>
-        <p class="product-sku">SKU: ${escapeHtml(p.sku)}</p>
-        <p class="product-price">${formatPrice(p.price)}</p>
-        ${stockBadge(p)}
-      </div>
-      <button type="button" class="edit-button" data-action="edit" data-id="${escapeHtml(p.id)}">
-        <i class="edit-icon" aria-hidden="true"></i>
-        Redigera Produkt
-      </button>
-    </article>
+    <tr>
+      <td>
+        <div class="admin-prod-cell">
+          ${productThumbMarkup(p)}
+          <div>
+            <div class="admin-prod-name">${escapeHtml(p.name)}</div>
+            <div class="admin-prod-meta">${Object.keys(p.variants || {}).length} storlekar</div>
+          </div>
+        </div>
+      </td>
+      <td>${escapeHtml(p.sku)}</td>
+      <td>${formatPrice(p.price)}</td>
+      <td>${stockBadge(p)}</td>
+      <td>
+        <button type="button" class="admin-table-link" data-action="edit" data-id="${escapeHtml(p.id)}">Redigera</button>
+      </td>
+    </tr>
   `,
     )
     .join("");
@@ -103,122 +220,131 @@ function nextSku() {
   return `JJ-${String(next).padStart(3, "0")}`;
 }
 
-function setModalMode(mode) {
-  const eyebrow = document.getElementById("modalEyebrow");
-  const title = document.getElementById("modalProductName");
-  const saveBtn = document.getElementById("modalSaveBtn");
-  const deleteBtn = document.getElementById("modalDeleteBtn");
+function setFormMode(mode) {
+  const title = document.getElementById("productFormTitle");
+  const deleteBtn = document.getElementById("productFormDelete");
+  const saveBtn = document.getElementById("productFormSave");
 
   if (deleteBtn) deleteBtn.hidden = mode === "create";
-
-  if (mode === "create") {
-    if (eyebrow) eyebrow.textContent = "Ny produkt";
-    if (title) title.textContent = "Lägg till produkt";
-    if (saveBtn) saveBtn.textContent = "Spara produkt";
-    return;
-  }
-
-  if (eyebrow) eyebrow.textContent = "Redigera produkt";
-  if (saveBtn) saveBtn.textContent = "Spara ändringar";
+  if (title) title.textContent = mode === "create" ? "Ny produkt" : "Redigera produkt";
+  if (saveBtn) saveBtn.textContent = mode === "create" ? "Spara" : "Spara ändringar";
 }
 
 function renderVariantRows(variants) {
-  const vr = document.getElementById("variantRows");
-  vr.innerHTML = Object.entries(variants || DEFAULT_VARIANTS)
+  const container = document.getElementById("variantRows");
+  if (!container) return;
+
+  container.innerHTML = Object.entries(variants || DEFAULT_VARIANTS)
     .map(
       ([size, qty]) => `
-    <div class="variant-row">
-      <span class="variant-size">${escapeHtml(size)}</span>
-      <input type="number" class="variant-stock-input" value="${qty}" min="0" data-size="${escapeHtml(size)}" id="stock-${escapeHtml(size)}">
-      <span class="variant-label">st i lager</span>
+    <div class="admin-color-row">
+      <div class="admin-field" style="align-self:center">
+        <label>${escapeHtml(size)}</label>
+      </div>
+      <div class="admin-color-fields">
+        <div class="admin-field">
+          <label for="stock-${escapeHtml(size)}">Antal i lager</label>
+          <input type="number" min="0" step="1" value="${qty}" data-size="${escapeHtml(size)}" id="stock-${escapeHtml(size)}">
+        </div>
+      </div>
     </div>
   `,
     )
     .join("");
+
+  updateTotalInventory();
+}
+
+function updateTotalInventory() {
+  const inv = document.getElementById("fieldInventory");
+  if (!inv) return;
+
+  let total = 0;
+  Object.keys(DEFAULT_VARIANTS).forEach((size) => {
+    const input = document.getElementById(`stock-${size}`);
+    if (input) total += parseInt(input.value, 10) || 0;
+  });
+  inv.value = String(total);
+}
+
+function fillForm(product) {
+  document.getElementById("fieldTitle").value = product.name || "";
+  document.getElementById("fieldCategory").value = product.category || "";
+  document.getElementById("fieldType").value = product.type || "Fysisk";
+  document.getElementById("fieldDescription").value = product.description || "";
+  document.getElementById("fieldSku").value = product.sku || "";
+  document.getElementById("fieldPrice").value = product.price ? String(product.price) : "";
+  renderVariantRows(product.variants || DEFAULT_VARIANTS);
+  renderImageGallery(product.images || []);
 }
 
 function openCreateProduct() {
-  try {
-    isCreatingProduct = true;
-    currentProductId = null;
-    draftProduct = {
-      name: "",
-      type: "Fysisk",
-      sku: nextSku(),
-      price: 0,
-      variants: { ...DEFAULT_VARIANTS },
-      images: [],
-      sortOrder: products.length + 1,
-    };
+  isCreatingProduct = true;
+  currentProductId = null;
+  draftProduct = {
+    name: "",
+    type: "Fysisk",
+    category: "",
+    description: "",
+    sku: nextSku(),
+    price: 0,
+    variants: { ...DEFAULT_VARIANTS },
+    images: [],
+    sortOrder: products.length + 1,
+  };
 
-    setModalMode("create");
-
-    const nameInput = document.getElementById("editName");
-    const priceInput = document.getElementById("editPrice");
-    const skuInput = document.getElementById("editSku");
-    const modal = document.getElementById("editModal");
-
-    if (!nameInput || !priceInput || !skuInput || !modal) {
-      console.error("Create product modal elements missing");
-      showToast("Kunde inte öppna formuläret");
-      return;
-    }
-
-    nameInput.value = "";
-    priceInput.value = "";
-    skuInput.value = draftProduct.sku;
-    renderVariantRows(draftProduct.variants);
-    renderImagePreviews([]);
-    modal.classList.add("open");
-    nameInput.focus();
-  } catch (error) {
-    console.error("openCreateProduct failed:", error);
-    showToast("Kunde inte öppna formuläret");
-  }
+  setFormMode("create");
+  fillForm(draftProduct);
+  showView("product-new");
+  document.getElementById("fieldTitle")?.focus();
 }
 
 function openEdit(id) {
   const p = getProduct(id);
-  if (!p) return;
+  if (!p) {
+    showToast("Produkten hittades inte");
+    navigate("products");
+    return;
+  }
 
   isCreatingProduct = false;
   draftProduct = null;
   currentProductId = id;
-  setModalMode("edit");
-  document.getElementById("modalProductName").textContent = p.name;
-  document.getElementById("editName").value = p.name;
-  document.getElementById("editPrice").value = p.price;
-  document.getElementById("editSku").value = p.sku;
-  renderVariantRows(p.variants || DEFAULT_VARIANTS);
-  renderImagePreviews(p.images || []);
-  document.getElementById("editModal").classList.add("open");
+  setFormMode("edit");
+  fillForm(p);
+  showView("product-edit");
 }
 
-function renderImagePreviews(images) {
-  const container = document.getElementById("imagePreviews");
-  container.innerHTML = images
+function renderImageGallery(images) {
+  const gallery = document.getElementById("imageGallery");
+  if (!gallery) return;
+
+  const thumbs = (images || [])
     .map(
       (src, i) => `
-    <div class="image-preview-wrap">
-      <img src="${escapeHtml(src)}" class="image-preview" alt="">
-      <button type="button" class="image-preview-remove" data-remove-image="${i}">✕</button>
+    <div class="admin-image-thumb">
+      <img src="${escapeHtml(src)}" alt="">
+      ${i === 0 ? '<span class="admin-image-primary">Huvudbild</span>' : ""}
+      <button type="button" class="admin-image-remove" data-remove-image="${i}" aria-label="Ta bort">&times;</button>
     </div>
   `,
     )
     .join("");
-}
 
-function closeModal() {
-  document.getElementById("editModal").classList.remove("open");
-  currentProductId = null;
-  isCreatingProduct = false;
-  draftProduct = null;
+  gallery.innerHTML = `${thumbs}
+    <button type="button" class="admin-image-add" id="imageAddBtn">
+      <span style="font-size:1.5rem">+</span>
+      Lägg till bild
+    </button>`;
 }
 
 function readFormIntoProduct(product) {
-  product.name = document.getElementById("editName").value.trim() || product.name;
-  product.price = parseInt(document.getElementById("editPrice").value, 10) || 0;
-  product.sku = document.getElementById("editSku").value.trim() || product.sku;
+  product.name = document.getElementById("fieldTitle").value.trim() || product.name;
+  product.category = document.getElementById("fieldCategory").value;
+  product.type = document.getElementById("fieldType").value;
+  product.description = document.getElementById("fieldDescription").value.trim();
+  product.price = parseInt(document.getElementById("fieldPrice").value, 10) || 0;
+  product.sku = document.getElementById("fieldSku").value.trim() || product.sku;
 
   Object.keys(product.variants || DEFAULT_VARIANTS).forEach((size) => {
     const input = document.getElementById(`stock-${size}`);
@@ -236,9 +362,15 @@ async function persistProduct(product) {
   await saveProduct(id, data);
 }
 
-async function saveCurrentProduct() {
+async function saveCurrentProduct(event) {
+  event?.preventDefault();
+
   if (isCreatingProduct && draftProduct) {
-    const product = readFormIntoProduct({ ...draftProduct, variants: { ...draftProduct.variants } });
+    const product = readFormIntoProduct({
+      ...draftProduct,
+      variants: { ...draftProduct.variants },
+      images: [...(draftProduct.images || [])],
+    });
 
     if (!product.name) {
       showToast("Ange ett produktnamn");
@@ -247,9 +379,11 @@ async function saveCurrentProduct() {
 
     const newId = await createProduct(product);
     products.push({ id: newId, ...product });
-    closeModal();
-    renderProductGrid(products);
+    isCreatingProduct = false;
+    draftProduct = null;
+    renderProductTable(products);
     showToast("Produkten lades till");
+    navigate("products");
     return;
   }
 
@@ -258,31 +392,15 @@ async function saveCurrentProduct() {
 
   readFormIntoProduct(p);
   await persistProduct(p);
-  closeModal();
-  renderProductGrid(products);
+  renderProductTable(products);
   showToast("Ändringarna sparades");
-}
-
-async function duplicateProduct(id) {
-  const p = getProduct(id);
-  if (!p) return;
-
-  const clone = JSON.parse(JSON.stringify(p));
-  delete clone.id;
-  clone.name = `${p.name} (kopia)`;
-  clone.sku = `${p.sku}-K`;
-  clone.sortOrder = products.length + 1;
-
-  const newId = await createProduct(clone);
-  products.push({ id: newId, ...clone });
-  renderProductGrid(products);
-  showToast("Produkt duplicerades");
+  navigate("products");
 }
 
 async function deleteProduct(id) {
   await removeProduct(id);
   products = products.filter((item) => item.id !== id);
-  renderProductGrid(products);
+  renderProductTable(products);
   showToast("Produkt borttagen");
 }
 
@@ -299,7 +417,8 @@ async function confirmDeleteProduct() {
 
   try {
     await deleteProduct(currentProductId);
-    closeModal();
+    currentProductId = null;
+    navigate("products");
   } catch (error) {
     console.error("Delete product failed:", error);
     showToast("Kunde inte ta bort produkten");
@@ -307,14 +426,7 @@ async function confirmDeleteProduct() {
 }
 
 function filterProducts() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = q
-    ? products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) || String(p.sku).toLowerCase().includes(q),
-      )
-    : products;
-  renderProductGrid(filtered);
+  renderProductTable(getFilteredProducts());
 }
 
 function showToast(msg) {
@@ -392,25 +504,23 @@ async function fileToImageUrl(file) {
   }
 }
 
-async function handleImageUpload(event) {
+async function handleImageUpload(files) {
   const p = getActiveProduct();
   if (!p) return;
 
-  const files = Array.from(event.target.files || []).filter(isImageFile);
-  event.target.value = "";
-
-  if (!files.length) {
+  const imageFiles = Array.from(files || []).filter(isImageFile);
+  if (!imageFiles.length) {
     showToast("Välj en bildfil");
     return;
   }
 
-  for (const file of files) {
+  for (const file of imageFiles) {
     try {
       showToast("Laddar upp bild …");
       const url = await fileToImageUrl(file);
       p.images = p.images || [];
       p.images.push(url);
-      renderImagePreviews(p.images);
+      renderImageGallery(p.images);
     } catch (error) {
       console.error("Image upload failed:", error);
       showToast("Kunde inte ladda upp bilden");
@@ -418,180 +528,129 @@ async function handleImageUpload(event) {
   }
 }
 
-function addImageFromUrl() {
-  const input = document.getElementById("imageUrlInput");
-  const url = input?.value.trim();
-  if (!url) return;
-
-  let parsed;
-  try {
-    parsed = new URL(url);
-  } catch {
-    showToast("Ogiltig bildlänk");
-    return;
-  }
-
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    showToast("Bildlänken måste börja med http eller https");
-    return;
-  }
-
-  const p = getActiveProduct();
-  if (!p) return;
-
-  p.images = p.images || [];
-  p.images.push(url);
-  renderImagePreviews(p.images);
-  input.value = "";
-}
-
 function removeImage(index) {
   const p = getActiveProduct();
   if (!p?.images) return;
   p.images.splice(index, 1);
-  renderImagePreviews(p.images);
+  renderImageGallery(p.images);
 }
 
-window.closeModal = closeModal;
-window.openCreateProduct = openCreateProduct;
-window.__openCreateProductImpl = openCreateProduct;
-window.confirmDeleteProduct = confirmDeleteProduct;
-window.saveProduct = () => {
-  saveCurrentProduct().catch(() => showToast("Kunde inte spara produkten"));
-};
-window.filterProducts = filterProducts;
-window.handleImageUpload = (event) => {
-  handleImageUpload(event).catch(() => showToast("Kunde inte ladda upp bilden"));
-};
-window.addImageFromUrl = addImageFromUrl;
+function bindImageUpload() {
+  const dropZone = document.getElementById("imageDropZone");
+  const fileInput = document.getElementById("imageFileInput");
+
+  document.getElementById("adminContent")?.addEventListener("click", (event) => {
+    if (event.target.closest("#imageAddBtn")) {
+      fileInput?.click();
+    }
+    const removeBtn = event.target.closest("[data-remove-image]");
+    if (removeBtn) {
+      removeImage(Number(removeBtn.dataset.removeImage));
+    }
+  });
+
+  fileInput?.addEventListener("change", (event) => {
+    handleImageUpload(event.target.files).catch(() =>
+      showToast("Kunde inte ladda upp bilden"),
+    );
+    event.target.value = "";
+  });
+
+  if (!dropZone) return;
+
+  ["dragenter", "dragover"].forEach((type) => {
+    dropZone.addEventListener(type, (event) => {
+      event.preventDefault();
+      dropZone.classList.add("is-dragover");
+    });
+  });
+
+  ["dragleave", "drop"].forEach((type) => {
+    dropZone.addEventListener(type, (event) => {
+      event.preventDefault();
+      dropZone.classList.remove("is-dragover");
+    });
+  });
+
+  dropZone.addEventListener("drop", (event) => {
+    handleImageUpload(event.dataTransfer?.files).catch(() =>
+      showToast("Kunde inte ladda upp bilden"),
+    );
+  });
+}
 
 async function loadAdminData() {
   try {
-    products = await seedProductsIfEmpty();
-    renderProductGrid(products);
+    products = await fetchProducts();
+    renderProductTable(products);
+    updateOverviewCount();
   } catch (error) {
     console.error("Admin data load failed:", error);
     products = [];
-    renderProductGrid([]);
+    renderProductTable([]);
     showToast("Kunde inte ladda produkter. Kontrollera inloggningen.");
   }
 }
 
-function bindAdminMenu() {
-  const btn = document.getElementById("adminMenuBtn");
-  const menu = document.getElementById("adminMenu");
-  if (!btn || !menu) return;
-
-  const closeMenu = () => {
-    menu.hidden = true;
-    btn.setAttribute("aria-expanded", "false");
-  };
-
-  btn.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const willOpen = menu.hidden;
-    menu.hidden = !willOpen;
-    btn.setAttribute("aria-expanded", String(willOpen));
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!menu.hidden && !event.target.closest(".admin-menu-wrap")) {
-      closeMenu();
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeMenu();
-  });
-}
+let uiBound = false;
 
 function bindUi() {
-  bindAdminMenu();
+  if (uiBound) return;
+  uiBound = true;
+  window.addEventListener("hashchange", onHashChange);
 
-  const addBtn = document.getElementById("addProductBtn");
-  if (addBtn && addBtn.dataset.bound !== "true") {
-    addBtn.dataset.bound = "true";
-    addBtn.addEventListener("click", (event) => {
+  document.getElementById("adminTabs")?.addEventListener("click", (event) => {
+    const link = event.target.closest("a[data-view]");
+    if (!link || link.getAttribute("aria-disabled") === "true") return;
+    event.preventDefault();
+    navigate(link.dataset.view);
+  });
+
+  document.getElementById("adminContent")?.addEventListener("click", (event) => {
+    const viewLink = event.target.closest("[data-view-link]");
+    if (viewLink) {
       event.preventDefault();
-      openCreateProduct();
-    });
-  }
+      navigate(viewLink.dataset.viewLink);
+      return;
+    }
 
-  const productGrid = document.getElementById("productGrid");
-  if (productGrid && productGrid.dataset.bound !== "true") {
-    productGrid.dataset.bound = "true";
-    productGrid.addEventListener("click", async (event) => {
     const createBtn = event.target.closest("[data-action='create-product']");
     if (createBtn) {
       event.preventDefault();
-      openCreateProduct();
+      navigate("product-new");
       return;
     }
 
-    const target = event.target.closest("[data-action]");
-    if (!target) return;
-
-    const action = target.dataset.action;
-    const id = target.dataset.id;
-    if (!id) return;
-
-    event.stopPropagation();
-
-    if (action === "edit") {
-      openEdit(id);
-      return;
-    }
-
-    if (action === "duplicate") {
-      try {
-        await duplicateProduct(id);
-      } catch {
-        showToast("Kunde inte duplicera produkten");
-      }
-      return;
-    }
-
-    if (action === "delete") {
-      try {
-        await deleteProduct(id);
-      } catch {
-        showToast("Kunde inte ta bort produkten");
-      }
+    const editBtn = event.target.closest("[data-action='edit']");
+    if (editBtn?.dataset.id) {
+      event.preventDefault();
+      navigate("product-edit", editBtn.dataset.id);
     }
   });
-  }
 
-  const imageUrlForm = document.getElementById("imageUrlForm");
-  if (imageUrlForm && imageUrlForm.dataset.bound !== "true") {
-    imageUrlForm.dataset.bound = "true";
-    imageUrlForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      addImageFromUrl();
-    });
-  }
+  document.getElementById("addProductBtn")?.addEventListener("click", () => {
+    navigate("product-new");
+  });
 
-  const imagePreviews = document.getElementById("imagePreviews");
-  if (imagePreviews && imagePreviews.dataset.bound !== "true") {
-    imagePreviews.dataset.bound = "true";
-    imagePreviews.addEventListener("click", (event) => {
-      const btn = event.target.closest("[data-remove-image]");
-      if (!btn) return;
-      removeImage(Number(btn.dataset.removeImage));
-    });
-  }
+  document.getElementById("searchInput")?.addEventListener("input", filterProducts);
 
-  const editModal = document.getElementById("editModal");
-  if (editModal && editModal.dataset.bound !== "true") {
-    editModal.dataset.bound = "true";
-    editModal.addEventListener("click", (event) => {
-      if (event.target.id === "editModal") closeModal();
-    });
-  }
+  document.getElementById("productForm")?.addEventListener("submit", (event) => {
+    saveCurrentProduct(event).catch(() => showToast("Kunde inte spara produkten"));
+  });
+
+  document.getElementById("productFormDelete")?.addEventListener("click", () => {
+    confirmDeleteProduct().catch(() => showToast("Kunde inte ta bort produkten"));
+  });
+
+  document.getElementById("variantRows")?.addEventListener("input", (event) => {
+    if (event.target.matches('input[type="number"]')) updateTotalInventory();
+  });
+
+  bindImageUpload();
 }
 
 window.addEventListener("admin-ready", () => {
   bindUi();
-  void loadAdminData();
+  void initSiteContentAdmin();
+  void loadAdminData().then(() => onHashChange());
 });
-
-bindUi();

@@ -391,16 +391,28 @@ def build() -> None:
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/login-drawer.css?v=2">
-  <link rel="stylesheet" href="css/collections.css?v=2">
-  <link rel="stylesheet" href="css/hero-header.css?v=28">
-  <link rel="stylesheet" href="css/product-carousel.css?v=7">
+  <link rel="stylesheet" href="css/collections.css?v=4">
+  <link rel="stylesheet" href="css/hero-header.css?v=29">
+  <link rel="stylesheet" href="css/product-carousel.css?v=12">
   <link rel="stylesheet" href="css/about-us.css?v=11">
-  <link rel="stylesheet" href="css/footer.css?v=8">
-  <link rel="stylesheet" href="css/luxe-layout.css?v=4">
+  <link rel="stylesheet" href="css/footer.css?v=9">
+  <link rel="stylesheet" href="css/site-image-frames.css?v=2">
+  <link rel="stylesheet" href="css/luxe-layout.css?v=15">
+  <script src="js/i18n-data.js"></script>
+  <script>
+  (function () {{
+    try {{
+      var locale = localStorage.getItem("jj-locale") || "en";
+      document.documentElement.lang = locale;
+      document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+    }} catch (e) {{}}
+  }})();
+  </script>
   <script src="js/wix-viewport.js"></script>
 </head>
 <body>
 {body}
+<script src="js/i18n.js" defer></script>
 <script src="js/login-drawer-ui.js" defer></script>
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/login-drawer.js"></script>
@@ -410,8 +422,9 @@ def build() -> None:
 <script src="js/mobile-menu.js" defer></script>
 <script type="module" src="js/notify.js"></script>
 <script src="js/profile-menu.js" defer></script>
-<script src="js/hero-header.js?v=19" defer></script>
-<script src="js/product-carousel.js?v=6" defer></script>
+<script src="js/hero-header.js?v=20" defer></script>
+<script type="module" src="js/site-content.js"></script>
+<script src="js/product-carousel.js?v=8" defer></script>
 <script src="js/links.js?v=3" defer></script>
 <script src="js/footer.js?v=4" defer></script>
 <script src="js/ai-knowledge.js" defer></script>

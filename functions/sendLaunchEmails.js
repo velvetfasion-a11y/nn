@@ -1,3 +1,9 @@
+import {
+  devRelaxTrialEnabled,
+  isTrialRecipientLimitError,
+  parseMailerSendApiError,
+} from "./mailersendErrors.js";
+
 const API_TOKEN = () => process.env.MAILERSEND_API_TOKEN;
 
 const USER_TEMPLATE_ID =
@@ -81,12 +87,7 @@ async function sendMailerSendTemplate({
 
   if (!response.ok) {
     const body = await response.text();
-    if (response.status === 403) {
-      throw new Error(
-        "MailerSend rejected the send (403). Your API token needs Email send permission — create a new token in MailerSend with Full access → Email.",
-      );
-    }
-    throw new Error(`MailerSend API error (${response.status}): ${body}`);
+    throw new Error(parseMailerSendApiError(response.status, body));
   }
 }
 
@@ -158,6 +159,18 @@ export async function sendLaunchEmails(recipientEmail) {
   ]);
 
   if (userResult.status === "rejected") {
+    if (isTrialRecipientLimitError(userResult.reason) && devRelaxTrialEnabled()) {
+      console.warn(
+        "MailerSend trial limit — signup saved without user verification email (MAILERSEND_DEV_RELAX_TRIAL=true).",
+      );
+      if (adminResult.status === "rejected") {
+        console.warn(
+          "Admin notification also failed:",
+          adminResult.reason?.message || adminResult.reason,
+        );
+      }
+      return;
+    }
     throw userResult.reason;
   }
 

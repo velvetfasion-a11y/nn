@@ -68,6 +68,28 @@
   justify-self: end;
 }
 
+@media (min-width: 901px) {
+  #jj-search-btn {
+    order: 1;
+  }
+
+  #jj-wishlist-btn {
+    order: 2;
+  }
+
+  #jj-profile-link {
+    order: 3;
+  }
+
+  #jj-header-notify-btn {
+    order: 4;
+  }
+
+  #jj-menu-btn {
+    order: 5;
+  }
+}
+
 .jj-icon-btn,
 .jj-menu-btn {
   display: inline-flex;
@@ -524,13 +546,22 @@
     gap: 8px;
   }
 
+  #jj-header-notify-btn {
+    order: 1;
+  }
+
   #jj-profile-link {
+    order: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 34px;
     height: 34px;
     flex-shrink: 0;
+  }
+
+  #jj-menu-btn {
+    order: 3;
   }
 
   .jj-menu-btn {

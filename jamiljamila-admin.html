@@ -3,149 +3,204 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Alla Produkter - Jamil Jamila</title>
+  <title>Admin – Jamil Jamila</title>
   <link rel="icon" href="assets/images/logo.png" type="image/png">
-  <link rel="stylesheet" href="css/admin.css?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site-image-frames.css?v=4">
+  <link rel="stylesheet" href="css/admin.css?v=14">
 </head>
-<body>
+<body class="admin-body">
 
 <div id="admin-gate" class="admin-gate">
   <h1>Jamil Jamila Admin</h1>
-  <p id="admin-gate-status">Checking sign-in…</p>
+  <p id="admin-gate-status">Kontrollerar inloggning…</p>
 </div>
 
 <div id="admin-denied" class="admin-gate" hidden>
-  <h1>Access denied</h1>
-  <p>This admin panel is only available to the authorized administrator account.</p>
-  <p><a href="/">← Back to store</a> · <a href="/account.html">My account</a></p>
+  <h1>Åtkomst nekad</h1>
+  <p>Adminpanelen är endast tillgänglig för det auktoriserade administratörskontot.</p>
+  <p><a href="/">← Tillbaka till butiken</a> · <a href="/account.html">Mitt konto</a></p>
 </div>
 
 <div id="admin-app" hidden>
 
-<header class="admin-header">
-  <div class="admin-header-left">
-    <div class="admin-header-logo">JJ</div>
-  </div>
-  <div class="admin-header-right">
-    <span class="admin-topbar-user" id="admin-user-email" hidden></span>
-    <div class="admin-profile-icon" id="admin-profile-icon" aria-hidden="true">J</div>
-    <div class="admin-menu-wrap">
-      <button type="button" class="admin-hamburger" id="adminMenuBtn" aria-label="Meny" aria-expanded="false" aria-controls="adminMenu">
-        <span class="admin-hamburger-bar"></span>
-        <span class="admin-hamburger-bar"></span>
-        <span class="admin-hamburger-bar"></span>
-      </button>
-      <nav class="admin-menu" id="adminMenu" hidden>
-        <a href="/" class="admin-menu-link">Gå till hemsida</a>
-        <button type="button" class="admin-menu-link admin-menu-logout" id="admin-logout">Logga ut</button>
-      </nav>
-    </div>
+<header class="admin-nav">
+  <a href="/" class="logo">JAMIL <em>JAMILA</em></a>
+  <div class="admin-nav-right">
+    <span class="admin-email" id="admin-user-email"></span>
+    <button type="button" class="admin-logout" id="admin-logout">Logga ut</button>
   </div>
 </header>
 
-<main class="admin-page-container">
-  <div class="admin-page-head">
-    <h1 class="admin-page-title">Alla Produkter</h1>
-    <div class="admin-page-actions">
-      <button type="button" class="admin-add-product-btn" id="addProductBtn" onclick="openCreateProduct()">
-        <span aria-hidden="true">+</span>
-        Lägg till produkt
-      </button>
-      <div class="admin-search-box">
-        <input type="search" placeholder="Sök …" id="searchInput" oninput="filterProducts()">
+<main class="admin-main">
+  <div id="adminContent">
+
+    <nav class="admin-tabs" aria-label="Admin-navigation" id="adminTabs">
+      <a href="#overview" data-view="overview" class="active">Översikt</a>
+      <a href="#content" data-view="content">Webbplats</a>
+      <a href="#products" data-view="products">Produkter</a>
+      <a href="#orders" data-view="orders" aria-disabled="true">Ordrar</a>
+    </nav>
+
+    <!-- Översikt -->
+    <section id="admin-view-overview" class="admin-view">
+      <h1>Adminpanel</h1>
+      <p class="admin-sub">Hantera butiken och sortimentet</p>
+
+      <div class="admin-grid">
+        <a href="#products" class="admin-stat admin-stat-link" data-view-link="products">
+          <div class="admin-stat-label">Produkter</div>
+          <div class="admin-stat-value" id="overviewProductCount">0</div>
+        </a>
+        <div class="admin-stat">
+          <div class="admin-stat-label">Butiker</div>
+          <div class="admin-stat-value">1</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat-label">Status</div>
+          <div class="admin-stat-value" style="font-size:1.2rem">Live</div>
+        </div>
       </div>
-    </div>
+
+      <div class="admin-panel">
+        <h2>Snabblänkar</h2>
+        <ul class="admin-list">
+          <li><a href="#content" data-view-link="content">Webbplats &amp; bilder <span>→</span></a></li>
+          <li><a href="#products" data-view-link="products">Produkter (tabellvy) <span>→</span></a></li>
+          <li><a href="#product/new" data-view-link="product-new">Ny produkt <span>→</span></a></li>
+          <li><a href="/" target="_blank" rel="noopener">Visa webbplatsen <span>→</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Produkter -->
+    <section id="admin-view-products" class="admin-view" hidden>
+      <div class="admin-products-head">
+        <div>
+          <h1>Produkter</h1>
+          <p class="admin-sub" style="margin-bottom:0">Alla produkter i sortimentet</p>
+        </div>
+        <div class="admin-products-actions">
+          <input type="search" class="admin-search" id="searchInput" placeholder="Sök …" aria-label="Sök produkter">
+          <button type="button" class="admin-btn" id="addProductBtn">+ Ny produkt</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Produkt</th>
+              <th>SKU</th>
+              <th>Pris</th>
+              <th>Lager</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody"></tbody>
+        </table>
+        <div class="admin-table-empty" id="productTableEmpty" hidden>
+          <p>Inga produkter ännu. Lägg till din första produkt för att visa den i butiken.</p>
+          <button type="button" class="admin-btn" data-action="create-product">+ Lägg till produkt</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Webbplatsinnehåll -->
+    <section id="admin-view-content" class="admin-view" hidden>
+      <h1>Webbplatsinnehåll</h1>
+      <p class="admin-sub">Redigera bilder och titlar på startsidan — hero, kollektioner, Signature Pieces och About.</p>
+      <form class="admin-form" id="siteContentForm"></form>
+    </section>
+
+    <!-- Produktformulär -->
+    <section id="admin-view-product-form" class="admin-view" hidden>
+      <a href="#products" class="admin-back" data-view-link="products">← Tillbaka till produkter</a>
+
+      <h1 id="productFormTitle">Ny produkt</h1>
+      <p class="admin-sub">Fyll i uppgifterna och ladda upp bilder</p>
+
+      <form class="admin-form" id="productForm">
+
+        <div class="admin-form-card admin-image-card" id="imageDropZone">
+          <h2>Produktbilder</h2>
+          <p class="admin-image-help">Dra och släpp bilder här, eller klicka på «Lägg till bild». Första bilden visas först i butiken.</p>
+          <div class="admin-image-grid" id="imageGallery"></div>
+          <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" multiple hidden>
+        </div>
+
+        <div class="admin-form-card">
+          <h2>Produktuppgifter</h2>
+          <div class="admin-form-grid">
+            <div class="admin-field full">
+              <label for="fieldTitle">Namn</label>
+              <input type="text" id="fieldTitle" placeholder="t.ex. Svart lång kappa" required>
+            </div>
+            <div class="admin-field">
+              <label for="fieldCategory">Kategori</label>
+              <select id="fieldCategory">
+                <option value="">Välj kategori…</option>
+                <option value="women">Dam</option>
+                <option value="men">Herr</option>
+                <option value="kids">Barn</option>
+                <option value="accessories">Accessoarer</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="fieldType">Typ</label>
+              <select id="fieldType">
+                <option value="Fysisk">Fysisk</option>
+                <option value="Digital">Digital</option>
+              </select>
+            </div>
+            <div class="admin-field full">
+              <label for="fieldDescription">Produktinformation</label>
+              <textarea id="fieldDescription" rows="4" placeholder="Beskriv produkten – visas på produktsidan"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="fieldSku">SKU</label>
+              <input type="text" id="fieldSku" placeholder="t.ex. JJ-001">
+            </div>
+            <div class="admin-field">
+              <label for="fieldPrice">Pris (€)</label>
+              <input type="number" id="fieldPrice" min="0" step="1" placeholder="250">
+            </div>
+            <div class="admin-field">
+              <label for="fieldInventory">Totalt lager</label>
+              <input type="number" id="fieldInventory" min="0" step="1" value="0" readonly>
+              <p class="admin-field-hint">Summeras automatiskt från storlekarna nedan.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-form-card">
+          <h2>Storlekar &amp; lager</h2>
+          <p class="admin-image-help">Ange lagersaldo per storlek.</p>
+          <div class="admin-color-list" id="variantRows"></div>
+        </div>
+
+        <div class="admin-form-actions">
+          <button type="submit" class="admin-btn" id="productFormSave">Spara</button>
+          <a href="#products" class="admin-btn-outline" data-view-link="products">Avbryt</a>
+          <button type="button" class="admin-btn-danger" id="productFormDelete" hidden>Ta bort produkt</button>
+        </div>
+      </form>
+    </section>
+
   </div>
-  <div class="product-grid" id="productGrid"></div>
 </main>
 
 </div>
 
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <p class="modal-eyebrow" id="modalEyebrow">Redigera produkt</p>
-        <h2 class="modal-title" id="modalProductName">—</h2>
-      </div>
-      <button type="button" class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-section">
-        <p class="form-section-title">Pris &amp; info</p>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="editPrice">Pris (SEK)</label>
-            <div class="form-input-prefix">
-              <span class="prefix">kr</span>
-              <input type="number" class="form-input" id="editPrice" style="border-left:none;" placeholder="0">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="editSku">SKU</label>
-            <input type="text" class="form-input" id="editSku" placeholder="JJ-001">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="editName">Produktnamn</label>
-          <input type="text" class="form-input" id="editName" placeholder="Produktnamn">
-        </div>
-      </div>
-
-      <div class="form-section">
-        <p class="form-section-title">Lagersaldo per storlek</p>
-        <div id="variantRows"></div>
-      </div>
-
-      <div class="form-section">
-        <p class="form-section-title">Produktbilder</p>
-        <div class="image-upload-area" onclick="document.getElementById('imageFileInput').click()">
-          <input type="file" id="imageFileInput" multiple onchange="handleImageUpload(event)">
-          <div class="image-upload-text">
-            <strong>Ladda upp valfri bild</strong>
-            JPG, PNG, WEBP, HEIC m.fl. — eller klistra in en länk nedan
-          </div>
-        </div>
-        <form class="image-url-row" id="imageUrlForm">
-          <input type="url" id="imageUrlInput" placeholder="https://exempel.se/bild.jpg" aria-label="Bildlänk">
-          <button type="submit" class="btn btn-outline image-url-add-btn">Lägg till länk</button>
-        </form>
-        <div class="image-previews" id="imagePreviews"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-delete-product" id="modalDeleteBtn" hidden aria-label="Ta bort produkt" onclick="confirmDeleteProduct()">
-        <svg class="btn-delete-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7h12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <span>Ta bort</span>
-      </button>
-      <div class="modal-footer-actions">
-        <button type="button" class="btn btn-danger" onclick="closeModal()">Avbryt</button>
-        <button type="button" class="btn btn-primary" id="modalSaveBtn" onclick="saveProduct()">Spara ändringar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast">
   <div class="toast-check">
-    <svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="#1a1a1a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="#f7f4ef" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
   <span id="toastMsg">Ändringarna sparades</span>
 </div>
 
-<script>
-  window.openCreateProduct = function () {
-    if (typeof window.__openCreateProductImpl === "function") {
-      window.__openCreateProductImpl();
-      return;
-    }
-    console.warn("Admin app still loading");
-  };
-</script>
-<script type="module" src="js/admin-auth.js?v=4"></script>
-<script type="module" src="js/admin-app.js?v=4"></script>
+<script type="module" src="js/admin-auth.js?v=6"></script>
+<script type="module" src="js/admin-app.js?v=14"></script>
 </body>
 </html>

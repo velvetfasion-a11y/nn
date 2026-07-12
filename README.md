@@ -25,7 +25,9 @@ Add these to `.env` (see `.env.example`):
 - `MAILERSEND_REGISTRATION_TEMPLATE_ID=pr9084zne0x4w63d` — internal signup notification to you
 - `MAILERSEND_ADMIN_EMAIL=contact@jamiljamila.com`
 
-SMTP credentials in `.env` are used as a fallback if the API call fails.
+Emails are sent via the **MailerSend HTTP API** only (`MAILERSEND_API_TOKEN`).
+
+**If you see a trial / recipient limit error:** MailerSend trial accounts can only send to a few unique addresses (error `MS42225`). Upgrade to MailerSend’s **Free** or **Hobby** plan (Settings → Billing) and complete identity verification so visitors can receive welcome emails. For local testing only, set `MAILERSEND_DEV_RELAX_TRIAL=true` in `.env` — signups will succeed and admin notifications still send, but new visitors won’t get the welcome email until you upgrade.
 
 ### Production (jamiljamila.com)
 

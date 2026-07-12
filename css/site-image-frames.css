@@ -1,0 +1,131 @@
+/* Shared homepage image frames — used on site + admin previews */
+.jj-image-frame {
+  position: relative;
+  overflow: hidden;
+  background: #ede8df;
+  width: 100%;
+}
+
+.jj-image-frame--34::before {
+  content: "";
+  display: block;
+  padding-top: 133.333%;
+}
+
+.jj-image-frame--hero {
+  aspect-ratio: 1248 / 832;
+}
+
+.jj-image-frame--wide {
+  aspect-ratio: 16 / 9;
+}
+
+.jj-image-frame__fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: var(--jj-focus-x, 50%) var(--jj-focus-y, 50%);
+  transform: scale(var(--jj-focus-scale, 1));
+  transform-origin: var(--jj-focus-x, 50%) var(--jj-focus-oy, 50%);
+  contain: strict;
+}
+
+.admin-crop-frame__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--jj-focus-x, 50%) var(--jj-focus-y, 50%);
+  transform: scale(var(--jj-focus-scale, 1));
+  transform-origin: var(--jj-focus-x, 50%) var(--jj-focus-oy, 50%);
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
+}
+
+.admin-crop-frame.is-dragging .admin-crop-frame__img {
+  will-change: transform, object-position;
+}
+
+/* Legacy img fallback inside frames */
+.jj-image-frame__img,
+.jj-image-frame img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  display: block;
+}
+
+/* Homepage carousel */
+#jj-shop .jj-product-card__media {
+  position: relative;
+  overflow: hidden;
+}
+
+#jj-shop .jj-product-card__media::before {
+  content: "";
+  display: block;
+  padding-top: 133.333%;
+}
+
+#jj-shop .jj-product-card__media .jj-image-frame__fill {
+  position: absolute;
+  inset: 0;
+}
+
+#jj-shop .jj-product-card:hover .jj-image-frame__fill {
+  transform: scale(calc(var(--jj-focus-scale, 1) * 1.04));
+}
+
+#jj-shop .jj-product-card__media img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+#jj-shop .jj-product-card__media img[data-jj-focus-hidden] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Collection tiles */
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._image3_1rm3u_5,
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._imageLayer_1rm3u_20 {
+  position: relative !important;
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) .jj-image-frame__fill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  will-change: transform;
+}
+
+#site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) img[data-jj-focus-hidden] {
+  visibility: hidden !important;
+}
+
+/* About hero */
+#comp-mmp1huq3 #comp-mmp1mf24 ._image3_1rm3u_5,
+#comp-mmp1huq3 #comp-mmp1mf24 ._imageLayer_1rm3u_20 {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#comp-mmp1huq3 #comp-mmp1mf24 .jj-image-frame__fill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}

@@ -71,12 +71,7 @@
   height: 100% !important;
   max-height: none !important;
   object-fit: cover !important;
-  object-position: center top !important;
   display: block !important;
-}
-
-#site-root :where(.comp-mmq82nh7) img {
-  object-position: 50% 58% !important;
 }
 
 .comp-mmq60t8v .collections-categories {

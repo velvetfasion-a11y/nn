@@ -58,11 +58,6 @@ function showDashboard(user) {
     userLabel.textContent = user.email || user.uid || "Admin";
   }
 
-  const profileIcon = document.getElementById("admin-profile-icon");
-  if (profileIcon) {
-    profileIcon.textContent = (user.email || "J").charAt(0).toUpperCase();
-  }
-
   log("dashboard shown", {
     uid: user.uid,
     email: user.email,
@@ -96,9 +91,9 @@ function showGate(message = "Checking sign-in…") {
 }
 
 function clearAdminUi() {
-  const tbody = document.getElementById("productTable");
+  const tbody = document.getElementById("productTableBody");
   if (tbody) tbody.innerHTML = "";
-  const count = document.querySelector(".filter-chip .count");
+  const count = document.getElementById("overviewProductCount");
   if (count) count.textContent = "0";
 }
 
