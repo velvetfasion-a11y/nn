@@ -8,13 +8,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site-image-frames.css?v=4">
-  <link rel="stylesheet" href="css/admin.css?v=15">
+  <link rel="stylesheet" href="css/admin.css?v=16">
 </head>
 <body class="admin-body">
 
 <div id="admin-gate" class="admin-gate">
   <h1>Jamil Jamila Admin</h1>
   <p id="admin-gate-status">Kontrollerar inloggning…</p>
+  <form id="admin-login-form" class="admin-gate-form" hidden>
+    <p class="admin-gate-help">Logga in med administratörskontot</p>
+    <p id="admin-login-error" class="admin-gate-error" hidden></p>
+    <label class="admin-gate-label" for="admin-login-email">E-post</label>
+    <input class="admin-gate-input" type="email" id="admin-login-email" autocomplete="email" required>
+    <label class="admin-gate-label" for="admin-login-password">Lösenord</label>
+    <input class="admin-gate-input" type="password" id="admin-login-password" autocomplete="current-password" required>
+    <button type="submit" class="admin-btn admin-gate-submit">Logga in</button>
+    <button type="button" class="admin-btn-outline admin-gate-google" id="admin-google-login">Fortsätt med Google</button>
+  </form>
 </div>
 
 <div id="admin-denied" class="admin-gate" hidden>
@@ -232,7 +242,8 @@
   <span id="toastMsg">Ändringarna sparades</span>
 </div>
 
-<script type="module" src="js/admin-auth.js?v=6"></script>
+<script src="js/admin-config.public.js?v=1"></script>
+<script type="module" src="js/admin-auth.js?v=7"></script>
 <script type="module" src="js/admin-app.js?v=15"></script>
 </body>
 </html>

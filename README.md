@@ -48,6 +48,10 @@ firebase deploy --only firestore:rules,storage
 npm run dev
 ```
 
+**Admin login on jamiljamila.com:** add `jamiljamila.com` and `www.jamiljamila.com` in [Firebase Console → Authentication → Settings → Authorized domains](https://console.firebase.google.com/project/jamil-jamila/authentication/settings). Without this, Google/email sign-in fails on the custom domain.
+
+Deploy the latest admin files (`jamiljamila-admin.html`, `js/admin-auth.js`, `js/admin-constants.js`, `js/admin-config.public.js`) to your static host after pulling changes.
+
 ### Production (jamiljamila.com)
 
 The live site is static (GitHub Pages). Signups use **Firebase Cloud Functions** — not `/api`.

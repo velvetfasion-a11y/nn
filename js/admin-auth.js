@@ -1,8 +1,12 @@
 import {
+  GoogleAuthProvider,
   browserLocalPersistence,
   getRedirectResult,
   onAuthStateChanged,
   setPersistence,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
   signOut,
 } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
@@ -12,18 +16,23 @@ const LOG_PREFIX = "[admin-auth]";
 
 const gate = document.getElementById("admin-gate");
 const gateStatus = document.getElementById("admin-gate-status");
+const loginForm = document.getElementById("admin-login-form");
+const loginError = document.getElementById("admin-login-error");
+const loginEmail = document.getElementById("admin-login-email");
+const loginPassword = document.getElementById("admin-login-password");
+const googleLoginBtn = document.getElementById("admin-google-login");
 const denied = document.getElementById("admin-denied");
 const app = document.getElementById("admin-app");
 const userLabel = document.getElementById("admin-user-email");
 const logoutBtn = document.getElementById("admin-logout");
 
 const adminPage = getAdminPageFromLocation();
-const ACCOUNT_LOGIN_URL = `/account.html?next=${encodeURIComponent(adminPage)}`;
-const AUTH_READY_TIMEOUT_MS = 8000;
-const REDIRECT_RESULT_TIMEOUT_MS = 5000;
+const AUTH_READY_TIMEOUT_MS = 12000;
+const REDIRECT_RESULT_TIMEOUT_MS = 8000;
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 let authListenerAttached = false;
-let redirectScheduled = false;
 let dashboardShown = false;
 
 function log(step, details = {}) {
@@ -42,16 +51,59 @@ function setAdminView(view) {
   log("set admin view", { view });
 }
 
-function setGateStatus(message) {
-  if (!gateStatus) return;
-  gateStatus.hidden = false;
-  gateStatus.textContent = message;
-  log("gate status", { message });
+function setLoginError(message) {
+  if (!loginError) return;
+  loginError.textContent = message || "";
+  loginError.hidden = !message;
+}
+
+function setLoginLoading(isLoading) {
+  loginForm?.querySelectorAll("button, input").forEach((el) => {
+    el.disabled = isLoading;
+  });
+}
+
+function showLoginForm(message = "") {
+  setAdminView("gate");
+  if (gateStatus) gateStatus.hidden = true;
+  if (loginForm) loginForm.hidden = false;
+  setLoginError(message);
+  loginEmail?.focus();
+}
+
+function showChecking(message = "Checking sign-in…") {
+  setAdminView("gate");
+  if (gateStatus) {
+    gateStatus.hidden = false;
+    gateStatus.textContent = message;
+  }
+  if (loginForm) loginForm.hidden = true;
+  setLoginError("");
+}
+
+function getFriendlyAuthError(error) {
+  switch (error?.code) {
+    case "auth/invalid-email":
+      return "Ange en giltig e-postadress.";
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "Fel e-post eller lösenord.";
+    case "auth/too-many-requests":
+      return "För många försök. Försök igen senare.";
+    case "auth/popup-blocked":
+      return "Popup blockerades. Försöker omdirigera…";
+    case "auth/unauthorized-domain":
+      return "Domänen jamiljamila.com måste läggas till i Firebase → Authentication → Settings → Authorized domains.";
+    case "auth/operation-not-allowed":
+      return "Inloggningsmetoden är inte aktiverad i Firebase Authentication.";
+    default:
+      return error?.message || "Kunde inte logga in. Försök igen.";
+  }
 }
 
 function showDashboard(user) {
   dashboardShown = true;
-  redirectScheduled = false;
   setAdminView("app");
 
   if (userLabel) {
@@ -68,13 +120,7 @@ function showDashboard(user) {
 }
 
 function showDenied(user) {
-  if (dashboardShown) {
-    log("denied skipped because dashboard is already shown", {
-      uid: user?.uid,
-      email: user?.email,
-    });
-    return;
-  }
+  if (dashboardShown) return;
 
   setAdminView("denied");
 
@@ -85,29 +131,11 @@ function showDenied(user) {
   });
 }
 
-function showGate(message = "Checking sign-in…") {
-  setAdminView("gate");
-  setGateStatus(message);
-}
-
 function clearAdminUi() {
   const tbody = document.getElementById("productTableBody");
   if (tbody) tbody.innerHTML = "";
   const count = document.getElementById("overviewProductCount");
   if (count) count.textContent = "0";
-}
-
-function redirectToAccountLogin(reason) {
-  if (dashboardShown || redirectScheduled) {
-    log("redirect skipped", { reason, dashboardShown, redirectScheduled });
-    return;
-  }
-
-  redirectScheduled = true;
-  showGate("Redirecting to sign in…");
-  log("redirecting to account login", { reason, url: ACCOUNT_LOGIN_URL });
-
-  window.location.href = ACCOUNT_LOGIN_URL;
 }
 
 async function normalizeUser(user) {
@@ -146,7 +174,7 @@ async function resolveAuthUser(user, source) {
   }
 
   if (dashboardShown) return;
-  redirectToAccountLogin(`no-user:${source}`);
+  showLoginForm();
 }
 
 function attachAuthListener() {
@@ -176,15 +204,53 @@ function withTimeout(promise, timeoutMs, label) {
   ]);
 }
 
-async function initAdminAuth() {
-  log("init start", { adminPage, accountLoginUrl: ACCOUNT_LOGIN_URL });
-  showGate("Checking sign-in…");
+async function handleEmailLogin(event) {
+  event.preventDefault();
+  setLoginError("");
+  setLoginLoading(true);
 
-  const hangGuard = window.setTimeout(() => {
-    if (dashboardShown) return;
-    log("hang guard triggered");
-    redirectToAccountLogin("hang-guard-timeout");
-  }, AUTH_READY_TIMEOUT_MS + 2000);
+  const email = loginEmail?.value?.trim();
+  const password = loginPassword?.value || "";
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    await resolveAuthUser(result.user, "email-login");
+  } catch (error) {
+    log("email login failed", { code: error?.code, message: error?.message });
+    setLoginError(getFriendlyAuthError(error));
+  } finally {
+    setLoginLoading(false);
+  }
+}
+
+async function handleGoogleLogin() {
+  setLoginError("");
+  setLoginLoading(true);
+
+  try {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result?.user) {
+        await resolveAuthUser(result.user, "google-popup");
+        return;
+      }
+    } catch (error) {
+      if (error?.code === "auth/popup-blocked" || error?.code === "auth/cancelled-popup-request") {
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+      throw error;
+    }
+  } catch (error) {
+    log("google login failed", { code: error?.code, message: error?.message });
+    setLoginError(getFriendlyAuthError(error));
+    setLoginLoading(false);
+  }
+}
+
+async function initAdminAuth() {
+  log("init start", { adminPage, host: window.location.hostname });
+  showChecking();
 
   try {
     await setPersistence(auth, browserLocalPersistence);
@@ -208,12 +274,7 @@ async function initAdminAuth() {
         email: redirectResult.user.email,
       });
       await resolveAuthUser(redirectResult.user, "getRedirectResult");
-      if (dashboardShown) {
-        window.clearTimeout(hangGuard);
-        return;
-      }
-    } else {
-      log("no oauth redirect result");
+      if (dashboardShown) return;
     }
   } catch (error) {
     log("getRedirectResult finished", { message: error?.message });
@@ -227,25 +288,31 @@ async function initAdminAuth() {
     });
   } catch (error) {
     log("authStateReady error", { message: error?.message });
-    redirectToAccountLogin("auth-state-ready-timeout");
-    window.clearTimeout(hangGuard);
+    showLoginForm("Inloggningen tog för lång tid. Logga in igen.");
     return;
   }
 
   await resolveAuthUser(auth.currentUser, "initial");
-  window.clearTimeout(hangGuard);
 }
+
+loginForm?.addEventListener("submit", (event) => {
+  void handleEmailLogin(event);
+});
+
+googleLoginBtn?.addEventListener("click", () => {
+  void handleGoogleLogin();
+});
 
 logoutBtn?.addEventListener("click", async () => {
   log("logout clicked");
   dashboardShown = false;
-  redirectScheduled = false;
   await signOut(auth);
   clearAdminUi();
-  redirectToAccountLogin("logout");
+  loginForm?.reset();
+  showLoginForm();
 });
 
 initAdminAuth().catch((error) => {
   log("init fatal error", { message: error?.message });
-  redirectToAccountLogin("init-fatal-error");
+  showLoginForm("Kunde inte starta inloggning. Försök igen.");
 });

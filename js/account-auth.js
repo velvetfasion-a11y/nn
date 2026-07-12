@@ -185,7 +185,7 @@ function setAuthenticated(user) {
 
 function redirectAdminFromAccount(user) {
   if (!user || !isAdminUser(user)) return false;
-  if (!/\/account\.html$/i.test(window.location.pathname)) return false;
+  if (!/\/account(?:\.html)?\/?$/i.test(window.location.pathname)) return false;
   window.location.replace(`/${getAdminRedirectPage()}`);
   return true;
 }

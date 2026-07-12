@@ -1,27 +1,49 @@
-/** Admin access — values from .env (ADMIN_* exposed via Vite envPrefix). */
+/** Admin access — works on Vite dev, static production, and .env sync. */
 
-export const ADMIN_EMAIL = (
-  import.meta.env.ADMIN_EMAIL ||
-  import.meta.env.VITE_ADMIN_EMAIL ||
-  "contact@jamiljamila.com"
-).trim();
+const env = import.meta?.env || {};
+const runtime = typeof window !== "undefined" ? window.__JJ_ADMIN__ || {} : {};
 
-export const ADMIN_UID = (
-  import.meta.env.ADMIN_UID ||
-  import.meta.env.VITE_ADMIN_UID ||
-  ""
-).trim();
+const DEFAULTS = {
+  email: "contact@jamiljamila.com",
+  uid: "CXikFopbqfdKUy98g6gj9H6j2412",
+  page: "jamiljamila-admin.html",
+  pages: ["admin.html", "jamiljamila-admin.html"],
+};
 
-export const ADMIN_PAGE = (
-  import.meta.env.ADMIN_PAGE ||
-  import.meta.env.VITE_ADMIN_PAGE ||
-  "jamiljamila-admin.html"
+function pickString(...values) {
+  for (const value of values) {
+    if (value == null || value === "") continue;
+    return String(value).trim();
+  }
+  return "";
+}
+
+export const ADMIN_EMAIL = pickString(
+  env.ADMIN_EMAIL,
+  env.VITE_ADMIN_EMAIL,
+  runtime.email,
+  DEFAULTS.email,
+);
+
+export const ADMIN_UID = pickString(
+  env.ADMIN_UID,
+  env.VITE_ADMIN_UID,
+  runtime.uid,
+  DEFAULTS.uid,
+);
+
+export const ADMIN_PAGE = pickString(
+  env.ADMIN_PAGE,
+  env.VITE_ADMIN_PAGE,
+  runtime.page,
+  DEFAULTS.page,
 ).replace(/^\//, "");
 
-export const ADMIN_PAGES = (
-  import.meta.env.ADMIN_PAGES ||
-  import.meta.env.VITE_ADMIN_PAGES ||
-  "admin.html,jamiljamila-admin.html"
+export const ADMIN_PAGES = pickString(
+  env.ADMIN_PAGES,
+  env.VITE_ADMIN_PAGES,
+  Array.isArray(runtime.pages) ? runtime.pages.join(",") : runtime.pages,
+  DEFAULTS.pages.join(","),
 )
   .split(",")
   .map((page) => page.trim().replace(/^\//, ""))

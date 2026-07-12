@@ -824,6 +824,58 @@ body {
   text-decoration: underline;
 }
 
+.admin-gate-form {
+  width: min(100%, 360px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  margin-top: 8px;
+}
+
+.admin-gate-help {
+  text-align: center;
+  margin-bottom: 4px !important;
+}
+
+.admin-gate-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--jj-ink-mute);
+}
+
+.admin-gate-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--jj-line);
+  border-radius: 8px;
+  background: var(--jj-white);
+  font: inherit;
+  color: var(--jj-foreground);
+}
+
+.admin-gate-input:focus {
+  outline: none;
+  border-color: var(--jj-gold);
+  box-shadow: 0 0 0 3px rgba(184, 149, 108, 0.15);
+}
+
+.admin-gate-submit,
+.admin-gate-google {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.admin-gate-error {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--jj-danger-soft);
+  color: var(--jj-danger);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 /* SITE CONTENT ADMIN */
 .admin-content-row {
   display: grid;
