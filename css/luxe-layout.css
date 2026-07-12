@@ -275,14 +275,14 @@ body {
 #site-root :where(.comp-mmq8486o):hover ._imageLayer_1rm3u_20,
 #site-root :where(.comp-mmq84fyo):hover ._image3_1rm3u_5,
 #site-root :where(.comp-mmq84fyo):hover ._imageLayer_1rm3u_20 {
-  transform: scale(1.035);
+  transform: scale(1.012);
 }
 
 #site-root :where(.comp-mmq82nh7):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq8486o):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq84fyo):hover .jj-image-frame__fill {
   filter: brightness(1);
-  transform: scale(calc(var(--jj-focus-scale, 1) * 1.045));
+  transform: scale(calc(var(--jj-focus-scale, 1) * 1.018));
 }
 
 @media (prefers-reduced-motion: reduce) {
