@@ -1,4 +1,5 @@
 import { auth } from "./firebase.js";
+import { isLocalDev } from "./is-dev.js";
 
 function getFirebaseApiKey() {
   const runtime = typeof window !== "undefined" ? window.__JJ_FIREBASE__ : null;
@@ -10,10 +11,11 @@ function getFirebaseApiKey() {
 }
 
 const FIREBASE_API_KEY = getFirebaseApiKey();
+const ALLOWED_FOLDERS = new Set(["product-images", "site-images"]);
 
-function isLocalDev() {
-  const host = window.location.hostname;
-  return host === "localhost" || host === "127.0.0.1";
+function normalizeFolder(folder) {
+  const value = String(folder || "product-images").trim();
+  return ALLOWED_FOLDERS.has(value) ? value : "product-images";
 }
 
 function readRawDataUrl(file) {
@@ -23,6 +25,15 @@ function readRawDataUrl(file) {
     reader.onerror = () => reject(new Error("Kunde inte läsa filen"));
     reader.readAsDataURL(file);
   });
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [header, encoded] = String(dataUrl || "").split(",");
+  const mime = header.match(/data:([^;]+)/)?.[1] || "image/jpeg";
+  const binary = atob(encoded || "");
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
 }
 
 function compressImageToDataUrl(file) {
@@ -70,16 +81,34 @@ function compressImageToDataUrl(file) {
   });
 }
 
-async function fileToDataUrl(file) {
-  if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) {
-    return readRawDataUrl(file);
+async function fileToUploadBlob(file) {
+  if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name || "")) {
+    return {
+      blob: file instanceof Blob ? file : new Blob([file], { type: file.type }),
+      contentType: "image/svg+xml",
+      fileName: String(file.name || "image.svg"),
+    };
   }
 
   try {
-    return await compressImageToDataUrl(file);
+    const dataUrl = await compressImageToDataUrl(file);
+    const blob = dataUrlToBlob(dataUrl);
+    const base = String(file.name || "image")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^\w.-]+/g, "_")
+      .slice(-60);
+    return {
+      blob,
+      contentType: "image/jpeg",
+      fileName: `${base || "image"}.jpg`,
+    };
   } catch (error) {
-    console.warn("Image compress failed, using original file:", error);
-    return readRawDataUrl(file);
+    console.warn("Image compress failed, uploading original:", error);
+    return {
+      blob: file instanceof Blob ? file : new Blob([file], { type: file.type || "image/jpeg" }),
+      contentType: file.type || "image/jpeg",
+      fileName: String(file.name || "image.jpg"),
+    };
   }
 }
 
@@ -92,24 +121,52 @@ function withTimeout(promise, ms, label) {
   ]);
 }
 
+function formatStorageError(error) {
+  const code = String(error?.code || "");
+  const message = String(error?.message || error || "");
+  if (code.includes("unauthorized") || /permission|unauthorized/i.test(message)) {
+    return "Saknar behörighet att ladda upp — logga in som admin igen.";
+  }
+  if (code.includes("unauthenticated") || /not authenticated|not logged/i.test(message)) {
+    return "Du är inte inloggad — logga in som admin igen.";
+  }
+  if (code.includes("canceled") || /timeout|tog för lång tid/i.test(message)) {
+    return "Uppladdningen tog för lång tid — försök igen med en mindre bild.";
+  }
+  if (code.includes("retry-limit") || /network|fetch|offline/i.test(message)) {
+    return "Nätverksfel vid uppladdning — kontrollera anslutningen och försök igen.";
+  }
+  return message.replace(/^Firebase:\s*/i, "").replace(/\s*\([^)]*\)\s*$/g, "").trim()
+    || "Uppladdning till Firebase Storage misslyckades";
+}
+
+/** Production path: Firebase Storage only (GitHub Pages has no /api). */
 export async function uploadProductImage(file, folder = "product-images") {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Du är inte inloggad");
+
   const { getDownloadURL, ref, uploadBytes } = await import("./vendor/firebase-storage.js");
   const { storage } = await import("./firebase.js");
-  const safeName = String(file.name || "image").replace(/[^\w.-]+/g, "_").slice(-80);
-  const storageRef = ref(storage, `${folder}/${Date.now()}-${safeName}`);
-  await uploadBytes(storageRef, file, {
-    contentType: file.type || "application/octet-stream",
+  const targetFolder = normalizeFolder(folder);
+  const prepared = await fileToUploadBlob(file);
+  const safeName = prepared.fileName.replace(/[^\w.-]+/g, "_").slice(-80);
+  const storageRef = ref(storage, `${targetFolder}/${Date.now()}-${safeName}`);
+
+  await uploadBytes(storageRef, prepared.blob, {
+    contentType: prepared.contentType,
   });
   return getDownloadURL(storageRef);
 }
 
+/** Local-only: write into assets/ via Express (npm run dev). */
 async function uploadToLocalAssets(file, folder) {
   const user = auth.currentUser;
   if (!user) {
     throw new Error("Du är inte inloggad");
   }
 
-  const dataUrl = await fileToDataUrl(file);
+  const prepared = await fileToUploadBlob(file);
+  const dataUrl = await readRawDataUrl(prepared.blob);
   const token = await user.getIdToken(true);
 
   let response;
@@ -122,8 +179,8 @@ async function uploadToLocalAssets(file, folder) {
       },
       body: JSON.stringify({
         dataUrl,
-        fileName: file.name,
-        folder,
+        fileName: prepared.fileName,
+        folder: normalizeFolder(folder),
       }),
     });
   } catch (error) {
@@ -133,7 +190,7 @@ async function uploadToLocalAssets(file, folder) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload.error || `Uppladdning misslyckades (${response.status})`);
+    throw new Error(payload.error || `Lokal uppladdning misslyckades (${response.status})`);
   }
   if (!payload.url) {
     throw new Error("Servern returnerade ingen bild-URL");
@@ -146,11 +203,12 @@ export async function resolveAdminImageUrl(file, folder = "site-images") {
     return uploadToLocalAssets(file, folder);
   }
 
+  // Custom domain / GitHub Pages: never call /api (static host → 405).
   try {
-    return await withTimeout(uploadProductImage(file, folder), 12000, "Firebase Storage");
+    return await withTimeout(uploadProductImage(file, folder), 90000, "Firebase Storage");
   } catch (storageError) {
-    console.warn("Firebase Storage upload failed, saving locally:", storageError);
-    return uploadToLocalAssets(file, folder);
+    console.error("Firebase Storage upload failed:", storageError);
+    throw new Error(formatStorageError(storageError));
   }
 }
 

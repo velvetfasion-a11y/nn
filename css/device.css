@@ -29,12 +29,14 @@ html {
   text-size-adjust: 100%;
   hanging-punctuation: first allow-end last;
   scroll-padding-top: calc(var(--jj-header-h) + var(--jj-safe-top));
+  overflow-x: clip;
 }
 
 body {
   min-height: var(--jj-vh);
   overflow-x: clip;
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-x: none;
 }
 
 img,
@@ -114,6 +116,21 @@ footer#comp-kbgakxmn,
   min-height: 36px;
 }
 
+/* Always keep homepage hero layers static (no zoom / parallax drift) */
+.jj-hero__media,
+.jj-hero__gradient,
+.jj-hero__content,
+.jj-hero__inner {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+.jj-product-card:hover .jj-product-card__media img,
+.jj-product-card:hover .jj-product-card__media .jj-image-frame__fill,
+#jj-shop .jj-product-card:hover .jj-image-frame__fill {
+  transition: none !important;
+}
+
 /* Smooth scrolling only when OK for the user */
 @media (prefers-reduced-motion: no-preference) {
   html {
@@ -129,13 +146,6 @@ footer#comp-kbgakxmn,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .jj-hero__media,
-  .jj-hero__gradient,
-  .jj-hero__content {
-    will-change: auto !important;
-    transform: none !important;
   }
 }
 

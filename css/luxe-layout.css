@@ -104,7 +104,7 @@ body {
   color: var(--jj-bg);
 }
 
-/* ── Hero (keep sticky + parallax structure) ── */
+/* ── Hero (static — no parallax / scale) ── */
 .jj-hero {
   /* Match header height; white fill so no black gap under the fixed header */
   background: #ffffff;
@@ -113,14 +113,14 @@ body {
 
 .jj-hero__media {
   filter: contrast(1.02) saturate(0.95);
-  transform: scale(1.1765);
+  transform: none !important;
 }
 
 .jj-hero__gradient {
   background:
     radial-gradient(120% 60% at 50% 100%, rgba(0, 0, 0, 0.7) 0%, transparent 60%),
     linear-gradient(rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.05) 35%, rgba(0, 0, 0, 0.55) 100%);
-  transform: scale(1.1765);
+  transform: none !important;
 }
 
 .jj-hero__content {
@@ -256,20 +256,18 @@ body {
   filter: brightness(0.94);
 }
 
-/* Slow outer “extension”, fast inner zoom — fill is the visible layer */
+/* Static collection tiles — no hover zoom */
 #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._image3_1rm3u_5,
 #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) ._imageLayer_1rm3u_20 {
-  transform: scale(1);
-  transition: transform 1.6s cubic-bezier(0.2, 0.7, 0.2, 1);
-  will-change: transform;
+  transform: none;
+  transition: filter 0.35s ease;
+  will-change: auto;
 }
 
 #site-root :where(.comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo) .jj-image-frame__fill {
   filter: brightness(0.94);
-  transition:
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-  will-change: transform;
+  transition: filter 0.35s ease;
+  will-change: auto;
 }
 
 #site-root :where(.comp-mmq82nh7):hover img,
@@ -284,14 +282,14 @@ body {
 #site-root :where(.comp-mmq8486o):hover ._imageLayer_1rm3u_20,
 #site-root :where(.comp-mmq84fyo):hover ._image3_1rm3u_5,
 #site-root :where(.comp-mmq84fyo):hover ._imageLayer_1rm3u_20 {
-  transform: scale(1.012);
+  transform: none;
 }
 
 #site-root :where(.comp-mmq82nh7):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq8486o):hover .jj-image-frame__fill,
 #site-root :where(.comp-mmq84fyo):hover .jj-image-frame__fill {
   filter: brightness(1);
-  transform: scale(calc(var(--jj-focus-scale, 1) * 1.018));
+  transform: scale(var(--jj-focus-scale, 1));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -374,12 +372,12 @@ body {
   max-height: none;
   object-fit: cover !important;
   object-position: center center;
-  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: none;
 }
 
 .jj-product-card:hover .jj-product-card__media img,
 .jj-product-card:hover .jj-product-card__media .jj-image-frame__fill {
-  transform: scale(calc(var(--jj-focus-scale, 1) * 1.04));
+  transform: scale(var(--jj-focus-scale, 1));
 }
 
 .jj-product-card__name {

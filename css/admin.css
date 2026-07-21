@@ -22,6 +22,28 @@ body {
   background: var(--jj-bg);
 }
 
+/* Admin is a fixed-scale tool UI — prevent pinch / focus zoom on mobile */
+html.admin-html,
+html:has(body.admin-body) {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body.admin-body {
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* iOS zooms any focused control under 16px — keep all admin fields at 16px+ */
+body.admin-body input,
+body.admin-body select,
+body.admin-body textarea {
+  font-size: 16px !important;
+}
+
 /* NAV */
 .admin-nav {
   display: flex;
@@ -492,7 +514,7 @@ body {
   background: var(--jj-white);
   color: var(--jj-foreground);
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 16px;
   width: 100%;
   transition: border-color 0.2s;
 }
@@ -852,6 +874,7 @@ body {
   border-radius: 8px;
   background: var(--jj-white);
   font: inherit;
+  font-size: 16px;
   color: var(--jj-foreground);
 }
 
@@ -1365,7 +1388,7 @@ body.admin-crop-open {
   color: var(--jj-foreground);
   background: transparent;
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 16px;
   line-height: 1.45;
 }
 

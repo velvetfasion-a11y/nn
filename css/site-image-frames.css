@@ -82,7 +82,7 @@
 }
 
 #jj-shop .jj-product-card:hover .jj-image-frame__fill {
-  transform: scale(calc(var(--jj-focus-scale, 1) * 1.04));
+  transform: scale(var(--jj-focus-scale, 1));
 }
 
 #jj-shop .jj-product-card__media img {

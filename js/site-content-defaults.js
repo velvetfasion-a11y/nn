@@ -2,7 +2,7 @@
 export const DEFAULT_SITE_CONTENT = {
   hero: {
     image: "assets/images/optimized/0rISg.jpg",
-    focus: { x: 50, y: 50, scale: 1.1765, originY: 100 },
+    focus: { x: 50, y: 50, scale: 1, originY: 100 },
   },
   collectionsHeading: {
     title: "THE COLLECTIONS",
