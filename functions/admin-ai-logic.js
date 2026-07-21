@@ -14,7 +14,24 @@ function modelUrl(model) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 }
 
-async function callGemini(model, body) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableStatus(status) {
+  return status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function isMissingModelError(error) {
+  return (
+    error?.status === 404 ||
+    /model.*(?:not found|unsupported|no longer available)|not found.*model/i.test(
+      error?.message || "",
+    )
+  );
+}
+
+async function callGemini(model, body, attempt = 1) {
   const key = geminiKey();
   if (!key) {
     const error = new Error("GEMINI_API_KEY saknas");
@@ -37,6 +54,10 @@ async function callGemini(model, body) {
       payload?.error?.message || `Gemini svarade med HTTP ${response.status}`;
     const error = new Error(message);
     error.status = response.status;
+    if (isRetryableStatus(response.status) && attempt < 3) {
+      await sleep(400 * attempt * attempt);
+      return callGemini(model, body, attempt + 1);
+    }
     throw error;
   }
   return payload;
@@ -51,10 +72,7 @@ async function callGeminiWithFallback(models, body) {
       return { payload: await callGemini(model, body), model };
     } catch (error) {
       lastError = error;
-      if (
-        error?.status === 404 ||
-        /model.*(?:not found|unsupported)|not found.*model/i.test(error?.message || "")
-      ) {
+      if (isMissingModelError(error) || isRetryableStatus(error?.status)) {
         continue;
       }
       throw error;
@@ -136,17 +154,22 @@ async function repairAiJson(rawText, models) {
 function sanitizeProducts(products) {
   return (Array.isArray(products) ? products : [])
     .slice(0, MAX_PRODUCTS)
-    .map((product) => ({
-      id: String(product?.id || ""),
-      name: String(product?.name || "").slice(0, 120),
-      sku: String(product?.sku || "").slice(0, 60),
-      category: String(product?.category || "").slice(0, 40),
-      type: String(product?.type || "").slice(0, 40),
-      description: String(product?.description || "").slice(0, 500),
-      price: Number(product?.price) || 0,
-      variants: product?.variants || {},
-      images: Array.isArray(product?.images) ? product.images.slice(0, 8) : [],
-    }));
+    .map((product) => {
+      const images = Array.isArray(product?.images) ? product.images : [];
+      // Keep payload small for Firebase callables (10MB limit) — no full URL lists.
+      return {
+        id: String(product?.id || ""),
+        name: String(product?.name || "").slice(0, 120),
+        sku: String(product?.sku || "").slice(0, 60),
+        category: String(product?.category || "").slice(0, 40),
+        type: String(product?.type || "").slice(0, 40),
+        description: String(product?.description || "").slice(0, 280),
+        price: Number(product?.price) || 0,
+        variants: product?.variants || {},
+        imageCount: images.length,
+        primaryImage: String(images[0] || "").slice(0, 180),
+      };
+    });
 }
 
 function dataUrlPart(dataUrl) {
@@ -234,7 +257,13 @@ export async function runAdminAiPrompt(body = {}) {
     }
   });
 
-  const chatModels = [process.env.GEMINI_MODEL, DEFAULT_CHAT_MODEL, "gemini-flash-latest"];
+  const chatModels = [
+    process.env.GEMINI_MODEL,
+    DEFAULT_CHAT_MODEL,
+    "gemini-flash-latest",
+    "gemini-3-flash-preview",
+    "gemini-3.5-flash-lite",
+  ];
   const { payload } = await callGeminiWithFallback(chatModels, {
     systemInstruction: { parts: [{ text: chatSystemPrompt(products) }] },
     contents: [{ role: "user", parts }],
@@ -281,11 +310,14 @@ export async function runAdminAiImage(body = {}) {
   const reference = dataUrlPart(body?.referenceDataUrl);
   if (reference) parts.push(reference);
 
+  // Prefer 2K on Cloud Functions — 4K responses often time out / exceed callable limits.
+  const imageSize = String(process.env.GEMINI_IMAGE_SIZE || "2K");
   const { payload, model } = await callGeminiWithFallback(
     [
       process.env.GEMINI_IMAGE_MODEL,
       DEFAULT_IMAGE_MODEL,
-      "gemini-2.5-flash-image-preview",
+      "gemini-3.1-flash-image",
+      "gemini-2.5-flash-image",
       "gemini-3-pro-image-preview",
     ],
     {
@@ -294,7 +326,7 @@ export async function runAdminAiImage(body = {}) {
         responseModalities: ["TEXT", "IMAGE"],
         imageConfig: {
           aspectRatio: String(process.env.GEMINI_IMAGE_ASPECT || "3:4"),
-          imageSize: String(process.env.GEMINI_IMAGE_SIZE || "4K"),
+          imageSize,
         },
       },
     },

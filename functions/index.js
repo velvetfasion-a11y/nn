@@ -20,7 +20,7 @@ function applyGeminiEnv() {
   if (!process.env.GEMINI_MODEL) process.env.GEMINI_MODEL = "gemini-3.5-flash";
   if (!process.env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = "gemini-3-pro-image";
   if (!process.env.GEMINI_IMAGE_ASPECT) process.env.GEMINI_IMAGE_ASPECT = "3:4";
-  if (!process.env.GEMINI_IMAGE_SIZE) process.env.GEMINI_IMAGE_SIZE = "4K";
+  if (!process.env.GEMINI_IMAGE_SIZE) process.env.GEMINI_IMAGE_SIZE = "2K";
 }
 
 function isValidEmail(email) {
@@ -43,7 +43,11 @@ function mapAiError(error) {
   const message = error?.message || "AI-assistenten kunde inte svara";
   if (status === 400) return new HttpsError("invalid-argument", message);
   if (status === 401 || status === 403) return new HttpsError("permission-denied", message);
+  if (status === 429) return new HttpsError("resource-exhausted", "AI är tillfälligt överbelastad — vänta och försök igen.");
   if (status === 503) return new HttpsError("unavailable", message);
+  if (/timeout|deadline|timed out/i.test(message)) {
+    return new HttpsError("deadline-exceeded", "AI tog för lång tid — försök igen.");
+  }
   return new HttpsError("internal", message);
 }
 
@@ -117,8 +121,9 @@ export const adminAi = onCall(
   {
     region: "europe-west1",
     secrets: [geminiApiKey],
-    timeoutSeconds: 120,
-    memory: "512MiB",
+    timeoutSeconds: 180,
+    memory: "1GiB",
+    cors: true,
   },
   async (request) => {
     assertAdmin(request);
@@ -126,7 +131,7 @@ export const adminAi = onCall(
     try {
       return await runAdminAiPrompt(request.data || {});
     } catch (error) {
-      console.error("adminAi failed:", error);
+      console.error("adminAi failed:", error?.message || error, error?.status || "");
       throw mapAiError(error);
     }
   },
@@ -136,8 +141,9 @@ export const adminAiImage = onCall(
   {
     region: "europe-west1",
     secrets: [geminiApiKey],
-    timeoutSeconds: 180,
-    memory: "1GiB",
+    timeoutSeconds: 300,
+    memory: "2GiB",
+    cors: true,
   },
   async (request) => {
     assertAdmin(request);
@@ -145,7 +151,7 @@ export const adminAiImage = onCall(
     try {
       return await runAdminAiImage(request.data || {});
     } catch (error) {
-      console.error("adminAiImage failed:", error);
+      console.error("adminAiImage failed:", error?.message || error, error?.status || "");
       throw mapAiError(error);
     }
   },

@@ -108,6 +108,49 @@ async function addFiles(fileList) {
   renderAttachments();
 }
 
+function focusedProduct(products) {
+  const match = window.location.hash.match(/^#product\/edit\/(.+)$/);
+  if (!match) return null;
+  return products.find((product) => String(product.id) === decodeURIComponent(match[1])) || null;
+}
+
+function summarizeProducts(products) {
+  return products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    sku: product.sku,
+    category: product.category,
+    type: product.type,
+    description: String(product.description || "").slice(0, 280),
+    price: product.price,
+    variants: product.variants,
+    imageCount: Array.isArray(product.images) ? product.images.length : 0,
+    primaryImage: String(product.images?.[0] || "").slice(0, 180),
+  }));
+}
+
+function formatCallableError(error) {
+  const code = String(error?.code || "");
+  const raw = String(error?.details || error?.message || error?.customData?.message || "").trim();
+  if (code.includes("deadline-exceeded") || /deadline|timeout/i.test(raw)) {
+    return "AI tog för lång tid — försök igen.";
+  }
+  if (code.includes("resource-exhausted") || /quota|rate|resource/i.test(raw)) {
+    return "AI är tillfälligt överbelastad — vänta och försök igen.";
+  }
+  if (code.includes("unauthenticated") || code.includes("permission-denied")) {
+    return "Logga in som administratör igen";
+  }
+  if (code.includes("unavailable") || /network|fetch/i.test(raw)) {
+    return "Kunde inte nå AI-tjänsten. Kontrollera nätverket och försök igen.";
+  }
+  const cleaned = raw
+    .replace(/^Firebase:\s*/i, "")
+    .replace(/\s*\([^)]*\)\s*$/g, "")
+    .trim();
+  return cleaned || "AI-assistenten kunde inte svara";
+}
+
 async function authenticatedFetch(url, body) {
   const user = auth.currentUser;
   if (!user) throw new Error("Logga in som administratör igen");
@@ -129,39 +172,30 @@ async function authenticatedFetch(url, body) {
     return payload;
   }
 
-  const name = String(url).includes("/image") ? "adminAiImage" : "adminAi";
-  try {
-    const callable = httpsCallable(functions, name);
-    const result = await callable(body);
-    return result.data || {};
-  } catch (error) {
-    const message =
-      error?.message ||
-      error?.details ||
-      error?.code ||
-      "AI-assistenten kunde inte svara";
-    throw new Error(String(message).replace(/^Firebase:\s*/i, "").replace(/\s*\(.*\)$/, ""));
+  const isImage = String(url).includes("/image");
+  const name = isImage ? "adminAiImage" : "adminAi";
+  const callable = httpsCallable(functions, name, {
+    timeout: isImage ? 300000 : 180000,
+  });
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const result = await callable(body);
+      return result.data || {};
+    } catch (error) {
+      lastError = error;
+      const code = String(error?.code || "");
+      const retryable =
+        code.includes("deadline-exceeded") ||
+        code.includes("unavailable") ||
+        code.includes("resource-exhausted") ||
+        code.includes("internal");
+      if (!retryable || attempt === 2) break;
+      await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
+    }
   }
-}
-
-function focusedProduct(products) {
-  const match = window.location.hash.match(/^#product\/edit\/(.+)$/);
-  if (!match) return null;
-  return products.find((product) => String(product.id) === decodeURIComponent(match[1])) || null;
-}
-
-function summarizeProducts(products) {
-  return products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    sku: product.sku,
-    category: product.category,
-    type: product.type,
-    description: product.description,
-    price: product.price,
-    variants: product.variants,
-    images: product.images,
-  }));
+  throw new Error(formatCallableError(lastError));
 }
 
 function findTarget(products, target) {
