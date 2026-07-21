@@ -186,12 +186,14 @@
 /* Cards per view — chosen so a whole number of cards always fits,
    never leaving a half-image visible at the edge. */
 .jj-product-carousel__track {
-  --jj-per-view: 1;
+  --jj-per-view: 2;
+  --jj-gap: 12px;
 }
 
 @media (min-width: 560px) {
   .jj-product-carousel__track {
     --jj-per-view: 2;
+    --jj-gap: 16px;
   }
 }
 
@@ -202,6 +204,7 @@
 
   .jj-product-carousel__track {
     --jj-per-view: 3;
+    --jj-gap: 20px;
   }
 }
 
