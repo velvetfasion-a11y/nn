@@ -175,9 +175,9 @@
   height: auto;
   min-height: 0;
   overflow: visible;
-  /* White under the fixed header — avoids a black hairline gap from padding-top */
-  background: #ffffff;
-  padding-top: calc(72px + env(safe-area-inset-top, 0px));
+  /* White under the fixed header — avoids a black gap from padding-top */
+  background: #ffffff !important;
+  padding-top: calc(72px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .jj-hero__frame {

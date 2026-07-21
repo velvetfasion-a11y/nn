@@ -84,11 +84,6 @@
       return;
     }
 
-    const scrollLink = event.target.closest(".jj-about-hero-caption [data-jj-scroll]");
-    if (!scrollLink) return;
-    event.preventDefault();
-    event.stopPropagation();
-    scrollToTarget(scrollLink.dataset.jjScroll);
   });
 
   document.addEventListener("keydown", (event) => {

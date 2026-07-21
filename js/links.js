@@ -31,7 +31,7 @@
   }
 
   function isScrollLink(target) {
-    return !!target.closest("[data-jj-scroll], .jj-about-hero-caption");
+    return !!target.closest("[data-jj-scroll]");
   }
 
   function scrollToNotify(event) {

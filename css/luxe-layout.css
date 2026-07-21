@@ -106,8 +106,9 @@ body {
 
 /* ── Hero (keep sticky + parallax structure) ── */
 .jj-hero {
-  background: var(--jj-black);
-  padding-top: 84px;
+  /* Match header height; white fill so no black gap under the fixed header */
+  background: #ffffff;
+  padding-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 .jj-hero__media {
@@ -588,7 +589,7 @@ body {
   }
 
   .jj-hero {
-    padding-top: 72px;
+    padding-top: calc(72px + env(safe-area-inset-top, 0px));
   }
 
   .jj-nav {
