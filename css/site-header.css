@@ -261,7 +261,9 @@
 
   .jj-header-actions {
     grid-column: 3;
-    gap: 8px;
+    justify-self: end;
+    /* Tight icon cluster — device.css 48px tap mins made glyphs look far apart */
+    gap: 0;
     align-self: center;
     /* Let the notify CTA position against __inner (full header bar), not this icon row. */
     position: static;
@@ -271,25 +273,24 @@
     display: none;
   }
 
-  #jj-wishlist-btn {
-    display: inline-flex;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-  }
-
-  #jj-bag-btn {
-    display: inline-flex;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-  }
-
+  /* Keep a usable tap size, but pack heart / bag / profile as one group */
+  .jj-header-actions > .jj-icon-btn,
+  #jj-wishlist-btn,
+  #jj-bag-btn,
   #jj-profile-link {
     display: inline-flex;
-    width: 34px;
-    height: 34px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
     flex-shrink: 0;
+  }
+
+  .jj-header-actions > .jj-icon-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   #jj-menu-btn,

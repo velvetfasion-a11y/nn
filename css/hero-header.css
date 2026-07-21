@@ -567,7 +567,7 @@
     grid-column: 3;
     justify-self: end;
     flex: 0 0 auto;
-    gap: 8px;
+    gap: 0;
     align-self: center;
     /* Let the notify CTA position against __inner (full header bar), not this icon row. */
     position: static;
@@ -577,34 +577,36 @@
     display: none;
   }
 
-  #jj-wishlist-btn {
-    order: 1;
+  .jj-header-actions > .jj-icon-btn,
+  #jj-wishlist-btn,
+  #jj-bag-btn,
+  #jj-profile-link {
+    order: initial;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
     flex-shrink: 0;
+  }
+
+  #jj-wishlist-btn {
+    order: 1;
   }
 
   #jj-bag-btn {
     order: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
   }
 
   #jj-profile-link {
     order: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
+  }
+
+  .jj-header-actions > .jj-icon-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   #jj-menu-btn,

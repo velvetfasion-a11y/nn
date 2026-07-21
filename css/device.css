@@ -83,7 +83,8 @@ footer#comp-kbgakxmn,
   bottom: calc(24px + var(--jj-safe-bottom));
 }
 
-/* Tap targets — WCAG / Apple HIG ~44–48px */
+/* Tap targets — WCAG / Apple HIG ~44–48px.
+   Header icons are clustered on small screens via site-header.css. */
 .jj-icon-btn,
 .jj-menu-btn,
 .jj-accordion__header,
@@ -91,6 +92,13 @@ footer#comp-kbgakxmn,
 .jj-login-drawer__password-toggle {
   min-width: var(--jj-tap);
   min-height: var(--jj-tap);
+}
+
+@media (max-width: 900px) {
+  .jj-header-actions > .jj-icon-btn {
+    min-width: 38px;
+    min-height: 38px;
+  }
 }
 
 .jj-nav__link {
