@@ -96,6 +96,43 @@ function renderGrid() {
   }
 
   grid.innerHTML = sorted.map(productCardHtml).join("");
+  bindShopCardPressReveal();
+}
+
+/** Touch/press: show alt image while held, revert to main on release. */
+function bindShopCardPressReveal() {
+  if (!grid || grid.dataset.pressBound === "1") return;
+  grid.dataset.pressBound = "1";
+
+  function clearAllPressing() {
+    grid.querySelectorAll(".jj-shop-card.is-pressing").forEach((card) => {
+      card.classList.remove("is-pressing");
+    });
+  }
+
+  grid.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (event.pointerType === "mouse") return;
+      const card = event.target.closest(".jj-shop-card");
+      if (!card || !grid.contains(card)) return;
+      if (!card.querySelector(".jj-shop-card__img--alt")) return;
+      clearAllPressing();
+      card.classList.add("is-pressing");
+      try {
+        card.setPointerCapture?.(event.pointerId);
+      } catch {
+        /* ignore */
+      }
+    },
+    { passive: true },
+  );
+
+  const end = () => clearAllPressing();
+  grid.addEventListener("pointerup", end, { passive: true });
+  grid.addEventListener("pointercancel", end, { passive: true });
+  grid.addEventListener("lostpointercapture", end, { passive: true });
+  window.addEventListener("blur", end);
 }
 
 function updateSortUi() {

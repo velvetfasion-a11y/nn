@@ -398,11 +398,13 @@ body.jj-shop-page {
   opacity: 0;
 }
 
-.jj-shop-card:hover .jj-shop-card__img--main {
+.jj-shop-card:hover .jj-shop-card__img--main,
+.jj-shop-card.is-pressing .jj-shop-card__img--main {
   opacity: 0;
 }
 
-.jj-shop-card:hover .jj-shop-card__img--alt {
+.jj-shop-card:hover .jj-shop-card__img--alt,
+.jj-shop-card.is-pressing .jj-shop-card__img--alt {
   opacity: 1;
 }
 
@@ -527,12 +529,21 @@ body.jj-shop-page {
   }
 }
 
+/* Touch / coarse pointers: no sticky :hover swap — only while pressing */
 @media (hover: none) {
-  .jj-shop-card__media .jj-shop-card__img--alt {
+  .jj-shop-card:hover .jj-shop-card__img--main {
+    opacity: 1;
+  }
+
+  .jj-shop-card:hover .jj-shop-card__img--alt {
     opacity: 0;
   }
 
-  .jj-shop-card__media .jj-shop-card__img--main {
+  .jj-shop-card.is-pressing .jj-shop-card__img--main {
+    opacity: 0;
+  }
+
+  .jj-shop-card.is-pressing .jj-shop-card__img--alt {
     opacity: 1;
   }
 }
