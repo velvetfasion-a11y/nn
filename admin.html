@@ -8,29 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site-image-frames.css?v=4">
-  <link rel="stylesheet" href="css/admin.css?v=16">
+  <link rel="stylesheet" href="css/admin.css?v=18">
 </head>
 <body class="admin-body">
 
 <div id="admin-gate" class="admin-gate">
   <h1>Jamil Jamila Admin</h1>
   <p id="admin-gate-status">Kontrollerar inloggning…</p>
-  <form id="admin-login-form" class="admin-gate-form" action="" method="post" hidden novalidate>
-    <p class="admin-gate-help">Logga in med administratörskontot</p>
-    <p id="admin-login-error" class="admin-gate-error" hidden></p>
-    <label class="admin-gate-label" for="admin-login-email">E-post</label>
-    <input class="admin-gate-input" type="email" id="admin-login-email" autocomplete="email" required>
-    <label class="admin-gate-label" for="admin-login-password">Lösenord</label>
-    <input class="admin-gate-input" type="password" id="admin-login-password" autocomplete="current-password" required>
-    <button type="submit" class="admin-btn admin-gate-submit">Logga in</button>
-    <button type="button" class="admin-btn-outline admin-gate-google" id="admin-google-login">Fortsätt med Google</button>
-  </form>
 </div>
 
 <div id="admin-denied" class="admin-gate" hidden>
   <h1>Åtkomst nekad</h1>
   <p>Adminpanelen är endast tillgänglig för det auktoriserade administratörskontot.</p>
-  <p><a href="/">← Tillbaka till butiken</a> · <a href="/account.html">Mitt konto</a></p>
+  <p><a href="/">← Tillbaka till butiken</a> · <a href="/account.html">Logga in</a></p>
 </div>
 
 <div id="admin-app" hidden>
@@ -44,6 +34,28 @@
 </header>
 
 <main class="admin-main">
+  <section class="admin-ai" id="adminAi" aria-labelledby="adminAiTitle">
+    <div class="admin-ai-head">
+      <div>
+        <p class="admin-ai-eyebrow">AI Studio</p>
+        <h2 id="adminAiTitle">Skapa och ändra med en prompt</h2>
+      </div>
+      <span class="admin-ai-secure">Gemini · server-säkrad</span>
+    </div>
+    <div class="admin-ai-messages" id="adminAiMessages" aria-live="polite">
+      <div class="admin-ai-message admin-ai-message--assistant">
+        Beskriv vad du vill göra. Jag kan skapa produkter, ändra pris, text och lager samt generera produktbilder.
+      </div>
+    </div>
+    <div class="admin-ai-attachments" id="adminAiAttachments" hidden></div>
+    <div class="admin-ai-composer">
+      <button type="button" class="admin-ai-attach" id="adminAiAttach" aria-label="Bifoga produktbild">+</button>
+      <textarea id="adminAiPrompt" rows="1" placeholder="T.ex. Skapa en svart klänning för Hers, 1 299 kr, och generera tre studiobilder …"></textarea>
+      <button type="button" class="admin-ai-send" id="adminAiSend">Skicka</button>
+      <input type="file" id="adminAiFile" accept="image/*" multiple hidden>
+    </div>
+  </section>
+
   <div id="adminContent">
 
     <nav class="admin-tabs" aria-label="Admin-navigation" id="adminTabs">
@@ -167,7 +179,7 @@
 
         <div class="admin-form-card admin-image-card" id="imageDropZone">
           <h2>Produktbilder</h2>
-          <p class="admin-image-help">Dra och släpp bilder här, eller klicka på «Lägg till bild». Första bilden visas först i butiken.</p>
+          <p class="admin-image-help">Tryck på en bild för att justera placering. Dra bilder för att byta ordning — första bilden är huvudbild i butiken.</p>
           <div class="admin-image-grid" id="imageGallery"></div>
           <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" multiple hidden>
         </div>
@@ -183,9 +195,9 @@
               <label for="fieldCategory">Kategori</label>
               <select id="fieldCategory">
                 <option value="">Välj kategori…</option>
-                <option value="women">Dam</option>
-                <option value="men">Herr</option>
-                <option value="kids">Barn</option>
+                <option value="hers">Hers / Dam</option>
+                <option value="his">His / Herr</option>
+                <option value="kids">Kids / Barn</option>
                 <option value="accessories">Accessoarer</option>
               </select>
             </div>
@@ -245,7 +257,8 @@
 <script src="js/firebase-config.public.js?v=1"></script>
 <script src="js/admin-config.public.js?v=2"></script>
 <script src="js/auth-form-guard.js?v=1"></script>
-<script type="module" src="js/admin-auth.js?v=8"></script>
-<script type="module" src="js/admin-app.js?v=15"></script>
+<script type="module" src="js/admin-auth.js?v=9"></script>
+<script type="module" src="js/admin-app.js?v=18"></script>
+<script type="module" src="js/admin-ai.js?v=1"></script>
 </body>
 </html>

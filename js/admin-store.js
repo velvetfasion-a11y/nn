@@ -4,9 +4,8 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  query,
-  orderBy,
   setDoc,
+  serverTimestamp,
 } from "./vendor/firebase-firestore.js";
 import { db } from "./firebase.js";
 import { resolveAdminImageUrl } from "./admin-image-upload.js";
@@ -17,16 +16,32 @@ function mapDoc(snapshot) {
   return { id: snapshot.id, ...snapshot.data() };
 }
 
+function createdAtMs(product) {
+  const value = product?.createdAt;
+  if (!value) return 0;
+  if (typeof value.toMillis === "function") return value.toMillis();
+  if (typeof value.seconds === "number") return value.seconds * 1000;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function sortNewestFirst(list) {
+  return [...list].sort((a, b) => {
+    const byDate = createdAtMs(b) - createdAtMs(a);
+    if (byDate !== 0) return byDate;
+    const byOrder = (Number(b.sortOrder) || 0) - (Number(a.sortOrder) || 0);
+    if (byOrder !== 0) return byOrder;
+    return String(b.id).localeCompare(String(a.id));
+  });
+}
+
 export async function fetchProducts() {
   try {
-    const snap = await getDocs(query(productsRef, orderBy("sortOrder", "asc")));
-    return snap.docs.map(mapDoc);
-  } catch (error) {
-    console.warn("fetchProducts orderBy failed, falling back:", error);
     const snap = await getDocs(productsRef);
-    return snap.docs
-      .map(mapDoc)
-      .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+    return sortNewestFirst(snap.docs.map(mapDoc));
+  } catch (error) {
+    console.warn("fetchProducts failed:", error);
+    throw error;
   }
 }
 
@@ -35,7 +50,12 @@ export async function saveProduct(productId, data) {
 }
 
 export async function createProduct(data) {
-  const ref = await addDoc(productsRef, data);
+  const payload = {
+    ...data,
+    createdAt: serverTimestamp(),
+    sortOrder: Number(data.sortOrder) || Date.now(),
+  };
+  const ref = await addDoc(productsRef, payload);
   return ref.id;
 }
 

@@ -1,12 +1,8 @@
 import {
-  GoogleAuthProvider,
   browserLocalPersistence,
   getRedirectResult,
   onAuthStateChanged,
   setPersistence,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signInWithRedirect,
   signOut,
 } from "./vendor/firebase-auth.js";
 import { auth } from "./firebase.js";
@@ -16,11 +12,6 @@ const LOG_PREFIX = "[admin-auth]";
 
 const gate = document.getElementById("admin-gate");
 const gateStatus = document.getElementById("admin-gate-status");
-const loginForm = document.getElementById("admin-login-form");
-const loginError = document.getElementById("admin-login-error");
-const loginEmail = document.getElementById("admin-login-email");
-const loginPassword = document.getElementById("admin-login-password");
-const googleLoginBtn = document.getElementById("admin-google-login");
 const denied = document.getElementById("admin-denied");
 const app = document.getElementById("admin-app");
 const userLabel = document.getElementById("admin-user-email");
@@ -29,8 +20,7 @@ const logoutBtn = document.getElementById("admin-logout");
 const adminPage = getAdminPageFromLocation();
 const AUTH_READY_TIMEOUT_MS = 12000;
 const REDIRECT_RESULT_TIMEOUT_MS = 8000;
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: "select_account" });
+const STORE_LOGIN_URL = "/account.html";
 
 let authListenerAttached = false;
 let dashboardShown = false;
@@ -51,55 +41,17 @@ function setAdminView(view) {
   log("set admin view", { view });
 }
 
-function setLoginError(message) {
-  if (!loginError) return;
-  loginError.textContent = message || "";
-  loginError.hidden = !message;
-}
-
-function setLoginLoading(isLoading) {
-  loginForm?.querySelectorAll("button, input").forEach((el) => {
-    el.disabled = isLoading;
-  });
-}
-
-function showLoginForm(message = "") {
-  setAdminView("gate");
-  if (gateStatus) gateStatus.hidden = true;
-  if (loginForm) loginForm.hidden = false;
-  setLoginError(message);
-  loginEmail?.focus();
-}
-
-function showChecking(message = "Checking sign-in…") {
+function showChecking(message = "Kontrollerar inloggning…") {
   setAdminView("gate");
   if (gateStatus) {
     gateStatus.hidden = false;
     gateStatus.textContent = message;
   }
-  if (loginForm) loginForm.hidden = true;
-  setLoginError("");
 }
 
-function getFriendlyAuthError(error) {
-  switch (error?.code) {
-    case "auth/invalid-email":
-      return "Ange en giltig e-postadress.";
-    case "auth/user-not-found":
-    case "auth/wrong-password":
-    case "auth/invalid-credential":
-      return "Fel e-post eller lösenord.";
-    case "auth/too-many-requests":
-      return "För många försök. Försök igen senare.";
-    case "auth/popup-blocked":
-      return "Popup blockerades. Försöker omdirigera…";
-    case "auth/unauthorized-domain":
-      return "Domänerna jamiljamila.com och www.jamiljamila.com måste läggas till i Firebase → Authentication → Settings → Authorized domains.";
-    case "auth/operation-not-allowed":
-      return "Inloggningsmetoden är inte aktiverad i Firebase Authentication.";
-    default:
-      return error?.message || "Kunde inte logga in. Försök igen.";
-  }
+function goToStoreLogin() {
+  const next = encodeURIComponent(`/${adminPage}`);
+  window.location.replace(`${STORE_LOGIN_URL}?next=${next}`);
 }
 
 function showDashboard(user) {
@@ -174,7 +126,8 @@ async function resolveAuthUser(user, source) {
   }
 
   if (dashboardShown) return;
-  showLoginForm();
+  showChecking("Omdirigerar till inloggning…");
+  goToStoreLogin();
 }
 
 function attachAuthListener() {
@@ -202,50 +155,6 @@ function withTimeout(promise, timeoutMs, label) {
       }, timeoutMs);
     }),
   ]);
-}
-
-async function handleEmailLogin(event) {
-  event.preventDefault();
-  setLoginError("");
-  setLoginLoading(true);
-
-  const email = loginEmail?.value?.trim().toLowerCase();
-  const password = loginPassword?.value || "";
-
-  try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    await resolveAuthUser(result.user, "email-login");
-  } catch (error) {
-    log("email login failed", { code: error?.code, message: error?.message });
-    setLoginError(getFriendlyAuthError(error));
-  } finally {
-    setLoginLoading(false);
-  }
-}
-
-async function handleGoogleLogin() {
-  setLoginError("");
-  setLoginLoading(true);
-
-  try {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result?.user) {
-        await resolveAuthUser(result.user, "google-popup");
-        return;
-      }
-    } catch (error) {
-      if (error?.code === "auth/popup-blocked" || error?.code === "auth/cancelled-popup-request") {
-        await signInWithRedirect(auth, googleProvider);
-        return;
-      }
-      throw error;
-    }
-  } catch (error) {
-    log("google login failed", { code: error?.code, message: error?.message });
-    setLoginError(getFriendlyAuthError(error));
-    setLoginLoading(false);
-  }
 }
 
 async function initAdminAuth() {
@@ -288,31 +197,22 @@ async function initAdminAuth() {
     });
   } catch (error) {
     log("authStateReady error", { message: error?.message });
-    showLoginForm("Inloggningen tog för lång tid. Logga in igen.");
+    goToStoreLogin();
     return;
   }
 
   await resolveAuthUser(auth.currentUser, "initial");
 }
 
-loginForm?.addEventListener("submit", (event) => {
-  void handleEmailLogin(event);
-});
-
-googleLoginBtn?.addEventListener("click", () => {
-  void handleGoogleLogin();
-});
-
 logoutBtn?.addEventListener("click", async () => {
   log("logout clicked");
   dashboardShown = false;
   await signOut(auth);
   clearAdminUi();
-  loginForm?.reset();
-  showLoginForm();
+  window.location.replace(STORE_LOGIN_URL);
 });
 
 initAdminAuth().catch((error) => {
   log("init fatal error", { message: error?.message });
-  showLoginForm("Kunde inte starta inloggning. Försök igen.");
+  goToStoreLogin();
 });

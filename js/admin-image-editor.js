@@ -215,7 +215,69 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function closeEditor(save) {
+function clampCrop(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+async function exportCroppedDataUrl(session) {
+  const { target } = sessionElements();
+  if (!target?.src) throw new Error("Ingen bild att exportera");
+
+  await new Promise((resolve, reject) => {
+    if (target.complete && target.naturalWidth) {
+      resolve();
+      return;
+    }
+    target.onload = () => resolve();
+    target.onerror = () => reject(new Error("Kunde inte läsa bilden"));
+  });
+
+  const imgW = target.naturalWidth;
+  const imgH = target.naturalHeight;
+  if (!imgW || !imgH) throw new Error("Ogiltig bildstorlek");
+
+  const focus = normalizeFocus(session.focus);
+  const ratio = session.preset?.ratio || 3 / 4;
+  const outW = 1600;
+  const outH = Math.max(1, Math.round(outW / ratio));
+  const cover = Math.max(outW / imgW, outH / imgH) * focus.scale;
+  const drawW = imgW * cover;
+  const drawH = imgH * cover;
+  const left = (outW - drawW) * (focus.x / 100);
+  const top = (outH - drawH) * (focus.y / 100);
+
+  let sx = -left / cover;
+  let sy = -top / cover;
+  let sw = outW / cover;
+  let sh = outH / cover;
+
+  if (sx < 0) {
+    sw += sx;
+    sx = 0;
+  }
+  if (sy < 0) {
+    sh += sy;
+    sy = 0;
+  }
+  if (sx + sw > imgW) sw = imgW - sx;
+  if (sy + sh > imgH) sh = imgH - sy;
+
+  sx = clampCrop(sx, 0, imgW - 1);
+  sy = clampCrop(sy, 0, imgH - 1);
+  sw = clampCrop(sw, 1, imgW - sx);
+  sh = clampCrop(sh, 1, imgH - sy);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = outW;
+  canvas.height = outH;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#f7f4ef";
+  ctx.fillRect(0, 0, outW, outH);
+  ctx.drawImage(target, sx, sy, sw, sh, 0, 0, outW, outH);
+  return canvas.toDataURL("image/jpeg", 0.92);
+}
+
+async function closeEditor(save) {
   if (!activeSession) return;
 
   const session = activeSession;
@@ -230,20 +292,47 @@ function closeEditor(save) {
 
   if (session.cleanup) session.cleanup();
 
-  if (save) {
-    writeFocusToPanel(session.key, session.focus, session.root);
-    session.onChange?.(session.key, session.focus);
+  if (!save) return;
+
+  writeFocusToPanel(session.key, session.focus, session.root);
+  session.onChange?.(session.key, session.focus);
+
+  if (typeof session.onExport === "function") {
+    try {
+      const dataUrl = await exportCroppedDataUrl(session);
+      await session.onExport(dataUrl, session.focus);
+    } catch (error) {
+      console.error("Image crop export failed:", error);
+      session.onExportError?.(error);
+    }
   }
 }
 
-export function openImageEditor({ key, url, focus, label, root, onChange, initialFocus }) {
+export function openImageEditor({
+  key,
+  url,
+  focus,
+  label,
+  root,
+  onChange,
+  onExport,
+  onExportError,
+  initialFocus,
+  presetKey,
+}) {
   if (!url) return;
 
   const overlay = ensureOverlay();
-  const preset = presetForKey(key);
+  const preset = presetForKey(presetKey || key);
   const frame = overlay.querySelector("[data-crop-frame]");
+  const target = overlay.querySelector("[data-crop-target]");
 
   if (activeSession?.cleanup) activeSession.cleanup();
+
+  if (target) {
+    target.crossOrigin = "anonymous";
+    target.removeAttribute("data-crop-url");
+  }
 
   activeSession = {
     key,
@@ -252,6 +341,8 @@ export function openImageEditor({ key, url, focus, label, root, onChange, initia
     root,
     preset,
     onChange,
+    onExport,
+    onExportError,
     initialFocus: normalizeFocus(initialFocus ?? focus),
     focus: normalizeFocus(focus),
     cleanup: frame ? bindStageInteractions(frame) : null,

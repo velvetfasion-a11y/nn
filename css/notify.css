@@ -284,7 +284,178 @@
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* legacy notify section styles removed (replaced by modal trigger + modal) */
+/* Waitlist modal (shared across storefront pages) */
+.jj-waitlist-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.jj-waitlist-modal.is-open {
+  display: flex;
+}
+
+.jj-waitlist-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.jj-waitlist-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgb(0 0 0 / 0.25);
+  overflow: hidden;
+  padding: 36px;
+}
+
+.jj-waitlist-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.jj-waitlist-modal__title {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  color: #1f1c18;
+}
+
+.jj-waitlist-modal__sub {
+  margin: 8px 0 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  color: #5c5248;
+}
+
+.jj-waitlist-modal__close {
+  border: none;
+  background: transparent;
+  color: #5c5248;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.jj-waitlist-modal__close:hover {
+  color: #1f1c18;
+}
+
+.jj-waitlist-notify {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.jj-waitlist-notify .notify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.jj-waitlist-notify .notify-input {
+  width: 100%;
+  padding: 14px 20px;
+  border: 1px solid #d1c9b8;
+  border-radius: 16px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  color: #1f1c18;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.jj-waitlist-notify .notify-input:focus {
+  outline: none;
+  border-color: #a98b5f;
+  box-shadow: 0 0 0 3px rgba(169, 139, 95, 0.1);
+}
+
+.jj-waitlist-notify .notify-input::placeholder {
+  color: #9a9084;
+}
+
+.jj-waitlist-notify .notify-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(31, 28, 24, 0.85);
+  color: #fff;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  cursor: pointer;
+  transition: background 0.4s ease, transform 0.15s ease;
+}
+
+.jj-waitlist-notify .notify-btn:hover,
+.jj-waitlist-notify .notify-btn:disabled {
+  background: #1f1c18;
+}
+
+.jj-waitlist-notify .notify-btn:disabled {
+  cursor: not-allowed;
+}
+
+.jj-waitlist-note {
+  margin: 16px 0 0;
+  text-align: center;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #9a9084;
+}
+
+.jj-waitlist-notify .notify-success {
+  display: none;
+  text-align: center;
+  padding: 32px 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  color: #5c5248;
+}
+
+.jj-waitlist-notify .notify-success.visible {
+  display: block;
+}
+
+.jj-waitlist-notify .notify-success::before {
+  content: "✓";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 20px;
+  border-radius: 999px;
+  background: #f8f4ed;
+  color: #a98b5f;
+  font-size: 30px;
+  line-height: 1;
+}
 
 @media (max-width: 480px) {
   .notify-section {

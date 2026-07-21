@@ -73,8 +73,13 @@ function signatureCardHtml(item) {
   const id = item.id || "";
   const image = item.image || "";
   const focus = item.focus || {};
+  const href =
+    item.href && item.href !== "/product.html"
+      ? item.href
+      : window.JJProductNav?.productHref({ id, image, name: title }) ||
+        (id ? `/product.html?id=${encodeURIComponent(id)}` : "/product.html");
   return `
-    <article class="jj-product-card" data-jj-signature-id="${escapeHtml(id)}">
+    <a class="jj-product-card" href="${escapeHtml(href)}" data-jj-signature-id="${escapeHtml(id)}">
       <div class="jj-product-card__media">
         ${coverFillHtml(escapeHtml(image), focus)}
         <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" loading="lazy" decoding="async" data-jj-focus-hidden="true" tabindex="-1" aria-hidden="true">
@@ -83,14 +88,15 @@ function signatureCardHtml(item) {
         <h3 class="jj-product-card__name">${escapeHtml(title)}</h3>
         <p class="jj-product-card__price">${escapeHtml(price)}</p>
       </div>
-    </article>`;
+    </a>`;
 }
 
 function applySignaturePieces(content) {
   const section = content.signaturePieces;
   if (!section) return;
 
-  if (section.title) {
+  const titleEl = document.querySelector("#jj-shop .jj-product-carousel__title");
+  if (section.title && titleEl && !titleEl.hasAttribute("data-jj-fixed-title")) {
     setText("#jj-shop .jj-product-carousel__title", section.title);
   }
 
@@ -135,7 +141,8 @@ export function applySiteContentToDom(content) {
 async function loadSiteContent() {
   try {
     const snap = await getDoc(doc(db, "admin_site_content", "homepage"));
-    const data = snap.exists() ? snap.data() : null;
+    const exists = typeof snap.exists === "function" ? snap.exists() : !!snap.exists;
+    const data = exists ? snap.data() : null;
     applySiteContentToDom(data);
   } catch (error) {
     console.warn("Site content load failed, using defaults:", error);

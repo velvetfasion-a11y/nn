@@ -14,10 +14,11 @@
   right: 0;
   z-index: 200;
   background: #fff;
-  border-bottom: 1px solid #ede6d9;
+  border-bottom: none;
 }
 
 .jj-site-header__inner {
+  position: relative;
   max-width: 1536px;
   margin: 0 auto;
   padding: 0 32px;
@@ -25,10 +26,13 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 72px;
-  gap: 24px;
+  gap: 16px;
 }
 
 .jj-brand {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
   font-family: "Playfair Display", Georgia, serif;
   font-size: 26px;
   font-weight: 600;
@@ -40,11 +44,18 @@
 }
 
 .jj-nav {
+  position: static;
+  grid-column: 2;
+  justify-self: center;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 32px;
-  justify-self: center;
+  width: max-content;
+  max-width: none;
+  transform: none;
+  pointer-events: auto;
 }
 
 .jj-nav__link {
@@ -62,14 +73,17 @@
 }
 
 .jj-header-actions {
+  position: relative;
+  z-index: 2;
+  grid-column: 3;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   justify-self: end;
 }
 
 @media (min-width: 901px) {
-  #jj-search-btn {
+  #jj-header-notify-btn {
     order: 1;
   }
 
@@ -77,11 +91,11 @@
     order: 2;
   }
 
-  #jj-profile-link {
+  #jj-bag-btn {
     order: 3;
   }
 
-  #jj-header-notify-btn {
+  #jj-profile-link {
     order: 4;
   }
 
@@ -123,18 +137,26 @@
 }
 
 .jj-notify-btn {
-  padding: 8px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 18px;
   border: 1px solid #1f1c18;
-  border-radius: 999px;
+  border-radius: 0;
   background: transparent;
   color: #1f1c18;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-family: "Jost", system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .jj-notify-btn:hover {
@@ -153,8 +175,9 @@
   height: auto;
   min-height: 0;
   overflow: visible;
-  background: #0e0e0e;
-  padding-top: 72px;
+  /* White under the fixed header — avoids a black hairline gap from padding-top */
+  background: #ffffff;
+  padding-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 .jj-hero__frame {
@@ -181,13 +204,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  background-image: url("../assets/images/0rISg.jpg");
+  background-image: url("../assets/images/optimized/0rISg.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   transform: scale(1.1765);
   transform-origin: center bottom;
-  will-change: transform;
   pointer-events: none;
 }
 
@@ -203,7 +225,6 @@
   pointer-events: none;
   transform: scale(1.1765);
   transform-origin: center bottom;
-  will-change: transform;
   z-index: 1;
 }
 
@@ -225,7 +246,6 @@
 .jj-hero__content {
   text-align: center;
   transform: translate3d(0, 0, 0);
-  will-change: transform;
   pointer-events: auto;
 }
 
@@ -485,72 +505,89 @@
 
 @media (max-width: 900px) {
   .jj-site-header__inner {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
   }
 
-  .jj-brand,
-  .jj-header-actions {
-    justify-self: auto;
+  .jj-brand {
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+    justify-self: start;
+    flex: 0 0 auto;
+    min-width: 0;
+    font-size: clamp(15px, 3.8vw, 22px);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
   }
 
   .jj-nav {
-    position: fixed;
-    top: 72px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    gap: 0;
-    background: #fff;
-    border-bottom: 1px solid #ede6d9;
-    padding: 8px 0 16px;
-    transform: translateY(-120%);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    position: static;
+    grid-column: 2;
+    justify-self: center;
+    top: auto;
+    left: auto;
+    right: auto;
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(10px, 2.8vw, 28px);
+    width: max-content;
+    max-width: none;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .jj-nav.is-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .jj-nav__link {
-    width: 100%;
-    padding: 14px 24px;
+    pointer-events: auto !important;
+    width: auto;
+    padding: 0;
     text-align: center;
+    font-size: clamp(9px, 2.4vw, 12px);
+    letter-spacing: clamp(0.8px, 0.35vw, 1.75px);
+    white-space: nowrap;
+  }
+
+  .jj-header-actions {
+    grid-column: 3;
+    justify-self: end;
+    flex: 0 0 auto;
+    gap: 8px;
+    align-self: center;
+    /* Let the notify CTA position against __inner (full header bar), not this icon row. */
+    position: static;
   }
 
   .jj-icon-btn--desktop {
     display: none;
   }
 
-  .jj-site-header__inner {
-    gap: 10px;
-  }
-
-  .jj-brand {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: clamp(17px, 4.8vw, 22px);
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .jj-header-actions {
-    flex: 0 0 auto;
-    gap: 8px;
-  }
-
-  #jj-header-notify-btn {
+  #jj-wishlist-btn {
     order: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
   }
 
-  #jj-profile-link {
+  #jj-bag-btn {
     order: 2;
     display: inline-flex;
     align-items: center;
@@ -560,18 +597,54 @@
     flex-shrink: 0;
   }
 
-  #jj-menu-btn {
+  #jj-profile-link {
     order: 3;
-  }
-
-  .jj-menu-btn {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
   }
 
+  #jj-menu-btn,
+  .jj-menu-btn {
+    display: none !important;
+  }
+
+  #jj-header-notify-btn,
   .jj-notify-btn {
-    padding: 8px 14px;
-    font-size: 11px;
-    letter-spacing: 1.2px;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 16px;
+    left: auto;
+    z-index: 1;
+    order: initial;
+    display: inline-flex;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(31, 28, 24, 0.08);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition:
+      opacity 0.28s ease,
+      transform 0.28s ease,
+      visibility 0.28s ease;
+  }
+
+  .jj-site-header.is-scrolled #jj-header-notify-btn,
+  .jj-site-header.is-scrolled .jj-notify-btn {
+    display: inline-flex;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 
   .jj-hero__visual {
@@ -590,9 +663,13 @@
 
 @media (max-width: 420px) {
   .jj-notify-btn {
-    padding: 7px 10px;
+    right: 14px;
+    top: calc(100% + 10px);
+    height: 32px;
+    min-height: 32px;
+    padding: 0 10px;
     font-size: 9px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
   }
 
   .jj-site-header__inner {

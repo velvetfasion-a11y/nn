@@ -5,84 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>My Profile | Jamil Jamila</title>
   <link rel="icon" href="assets/images/logo.png" type="image/png">
-  <link rel="stylesheet" href="css/account.css?v=2">
-  <link rel="stylesheet" href="css/ai-chat.css">
-  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/site-header.css?v=21">
+  <link rel="stylesheet" href="css/account.css?v=12">
+  <link rel="stylesheet" href="css/notify.css?v=2">
+  <link rel="stylesheet" href="css/login-drawer.css?v=2" media="print" onload="this.media='all'" data-jj-defer-css>
+  <script src="js/defer-css.js"></script>
 </head>
 <body class="account-page">
 
-  <div class="account-layout">
-    <aside class="sidebar account-nav" aria-label="Account">
-      <div class="nav-group account-nav__main">
-        <a href="#my-profile" class="nav-link" data-account-nav="my-profile">My Profile</a>
-        <a href="#order-history" class="nav-link" data-account-nav="order-history" data-requires-auth>Order History</a>
-        <a href="#saved-addresses" class="nav-link" data-account-nav="saved-addresses" data-requires-auth>Saved Addresses</a>
-        <a href="#liked-items" class="nav-link" data-account-nav="liked-items" data-requires-auth>Liked Items</a>
-        <a href="#" class="nav-link" data-admin-only hidden>Admin Panel</a>
-      </div>
-      <div class="nav-group sidebar-footer account-nav__bottom">
-        <a href="#support" class="nav-link" data-account-nav="support" data-always-available>Support</a>
-        <a href="#settings" class="nav-link" data-account-nav="settings" data-always-available>Settings</a>
-        <a href="/" class="nav-link nav-link--store">← Back to store</a>
-      </div>
-    </aside>
+<header class="jj-site-header" id="jj-site-header">
+  <div class="jj-site-header__inner">
+    <a class="jj-brand" href="/" aria-label="Jamil Jamila home">JAMIL JAMILA</a>
 
-    <main class="main-content account-main">
-      <section id="my-profile" class="account-panel account-section is-active" data-title="My Profile">
-        <div id="login-view" class="login-view">
-          <div class="page-header">
-            <h1>Log In</h1>
+    <nav class="jj-nav" id="jj-nav" aria-label="Main">
+      <a href="/shop.html?cat=his" class="jj-nav__link">HIS</a>
+      <a href="/shop.html?cat=hers" class="jj-nav__link">HERS</a>
+      <a href="/shop.html?cat=uni" class="jj-nav__link">UNI</a>
+    </nav>
+
+    <div class="jj-header-actions">
+      <button type="button" class="jj-icon-btn" id="jj-wishlist-btn" aria-label="Liked items">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="jj-bag-count" data-jj-liked-count hidden>0</span>
+      </button>
+      <button type="button" class="jj-notify-btn" id="jj-header-notify-btn" data-jj-open-notify>GET NOTIFIED</button>
+      <button type="button" class="jj-icon-btn" id="jj-bag-btn" aria-label="Shopping bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9h12l-1 12H7L6 9z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 9V7a3 3 0 016 0v2"/></svg>
+        <span class="jj-bag-count" data-jj-bag-count hidden>0</span>
+      </button>
+      <a href="/account.html" class="jj-icon-btn" id="jj-profile-link" aria-label="Account" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+  <section class="profile-hero" id="profile-hero">
+    <div class="hero-content">
+      <h1 data-jj-welcome>Welcome back</h1>
+      <p>Manage your profile, orders and preferences</p>
+    </div>
+  </section>
+
+  <div class="profile-container">
+
+    <section id="my-profile" class="account-panel is-active" data-title="My Profile">
+
+      <div id="login-view" class="login-view">
+        <div class="profile-section login-card">
+          <div class="section-header">
+            <h2>Log In</h2>
           </div>
-          <div class="login-card">
-            <p class="login-intro">Sign in to manage your profile, orders, and saved items.</p>
-            <p id="login-error" class="login-error" hidden></p>
+          <p class="login-intro">Sign in to manage your profile, orders, and saved items.</p>
+          <p id="login-error" class="login-error" hidden></p>
 
-            <form id="email-login-form" class="login-form profile-form" action="" method="post" novalidate>
-              <div class="form-group">
+          <form id="email-login-form" class="login-form" action="" method="post" novalidate>
+            <div class="form-grid">
+              <div class="form-group full">
                 <label for="login-email">Email Address</label>
                 <input type="email" id="login-email" name="email" autocomplete="email" required>
               </div>
-              <div class="form-group">
+              <div class="form-group full">
                 <label for="login-password">Password</label>
                 <input type="password" id="login-password" name="password" autocomplete="current-password" minlength="6" required>
               </div>
-              <button type="submit" id="login-submit-btn" class="save-btn btn-login-submit">Log In</button>
-              <p class="auth-mode-toggle-wrap">
-                <a href="#" id="auth-mode-toggle">Don't have an account? Create one</a>
-              </p>
-            </form>
-
-            <div class="login-divider"><span>or</span></div>
-
-            <div class="login-social-buttons">
-              <button type="button" id="google-login" class="btn-social btn-social--google">
-                <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-
-              <button type="button" id="apple-login" class="btn-social btn-social--apple">
-                <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="#fff" d="M16.365 12.67c.03-2.88 2.49-4.26 2.6-4.33-1.42-2.07-3.62-2.35-4.4-2.38-1.87-.19-3.66 1.1-4.61 1.1-.97 0-2.44-1.07-4.01-.95-2.06.08-3.97 1.2-5.03 3.05-2.15 3.72-.55 9.22 1.54 12.25 1.02 1.48 2.24 3.14 3.84 3.08 1.54-.06 2.12-.99 3.98-.99 1.85 0 2.37.99 3.99.96 1.65-.03 2.69-1.49 3.69-2.98 1.16-1.7 1.64-3.35 1.67-3.43-.04-.02-3.21-1.23-3.24-4.88l-.02-.01zM13.92 3.83c.85-1.03 1.42-2.47 1.26-3.9-1.22.05-2.7.81-3.57 1.84-.79.92-1.48 2.39-1.29 3.8 1.36.1 2.75-.69 3.6-1.74z"/>
-                </svg>
-                <span>Continue with Apple</span>
-              </button>
             </div>
+            <button type="submit" id="login-submit-btn" class="save-btn">Log In</button>
+            <p class="auth-mode-toggle-wrap">
+              <a href="#" id="auth-mode-toggle">Don't have an account? Create one</a>
+            </p>
+          </form>
+
+          <div class="login-divider"><span>or</span></div>
+
+          <div class="login-social-buttons">
+            <button type="button" id="google-login" class="btn-social btn-social--google">
+              <span>Continue with Google</span>
+            </button>
+            <button type="button" id="apple-login" class="btn-social btn-social--apple">
+              <span>Continue with Apple</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-view" hidden>
+        <div class="featured-banner">
+          <div class="featured-image" role="img" aria-label="His collection"></div>
+          <div class="featured-content">
+            <span>Explore</span>
+            <h2>The Collections</h2>
+            <p>From Hers to His to Uni — refined silhouettes from the same house, ready to discover.</p>
+            <a href="/shop.html">Explore the Collection</a>
           </div>
         </div>
 
-        <div id="profile-view" hidden>
-          <div class="page-header">
-            <h1>My Profile</h1>
+        <div class="quick-links">
+          <a href="#order-history" class="quick-card" data-account-nav="order-history">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </div>
+            <h3>Orders</h3>
+            <p>Track &amp; view history</p>
+          </a>
+          <a href="/liked.html" class="quick-card">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <h3>Liked Items</h3>
+            <p data-jj-liked-label>Saved pieces</p>
+          </a>
+          <a href="#saved-addresses" class="quick-card" data-account-nav="saved-addresses">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-5.2-7-11a7 7 0 1114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </div>
+            <h3>Addresses</h3>
+            <p>Manage shipping</p>
+          </a>
+          <a href="#settings" class="quick-card" data-account-nav="settings">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+            </div>
+            <h3>Preferences</h3>
+            <p>Communication settings</p>
+          </a>
+        </div>
+
+        <div class="profile-section">
+          <div class="section-header">
+            <h2>Personal Information</h2>
             <button type="button" id="logout-btn" class="logout-btn">Log Out</button>
           </div>
+
           <p id="profile-success" class="profile-success" hidden></p>
+
           <form id="profile-form" class="profile-form account-form account-form--secure">
-            <div class="form-row">
+            <div class="form-grid">
               <div class="form-group">
                 <label for="firstName">First Name</label>
                 <input type="text" id="firstName" name="firstName" required>
@@ -91,118 +149,159 @@
                 <label for="lastName">Last Name</label>
                 <input type="text" id="lastName" name="lastName" required>
               </div>
-            </div>
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone Number</label>
-              <input type="tel" id="phone" name="phone">
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+971 50 000 0000">
+              </div>
             </div>
             <button type="submit" class="save-btn">Save Changes</button>
           </form>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="order-history" class="account-panel account-section" data-title="Order History">
-        <div class="page-header">
-          <h1>Order History</h1>
-        </div>
-
-        <div class="card">
-          <div class="order-header">
-            <div><strong>Order #10045</strong> • Placed on Oct 12, 2023</div>
-            <div class="status-delivered">Delivered</div>
-          </div>
-          <div class="order-footer">
-            <p>Total: $145.00 (2 items)</p>
-            <button class="btn btn-outline" type="button">View Details</button>
+    <section id="order-history" class="account-panel" data-title="Order History">
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-header__titles">
+            <button type="button" class="account-back" data-jj-account-back>← Back</button>
+            <h2>Order History</h2>
           </div>
         </div>
-
-        <div class="card">
-          <div class="order-header">
-            <div><strong>Order #10044</strong> • Placed on Sep 05, 2023</div>
-            <div class="status-delivered">Delivered</div>
-          </div>
-          <div class="order-footer">
-            <p>Total: $89.50 (1 item)</p>
-            <button class="btn btn-outline" type="button">View Details</button>
-          </div>
+        <div id="order-history-list" data-jj-orders-list>
+          <p class="account-intro" data-jj-orders-loading>Loading orders…</p>
         </div>
-      </section>
+        <div class="orders-empty" data-jj-orders-empty hidden>
+          <p class="orders-empty__title">No orders yet</p>
+          <p class="orders-empty__copy">When you place an order, it will appear here.</p>
+          <a class="save-btn orders-empty__cta" href="/shop.html">Continue Shopping</a>
+        </div>
+      </div>
+    </section>
 
-      <section id="saved-addresses" class="account-panel account-section" data-title="Saved Addresses">
-        <div class="page-header">
-          <h1>Saved Addresses</h1>
-          <button class="btn btn-outline" type="button">+ Add New</button>
+    <section id="saved-addresses" class="account-panel" data-title="Saved Addresses">
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-header__titles">
+            <button type="button" class="account-back" data-jj-account-back>← Back</button>
+            <h2>Saved Addresses</h2>
+          </div>
+          <button class="logout-btn" type="button" data-jj-address-add>+ Add New</button>
         </div>
 
-        <div class="address-grid">
-          <div class="card">
-            <p><strong>Default Shipping</strong></p>
-            <p>Jane Doe</p>
-            <p>123 Fashion Street, Apt 4B</p>
-            <p>New York, NY 10001</p>
-            <div class="address-actions">
-              <a href="#">Edit</a>
-              <span>|</span>
-              <a href="#" class="delete">Delete</a>
+        <p class="account-intro" data-jj-address-status hidden></p>
+
+        <div data-jj-address-list></div>
+
+        <div class="orders-empty" data-jj-address-empty hidden>
+          <p class="orders-empty__title">No saved addresses</p>
+          <p class="orders-empty__copy">
+            Shipping details from your orders show up here. You can also add an address anytime.
+          </p>
+        </div>
+
+        <form class="account-form address-form" data-jj-address-form hidden novalidate>
+          <input type="hidden" name="id" data-jj-address-id>
+          <div class="form-grid">
+            <div class="form-group full address-lookup">
+              <label for="address-lookup">Find address</label>
+              <input
+                type="search"
+                id="address-lookup"
+                data-jj-address-lookup
+                placeholder="Start typing a street, city, or place…"
+                autocomplete="off"
+                spellcheck="false"
+              >
+              <ul class="address-lookup__results" data-jj-address-lookup-results hidden role="listbox"></ul>
+              <p class="address-lookup__hint">Pick a suggestion to fill the fields below.</p>
+            </div>
+            <div class="form-group full">
+              <label for="address-label">Label</label>
+              <input type="text" id="address-label" name="label" placeholder="Home, Office…" maxlength="60">
+            </div>
+            <div class="form-group full">
+              <label for="address-name">Full name</label>
+              <input type="text" id="address-name" name="fullName" required maxlength="120" autocomplete="name">
+            </div>
+            <div class="form-group full">
+              <label for="address-line1">Address line 1</label>
+              <input type="text" id="address-line1" name="line1" required maxlength="160" autocomplete="address-line1">
+            </div>
+            <div class="form-group full">
+              <label for="address-line2">Address line 2</label>
+              <input type="text" id="address-line2" name="line2" maxlength="160" autocomplete="address-line2" placeholder="Apt, suite, building (optional)">
+            </div>
+            <div class="form-group">
+              <label for="address-city">City</label>
+              <input type="text" id="address-city" name="city" required maxlength="80" autocomplete="address-level2">
+            </div>
+            <div class="form-group">
+              <label for="address-region">State / Province</label>
+              <input type="text" id="address-region" name="region" maxlength="80" autocomplete="address-level1">
+            </div>
+            <div class="form-group">
+              <label for="address-postal">Postal code</label>
+              <input type="text" id="address-postal" name="postalCode" maxlength="20" autocomplete="postal-code">
+            </div>
+            <div class="form-group">
+              <label for="address-country">Country</label>
+              <input type="text" id="address-country" name="country" maxlength="80" autocomplete="country-name">
+            </div>
+            <div class="form-group full address-form__default">
+              <label>
+                <input type="checkbox" name="isDefault" data-jj-address-default-check>
+                Use as default shipping address
+              </label>
             </div>
           </div>
-        </div>
-      </section>
+          <div class="address-form__actions">
+            <button type="submit" class="save-btn" data-jj-address-save>Save Address</button>
+            <button type="button" class="logout-btn" data-jj-address-cancel>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
 
-      <section id="support" class="account-panel account-section" data-title="Support">
-        <div class="page-header">
-          <h1>Support</h1>
+    <section id="support" class="account-panel" data-title="Support">
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-header__titles">
+            <button type="button" class="account-back" data-jj-account-back>← Back</button>
+            <h2>Support</h2>
+          </div>
         </div>
         <p class="account-intro">Need help with an order? Send us a message and our team will get back to you within 24 hours.</p>
-
-        <div class="card">
-          <form class="account-form profile-form" data-success="Message sent. We'll be in touch within 24 hours.">
-            <div class="form-group">
+        <form class="account-form" data-success="Message sent. We'll be in touch within 24 hours.">
+          <div class="form-grid">
+            <div class="form-group full">
               <label for="subject">Subject / Order Number</label>
               <input type="text" id="subject" name="subject" required>
             </div>
-            <div class="form-group">
+            <div class="form-group full">
               <label for="message">How can we help?</label>
               <textarea id="message" name="message" rows="5" required></textarea>
             </div>
-            <button type="submit" class="save-btn">Send Message</button>
-          </form>
-        </div>
-      </section>
+          </div>
+          <button type="submit" class="save-btn">Send Message</button>
+        </form>
+      </div>
+    </section>
 
-      <section id="liked-items" class="account-panel account-section account-section--wide" data-title="Liked Items">
-        <div class="page-header">
-          <h1>Liked Items</h1>
-        </div>
-
-        <div class="product-grid">
-          <div class="product-card">
-            <img src="assets/images/women.jpg" alt="Structured Black Dress">
-            <div class="product-info">
-              <div class="product-row">
-                <strong>Structured Black Dress</strong>
-                <span>$120.00</span>
-              </div>
-              <div class="product-actions">
-                <button class="btn btn-outline" type="button" style="padding: 6px 12px; font-size: 12px;">Add to Cart</button>
-                <button class="remove-liked" type="button">Remove</button>
-              </div>
-            </div>
+    <section id="settings" class="account-panel" data-title="Settings">
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-header__titles">
+            <button type="button" class="account-back" data-jj-account-back>← Back</button>
+            <h2>Settings</h2>
           </div>
         </div>
-      </section>
 
-      <section id="settings" class="account-panel account-section" data-title="Settings">
-        <div class="page-header">
-          <h1>Settings</h1>
-        </div>
-
-        <div class="card" style="margin-bottom: 32px;">
+        <div class="info-card settings-block">
           <h3>Notifications</h3>
           <div class="toggle-row">
             <div>
@@ -220,31 +319,62 @@
           </div>
         </div>
 
-        <div class="card" id="password-card">
+        <div class="info-card" id="password-card">
           <h3>Change Password</h3>
-          <form id="password-form" class="profile-form account-form account-form--secure">
-            <div class="form-group">
-              <label for="currentPassword">Current Password</label>
-              <input type="password" id="currentPassword" required>
+          <form id="password-form" class="account-form account-form--secure">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" required>
+              </div>
+              <div class="form-group full">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" required>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="newPassword">New Password</label>
-              <input type="password" id="newPassword" required>
-            </div>
-            <button type="submit" class="btn btn-outline">Update Password</button>
+            <button type="submit" class="logout-btn">Update Password</button>
           </form>
         </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="jj-waitlist-modal" class="jj-waitlist-modal" aria-hidden="true" role="dialog" aria-labelledby="jj-waitlist-title" aria-modal="true">
+    <div class="jj-waitlist-modal__backdrop" data-jj-close-modal></div>
+    <div class="jj-waitlist-modal__panel" role="document">
+      <div class="jj-waitlist-modal__header">
+        <div>
+          <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title">Join the circle</h3>
+          <p class="jj-waitlist-modal__sub">Wear the moment, before anyone else.</p>
+        </div>
+        <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal aria-label="Close">&times;</button>
+      </div>
+
+      <section class="notify-section jj-waitlist-notify">
+        <form class="notify-form jj-waitlist-form" id="jj-waitlist-form">
+          <input class="notify-input jj-waitlist-input" type="email" placeholder="your@email.com" autocomplete="email" required>
+          <button class="notify-btn jj-waitlist-submit" type="submit">RESERVE MY PLACE</button>
+          <p class="jj-waitlist-note">Cancel anytime</p>
+        </form>
+        <div class="notify-success jj-waitlist-success" id="jj-waitlist-success">
+          <span>Thank you. A personal note will arrive in your inbox soon.</span>
+        </div>
       </section>
-    </main>
+    </div>
   </div>
 
   <script src="js/firebase-config.public.js?v=1"></script>
   <script src="js/admin-config.public.js?v=2"></script>
   <script src="js/auth-form-guard.js?v=1"></script>
-  <script type="module" src="js/account-auth.js?v=2"></script>
+  <script src="js/site-header.js?v=3" defer></script>
+  <script src="js/bag-store.js?v=1"></script>
+  <script src="js/liked-store.js?v=2"></script>
+  <script src="js/bag-nav.js?v=2" defer></script>
+  <script type="module" src="js/account-auth.js?v=8"></script>
   <script type="module" src="js/auth-nav.js?v=2"></script>
-  <script src="js/account.js" defer></script>
-  <script src="js/ai-knowledge.js" defer></script>
-  <script src="js/ai-chat.js" defer></script>
+  <script src="js/account.js?v=4" defer></script>
+  <script src="js/waitlist-ui.js?v=1" defer></script>
+  <script type="module" src="js/notify.js"></script>
 </body>
 </html>

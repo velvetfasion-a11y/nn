@@ -65,7 +65,7 @@ function getFriendlyAuthError(error) {
     case "auth/operation-not-allowed":
       return "This sign-in method is not enabled.";
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in. Add jamiljamila.com in Firebase → Authentication → Authorized domains, or log in at /jamiljamila-admin.html";
+      return "This domain is not authorized for sign-in. Add jamiljamila.com in Firebase → Authentication → Authorized domains, or sign in at /account.html";
     default:
       return error.message || "Could not sign in. Please try again.";
   }
@@ -314,6 +314,6 @@ init().catch((error) => {
   if (loginError) {
     loginError.hidden = false;
     loginError.textContent =
-      "Sign-in could not start. Refresh the page or use jamiljamila.com/jamiljamila-admin.html to log in.";
+      "Sign-in could not start. Refresh the page or use jamiljamila.com/account.html to log in.";
   }
 });

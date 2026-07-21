@@ -54,9 +54,47 @@
     }
   }
 
+  function isCategoryExplore(target) {
+    return !!target.closest(
+      ".collections-categories, .collections-categories__btn, .jj-collections__btn, .jj-collections__card, #comp-mmq82nh7, #comp-mmq8486o, #comp-mmq84fyo, .comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo",
+    );
+  }
+
+  function isShopNav(target) {
+    return !!target.closest('.jj-nav a[href*="shop.html"], a[href*="/shop.html"]');
+  }
+
+  const COLLECTION_TILE_HREF = {
+    "comp-mmq82nh7": "/shop.html?cat=hers",
+    "comp-mmq8486o": "/shop.html?cat=his",
+    "comp-mmq84fyo": "/shop.html?cat=uni",
+  };
+
+  function collectionTileHref(target) {
+    const tile = target.closest(
+      "#comp-mmq82nh7, #comp-mmq8486o, #comp-mmq84fyo, .comp-mmq82nh7, .comp-mmq8486o, .comp-mmq84fyo",
+    );
+    if (!tile) return "";
+    const id = tile.id || [...tile.classList].find((c) => COLLECTION_TILE_HREF[c]);
+    return COLLECTION_TILE_HREF[id] || "";
+  }
+
   document.addEventListener(
     "click",
     function (event) {
+      const exploreBtn = event.target.closest(".collections-categories__btn, .jj-collections__btn");
+      if (exploreBtn?.href && !exploreBtn.getAttribute("href")?.startsWith("#")) {
+        return;
+      }
+
+      const tileHref = collectionTileHref(event.target);
+      if (tileHref && !event.target.closest(".collections-categories__btn")) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.location.href = tileHref;
+        return;
+      }
+
       if (
         isHeroChrome(event.target) ||
         isProfile(event.target) ||
@@ -64,7 +102,9 @@
         isUiControl(event.target) ||
         isNotifySection(event.target) ||
         isAiChat(event.target) ||
-        isScrollLink(event.target)
+        isScrollLink(event.target) ||
+        isCategoryExplore(event.target) ||
+        isShopNav(event.target)
       ) {
         return;
       }

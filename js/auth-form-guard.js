@@ -1,5 +1,5 @@
 (function () {
-  const AUTH_FORM_IDS = ["jj-drawer-login-form", "admin-login-form", "email-login-form"];
+  const AUTH_FORM_IDS = ["jj-drawer-login-form", "email-login-form"];
 
   function showDrawerLoginError(message) {
     const error = document.getElementById("jj-drawer-login-error");
@@ -27,7 +27,7 @@
         }
 
         showDrawerLoginError(
-          "Sign-in is still loading. Wait a moment and try again, or go to /jamiljamila-admin.html to log in.",
+          "Sign-in is still loading. Wait a moment and try again, or go to /account.html to log in.",
         );
       },
       true,

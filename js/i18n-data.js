@@ -16,8 +16,8 @@ window.JJ_LOCALE_LABELS = {
 window.JJ_TRANSLATIONS = {
   en: {
     locale: { display: "SWEDEN – EN" },
-    nav: { home: "HOME", his: "HIS", hers: "HERS", kids: "KIDS" },
-    header: { getNotified: "GET NOTIFIED", account: "Account", openMenu: "Open menu", closeMenu: "Close menu", search: "Search", wishlist: "Wishlist" },
+    nav: { home: "HOME", his: "HIS", hers: "HERS", uni: "UNI" },
+    header: { getNotified: "GET NOTIFIED", account: "Account", openMenu: "Open menu", closeMenu: "Close menu", bag: "Shopping bag", wishlist: "Wishlist" },
     hero: {
       comingSoon: "Coming Soon",
       title: "A House of Quiet Confidence",
@@ -29,7 +29,7 @@ window.JJ_TRANSLATIONS = {
       title: "The Collections",
       women: "WOMEN",
       men: "MEN",
-      kids: "KIDS",
+      uni: "UNI",
       explore: "EXPLORE",
     },
     carousel: {
@@ -77,8 +77,8 @@ window.JJ_TRANSLATIONS = {
   },
   sv: {
     locale: { display: "SVERIGE – SV" },
-    nav: { home: "HEM", his: "HANS", hers: "Hennes", kids: "BARN" },
-    header: { getNotified: "FÅ AVISERING", account: "Konto", openMenu: "Öppna meny", closeMenu: "Stäng meny", search: "Sök", wishlist: "Önskelista" },
+    nav: { home: "HEM", his: "HANS", hers: "Hennes", uni: "UNI" },
+    header: { getNotified: "FÅ AVISERING", account: "Konto", openMenu: "Öppna meny", closeMenu: "Stäng meny", bag: "Kundkasse", wishlist: "Önskelista" },
     hero: {
       comingSoon: "Kommer snart",
       title: "Ett hus av tyst självsäkerhet",
@@ -90,7 +90,7 @@ window.JJ_TRANSLATIONS = {
       title: "Kollektionerna",
       women: "KVINNOR",
       men: "MÄN",
-      kids: "BARN",
+      uni: "UNI",
       explore: "UTFORSKA",
     },
     carousel: {
@@ -138,8 +138,8 @@ window.JJ_TRANSLATIONS = {
   },
   de: {
     locale: { display: "SCHWEDEN – DE" },
-    nav: { home: "START", his: "IHN", hers: "SIE", kids: "KINDER" },
-    header: { getNotified: "BENACHRICHTIGEN", account: "Konto", openMenu: "Menü öffnen", closeMenu: "Menü schließen", search: "Suchen", wishlist: "Wunschliste" },
+    nav: { home: "START", his: "IHN", hers: "SIE", uni: "UNI" },
+    header: { getNotified: "BENACHRICHTIGEN", account: "Konto", openMenu: "Menü öffnen", closeMenu: "Menü schließen", bag: "Einkaufstasche", wishlist: "Wunschliste" },
     hero: {
       comingSoon: "Demnächst",
       title: "Ein Haus stiller Zuversicht",
@@ -151,7 +151,7 @@ window.JJ_TRANSLATIONS = {
       title: "Die Kollektionen",
       women: "DAMEN",
       men: "HERREN",
-      kids: "KINDER",
+      uni: "UNI",
       explore: "ENTDECKEN",
     },
     carousel: {
@@ -199,8 +199,8 @@ window.JJ_TRANSLATIONS = {
   },
   fr: {
     locale: { display: "SUÈDE – FR" },
-    nav: { home: "ACCUEIL", his: "LUI", hers: "ELLE", kids: "ENFANTS" },
-    header: { getNotified: "ÊTRE INFORMÉ", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu", search: "Rechercher", wishlist: "Liste de souhaits" },
+    nav: { home: "ACCUEIL", his: "LUI", hers: "ELLE", uni: "UNI" },
+    header: { getNotified: "ÊTRE INFORMÉ", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu", bag: "Sac shopping", wishlist: "Liste de souhaits" },
     hero: {
       comingSoon: "Bientôt disponible",
       title: "Une maison de confiance silencieuse",
@@ -212,7 +212,7 @@ window.JJ_TRANSLATIONS = {
       title: "Les Collections",
       women: "FEMMES",
       men: "HOMMES",
-      kids: "ENFANTS",
+      uni: "UNI",
       explore: "EXPLORER",
     },
     carousel: {
@@ -260,8 +260,8 @@ window.JJ_TRANSLATIONS = {
   },
   es: {
     locale: { display: "SUECIA – ES" },
-    nav: { home: "INICIO", his: "ÉL", hers: "ELLA", kids: "NIÑOS" },
-    header: { getNotified: "RECIBIR AVISO", account: "Cuenta", openMenu: "Abrir menú", closeMenu: "Cerrar menú", search: "Buscar", wishlist: "Lista de deseos" },
+    nav: { home: "INICIO", his: "ÉL", hers: "ELLA", uni: "UNI" },
+    header: { getNotified: "RECIBIR AVISO", account: "Cuenta", openMenu: "Abrir menú", closeMenu: "Cerrar menú", bag: "Bolsa de compra", wishlist: "Lista de deseos" },
     hero: {
       comingSoon: "Próximamente",
       title: "Una casa de confianza silenciosa",
@@ -273,7 +273,7 @@ window.JJ_TRANSLATIONS = {
       title: "Las Colecciones",
       women: "MUJERES",
       men: "HOMBRES",
-      kids: "NIÑOS",
+      uni: "UNI",
       explore: "EXPLORAR",
     },
     carousel: {
@@ -321,8 +321,8 @@ window.JJ_TRANSLATIONS = {
   },
   it: {
     locale: { display: "SVEZIA – IT" },
-    nav: { home: "HOME", his: "LUI", hers: "LEI", kids: "BAMBINI" },
-    header: { getNotified: "RIMANI AGGIORNATO", account: "Account", openMenu: "Apri menu", closeMenu: "Chiudi menu", search: "Cerca", wishlist: "Lista desideri" },
+    nav: { home: "HOME", his: "LUI", hers: "LEI", uni: "UNI" },
+    header: { getNotified: "RIMANI AGGIORNATO", account: "Account", openMenu: "Apri menu", closeMenu: "Chiudi menu", bag: "Borsa", wishlist: "Lista desideri" },
     hero: {
       comingSoon: "In arrivo",
       title: "Una casa di quieta sicurezza",
@@ -334,7 +334,7 @@ window.JJ_TRANSLATIONS = {
       title: "Le Collezioni",
       women: "DONNE",
       men: "UOMINI",
-      kids: "BAMBINI",
+      uni: "UNI",
       explore: "ESPLORA",
     },
     carousel: {
@@ -382,8 +382,8 @@ window.JJ_TRANSLATIONS = {
   },
   ar: {
     locale: { display: "السويد – AR" },
-    nav: { home: "الرئيسية", his: "له", hers: "لها", kids: "أطفال" },
-    header: { getNotified: "تلقي إشعار", account: "الحساب", openMenu: "فتح القائمة", closeMenu: "إغلاق القائمة", search: "بحث", wishlist: "قائمة الأمنيات" },
+    nav: { home: "الرئيسية", his: "له", hers: "لها", uni: "UNI" },
+    header: { getNotified: "تلقي إشعار", account: "الحساب", openMenu: "فتح القائمة", closeMenu: "إغلاق القائمة", bag: "حقيبة التسوق", wishlist: "قائمة الأمنيات" },
     hero: {
       comingSoon: "قريباً",
       title: "دار الثقة الهادئة",
@@ -395,7 +395,7 @@ window.JJ_TRANSLATIONS = {
       title: "المجموعات",
       women: "نساء",
       men: "رجال",
-      kids: "أطفال",
+      uni: "UNI",
       explore: "استكشف",
     },
     carousel: {
@@ -443,8 +443,8 @@ window.JJ_TRANSLATIONS = {
   },
   zh: {
     locale: { display: "瑞典 – 中文" },
-    nav: { home: "首页", his: "男士", hers: "女士", kids: "儿童" },
-    header: { getNotified: "获取通知", account: "账户", openMenu: "打开菜单", closeMenu: "关闭菜单", search: "搜索", wishlist: "心愿单" },
+    nav: { home: "首页", his: "男士", hers: "女士", uni: "UNI" },
+    header: { getNotified: "获取通知", account: "账户", openMenu: "打开菜单", closeMenu: "关闭菜单", bag: "购物袋", wishlist: "心愿单" },
     hero: {
       comingSoon: "即将推出",
       title: "静谧自信之屋",
@@ -456,7 +456,7 @@ window.JJ_TRANSLATIONS = {
       title: "系列",
       women: "女士",
       men: "男士",
-      kids: "儿童",
+      uni: "UNI",
       explore: "探索",
     },
     carousel: {
@@ -504,8 +504,8 @@ window.JJ_TRANSLATIONS = {
   },
   ja: {
     locale: { display: "スウェーデン – 日本語" },
-    nav: { home: "ホーム", his: "メンズ", hers: "ウィメンズ", kids: "キッズ" },
-    header: { getNotified: "通知を受け取る", account: "アカウント", openMenu: "メニューを開く", closeMenu: "メニューを閉じる", search: "検索", wishlist: "ウィッシュリスト" },
+    nav: { home: "ホーム", his: "メンズ", hers: "ウィメンズ", uni: "UNI" },
+    header: { getNotified: "通知を受け取る", account: "アカウント", openMenu: "メニューを開く", closeMenu: "メニューを閉じる", bag: "ショッピングバッグ", wishlist: "ウィッシュリスト" },
     hero: {
       comingSoon: "近日公開",
       title: "静かな自信のハウス",
@@ -517,7 +517,7 @@ window.JJ_TRANSLATIONS = {
       title: "コレクション",
       women: "ウィメン",
       men: "メン",
-      kids: "キッズ",
+      uni: "UNI",
       explore: "見る",
     },
     carousel: {
@@ -565,8 +565,8 @@ window.JJ_TRANSLATIONS = {
   },
   pt: {
     locale: { display: "SUÉCIA – PT" },
-    nav: { home: "INÍCIO", his: "ELE", hers: "ELA", kids: "CRIANÇAS" },
-    header: { getNotified: "RECEBER AVISO", account: "Conta", openMenu: "Abrir menu", closeMenu: "Fechar menu", search: "Pesquisar", wishlist: "Lista de desejos" },
+    nav: { home: "INÍCIO", his: "ELE", hers: "ELA", uni: "UNI" },
+    header: { getNotified: "RECEBER AVISO", account: "Conta", openMenu: "Abrir menu", closeMenu: "Fechar menu", bag: "Sacola", wishlist: "Lista de desejos" },
     hero: {
       comingSoon: "Em breve",
       title: "Uma casa de confiança silenciosa",
@@ -578,7 +578,7 @@ window.JJ_TRANSLATIONS = {
       title: "As Coleções",
       women: "MULHERES",
       men: "HOMENS",
-      kids: "CRIANÇAS",
+      uni: "UNI",
       explore: "EXPLORAR",
     },
     carousel: {

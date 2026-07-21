@@ -21,7 +21,7 @@ function stripUndefined(value) {
 export async function fetchSiteContent() {
   try {
     const snap = await getDoc(SITE_DOC);
-    if (!snap.exists()) return mergeSiteContent(null);
+    if (!snap.exists) return mergeSiteContent(null);
     return mergeSiteContent(snap.data());
   } catch (error) {
     console.warn("fetchSiteContent failed:", error);

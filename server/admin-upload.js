@@ -42,7 +42,7 @@ async function verifyTokenViaRest(idToken) {
   return null;
 }
 
-async function verifyAdmin(req) {
+export async function verifyAdmin(req) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
   if (!token) return null;

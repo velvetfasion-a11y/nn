@@ -146,7 +146,7 @@ a { color: inherit; }
 .jj-hero__media {
   position: absolute;
   inset: 0;
-  background-image: url("../assets/images/0rISg.jpg");
+  background-image: url("../assets/images/optimized/0rISg.jpg");
   background-size: cover;
   background-position: center center;
   transform: scale(1.1765);
@@ -727,41 +727,53 @@ a { color: inherit; }
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .jj-site-header__inner {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
   }
 
   .jj-nav {
-    position: fixed;
-    top: 72px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    gap: 0;
-    background: #fff;
-    border-bottom: 1px solid #ede6d9;
-    padding: 8px 0 16px;
-    transform: translateY(-120%);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(10px, 2.8vw, 28px);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .jj-nav.is-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .jj-nav__link {
-    width: 100%;
-    padding: 14px 24px;
+    width: auto;
+    padding: 0;
     text-align: center;
+    font-size: clamp(9px, 2.4vw, 12px);
+    letter-spacing: clamp(0.8px, 0.35vw, 1.75px);
+    white-space: nowrap;
   }
 
   .jj-icon-btn--desktop { display: none; }
-  .jj-menu-btn { display: inline-flex; }
+
+  #jj-menu-btn,
+  .jj-menu-btn {
+    display: none !important;
+  }
 
   .jj-notify-btn {
     padding: 8px 14px;

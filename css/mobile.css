@@ -385,7 +385,7 @@ body {
     right: 12px;
     left: auto;
     width: min(260px, calc(100vw - 24px));
-    max-height: calc(100vh - 80px);
+    max-height: calc(100dvh - 80px);
     overflow-y: auto;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   }

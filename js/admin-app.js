@@ -12,6 +12,7 @@ import {
   reloadSubscribersAdmin,
   updateSubscriberOverviewCount,
 } from "./admin-subscribers.js";
+import { openImageEditor } from "./admin-image-editor.js";
 
 let products = [];
 let currentProductId = null;
@@ -299,7 +300,7 @@ function openCreateProduct() {
     price: 0,
     variants: { ...DEFAULT_VARIANTS },
     images: [],
-    sortOrder: products.length + 1,
+    sortOrder: Date.now(),
   };
 
   setFormMode("create");
@@ -331,9 +332,16 @@ function renderImageGallery(images) {
   const thumbs = (images || [])
     .map(
       (src, i) => `
-    <div class="admin-image-thumb">
-      <img src="${escapeHtml(src)}" alt="">
-      ${i === 0 ? '<span class="admin-image-primary">Huvudbild</span>' : ""}
+    <div
+      class="admin-image-thumb admin-image-thumb--editable admin-image-thumb--product"
+      data-image-index="${i}"
+      draggable="true"
+      tabindex="0"
+      role="button"
+      aria-label="${i === 0 ? "Huvudbild — justera placering" : `Bild ${i + 1} — justera placering`}"
+    >
+      <img src="${escapeHtml(src)}" alt="" draggable="false">
+      ${i === 0 ? '<span class="admin-image-primary">Huvudbild</span>' : '<span class="admin-image-thumb__hint">Justera</span>'}
       <button type="button" class="admin-image-remove" data-remove-image="${i}" aria-label="Ta bort">&times;</button>
     </div>
   `,
@@ -345,6 +353,59 @@ function renderImageGallery(images) {
       <span style="font-size:1.5rem">+</span>
       Lägg till bild
     </button>`;
+}
+
+function moveProductImage(fromIndex, toIndex) {
+  const product = getActiveProduct();
+  if (!product?.images?.length) return;
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= product.images.length ||
+    toIndex >= product.images.length
+  ) {
+    return;
+  }
+
+  const next = product.images.slice();
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  product.images = next;
+  renderImageGallery(product.images);
+}
+
+function dataUrlToFile(dataUrl, name = "product-crop.jpg") {
+  const [header, encoded] = String(dataUrl).split(",");
+  const mime = header.match(/data:([^;]+)/)?.[1] || "image/jpeg";
+  const binary = atob(encoded || "");
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], name, { type: mime });
+}
+
+function openProductImageEditor(index) {
+  const product = getActiveProduct();
+  const url = product?.images?.[index];
+  if (!url) return;
+
+  openImageEditor({
+    key: "sig-product",
+    presetKey: "sig",
+    url,
+    label: index === 0 ? "Huvudbild" : `Bild ${index + 1}`,
+    focus: { x: 50, y: 50, scale: 1 },
+    initialFocus: { x: 50, y: 50, scale: 1 },
+    onExport: async (dataUrl) => {
+      showToast("Sparar beskärning …");
+      const file = dataUrlToFile(dataUrl, `product-${index + 1}.jpg`);
+      const uploaded = await uploadProductImage(file, "product-images");
+      product.images[index] = uploaded;
+      renderImageGallery(product.images);
+      showToast("Bildens placering sparades");
+    },
+    onExportError: () => showToast("Kunde inte spara bildplaceringen"),
+  });
 }
 
 function readFormIntoProduct(product) {
@@ -387,7 +448,7 @@ async function saveCurrentProduct(event) {
     }
 
     const newId = await createProduct(product);
-    products.push({ id: newId, ...product });
+    products.unshift({ id: newId, ...product, createdAt: new Date() });
     isCreatingProduct = false;
     draftProduct = null;
     renderProductTable(products);
@@ -547,15 +608,83 @@ function removeImage(index) {
 function bindImageUpload() {
   const dropZone = document.getElementById("imageDropZone");
   const fileInput = document.getElementById("imageFileInput");
+  const gallery = document.getElementById("imageGallery");
+  let dragFromIndex = null;
+  let didReorderDrag = false;
 
   document.getElementById("adminContent")?.addEventListener("click", (event) => {
     if (event.target.closest("#imageAddBtn")) {
       fileInput?.click();
+      return;
     }
     const removeBtn = event.target.closest("[data-remove-image]");
     if (removeBtn) {
+      event.preventDefault();
+      event.stopPropagation();
       removeImage(Number(removeBtn.dataset.removeImage));
+      return;
     }
+    if (didReorderDrag) {
+      didReorderDrag = false;
+      return;
+    }
+    const thumb = event.target.closest(".admin-image-thumb--product[data-image-index]");
+    if (thumb && !event.target.closest("[data-remove-image]")) {
+      openProductImageEditor(Number(thumb.dataset.imageIndex));
+    }
+  });
+
+  document.getElementById("adminContent")?.addEventListener("keydown", (event) => {
+    const thumb = event.target.closest(".admin-image-thumb--product[data-image-index]");
+    if (!thumb) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openProductImageEditor(Number(thumb.dataset.imageIndex));
+    }
+  });
+
+  gallery?.addEventListener("dragstart", (event) => {
+    const thumb = event.target.closest(".admin-image-thumb--product[data-image-index]");
+    if (!thumb || event.target.closest("[data-remove-image]")) {
+      event.preventDefault();
+      return;
+    }
+    dragFromIndex = Number(thumb.dataset.imageIndex);
+    thumb.classList.add("is-dragging");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", String(dragFromIndex));
+  });
+
+  gallery?.addEventListener("dragend", (event) => {
+    event.target.closest(".admin-image-thumb--product")?.classList.remove("is-dragging");
+    gallery.querySelectorAll(".admin-image-thumb--drop-target").forEach((el) => {
+      el.classList.remove("admin-image-thumb--drop-target");
+    });
+    dragFromIndex = null;
+  });
+
+  gallery?.addEventListener("dragover", (event) => {
+    const thumb = event.target.closest(".admin-image-thumb--product[data-image-index]");
+    if (!thumb || dragFromIndex == null) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    gallery.querySelectorAll(".admin-image-thumb--drop-target").forEach((el) => {
+      el.classList.remove("admin-image-thumb--drop-target");
+    });
+    thumb.classList.add("admin-image-thumb--drop-target");
+  });
+
+  gallery?.addEventListener("drop", (event) => {
+    const thumb = event.target.closest(".admin-image-thumb--product[data-image-index]");
+    if (!thumb || dragFromIndex == null) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const toIndex = Number(thumb.dataset.imageIndex);
+    if (toIndex !== dragFromIndex) {
+      moveProductImage(dragFromIndex, toIndex);
+      didReorderDrag = true;
+    }
+    dragFromIndex = null;
   });
 
   fileInput?.addEventListener("change", (event) => {
@@ -569,6 +698,7 @@ function bindImageUpload() {
 
   ["dragenter", "dragover"].forEach((type) => {
     dropZone.addEventListener(type, (event) => {
+      if (event.target.closest(".admin-image-thumb--product")) return;
       event.preventDefault();
       dropZone.classList.add("is-dragover");
     });
@@ -582,6 +712,7 @@ function bindImageUpload() {
   });
 
   dropZone.addEventListener("drop", (event) => {
+    if (event.target.closest(".admin-image-thumb--product")) return;
     handleImageUpload(event.dataTransfer?.files).catch(() =>
       showToast("Kunde inte ladda upp bilden"),
     );
@@ -675,4 +806,21 @@ window.addEventListener("admin-ready", () => {
   bindUi();
   void initSiteContentAdmin();
   void loadAdminData().then(() => onHashChange());
+});
+
+window.addEventListener("admin-ai-products-changed", async () => {
+  try {
+    products = await fetchProducts();
+    renderProductTable(getFilteredProducts());
+    updateOverviewCount();
+
+    if (currentProductId) {
+      const refreshed = getProduct(currentProductId);
+      if (refreshed) fillForm(refreshed);
+    }
+    showToast("AI-ändringarna har sparats");
+  } catch (error) {
+    console.error("AI product refresh failed:", error);
+    showToast("Ändringen sparades, men listan kunde inte uppdateras");
+  }
 });

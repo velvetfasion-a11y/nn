@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Liked Items | Jamil Jamila</title>
+  <meta name="description" content="Your saved Jamil Jamila pieces.">
+  <link rel="icon" href="assets/images/logo.png" type="image/png">
+  <link rel="stylesheet" href="css/site-header.css?v=21">
+  <link rel="stylesheet" href="css/footer.css?v=10">
+  <link rel="stylesheet" href="css/notify.css?v=2">
+  <link rel="stylesheet" href="css/liked.css?v=8">
+  <link rel="stylesheet" href="css/login-drawer.css?v=2" media="print" onload="this.media='all'" data-jj-defer-css>
+  <script src="js/defer-css.js"></script>
+</head>
+<body class="jj-liked-page">
+
+<header class="jj-site-header" id="jj-site-header">
+  <div class="jj-site-header__inner">
+    <a class="jj-brand" href="/" aria-label="Jamil Jamila home">JAMIL JAMILA</a>
+
+    <nav class="jj-nav" id="jj-nav" aria-label="Main">
+      <a href="/shop.html?cat=his" class="jj-nav__link">HIS</a>
+      <a href="/shop.html?cat=hers" class="jj-nav__link">HERS</a>
+      <a href="/shop.html?cat=uni" class="jj-nav__link">UNI</a>
+    </nav>
+
+    <div class="jj-header-actions">
+      <button type="button" class="jj-icon-btn" id="jj-wishlist-btn" aria-label="Liked items" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="jj-bag-count" data-jj-liked-count hidden>0</span>
+      </button>
+      <button type="button" class="jj-notify-btn" id="jj-header-notify-btn" data-jj-open-notify>GET NOTIFIED</button>
+      <button type="button" class="jj-icon-btn" id="jj-bag-btn" aria-label="Shopping bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9h12l-1 12H7L6 9z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 9V7a3 3 0 016 0v2"/></svg>
+        <span class="jj-bag-count" data-jj-bag-count hidden>0</span>
+      </button>
+      <button type="button" class="jj-icon-btn" id="jj-profile-link" data-open-login-drawer aria-label="Account">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="jj-liked" id="jj-liked">
+  <div class="jj-liked__header">
+    <div>
+      <h1 class="jj-liked__title">Liked Items</h1>
+      <p class="jj-liked__count" data-jj-liked-label>0 items</p>
+    </div>
+    <button type="button" class="jj-liked__share" data-jj-liked-share>Share Wishlist</button>
+  </div>
+
+  <div class="jj-liked__grid" data-jj-liked-grid aria-label="Liked items"></div>
+
+  <div class="jj-liked__empty" data-jj-liked-empty hidden>
+    <p class="jj-liked__empty-title">Nothing saved yet</p>
+    <p class="jj-liked__empty-copy">Heart pieces you love and they’ll appear here — ready whenever you are.</p>
+    <a class="jj-liked__empty-cta" href="/shop.html">Continue Shopping</a>
+  </div>
+</main>
+
+<div class="jj-share-modal" id="jj-share-modal" hidden aria-hidden="true">
+  <div class="jj-share-modal__backdrop" data-jj-share-close tabindex="-1"></div>
+  <div
+    class="jj-share-modal__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="jj-share-modal-title"
+  >
+    <div class="jj-share-modal__header">
+      <h3 id="jj-share-modal-title">Share Wishlist</h3>
+      <button type="button" class="jj-share-modal__close" data-jj-share-close aria-label="Close">&times;</button>
+    </div>
+    <p class="jj-share-modal__text">Share your liked items with friends</p>
+
+    <div class="jj-share-preview" data-jj-share-preview aria-label="Email preview"></div>
+
+    <div class="jj-share-modal__link">
+      <label class="jj-liked__sr" for="jj-wishlist-link">Wishlist link</label>
+      <input id="jj-wishlist-link" type="text" readonly value="">
+      <button type="button" data-jj-share-copy>Copy</button>
+    </div>
+    <div class="jj-share-modal__options">
+      <button type="button" data-jj-share-whatsapp>WhatsApp</button>
+      <button type="button" data-jj-share-email>Email</button>
+      <button type="button" data-jj-share-sms>SMS</button>
+      <button type="button" data-jj-share-more>More</button>
+    </div>
+  </div>
+</div>
+
+<div class="jj-size-modal" id="jj-liked-size-modal" hidden aria-hidden="true">
+  <div class="jj-size-modal__backdrop" data-jj-size-close tabindex="-1"></div>
+  <div
+    class="jj-size-modal__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="jj-liked-size-title"
+  >
+    <div class="jj-size-modal__header">
+      <h3 id="jj-liked-size-title">Select a size</h3>
+      <button type="button" class="jj-size-modal__close" data-jj-size-close aria-label="Close">&times;</button>
+    </div>
+    <p class="jj-size-modal__product" data-jj-size-product></p>
+    <p class="jj-size-modal__hint">Choose an available size to add this piece to your bag.</p>
+    <div class="jj-size-modal__grid" data-jj-size-grid role="group" aria-label="Available sizes"></div>
+    <p class="jj-size-modal__error" data-jj-size-error hidden>Select a size to continue</p>
+    <button type="button" class="jj-size-modal__confirm" data-jj-size-confirm>Add to Bag</button>
+  </div>
+</div>
+
+<div class="jj-site-bottom">
+  <section class="notify-section notify-section--bottom" id="notify-section">
+    <div class="jj-footer-logo">
+      <img src="/assets/images/logo.png" alt="Jamil Jamila" width="48" height="48" loading="lazy" decoding="async">
+    </div>
+    <div class="notify-inner">
+      <span class="notify-section__eyebrow" data-i18n="notify.eyebrow">The Circle</span>
+      <h3 class="notify-section__title" data-i18n="notify.title">Be Among the First</h3>
+      <button
+        type="button"
+        class="jj-notify-trigger"
+        data-jj-open-notify
+        aria-haspopup="dialog"
+        aria-controls="jj-waitlist-modal"
+      >
+        <span data-i18n="notify.button">Get Notified</span>
+        <span class="jj-notify-trigger__arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </section>
+
+  <footer class="jj-footer">
+    <nav class="jj-footer-titles" aria-label="Footer links">
+      <div class="jj-footer-titles__links">
+        <a href="#" class="jj-footer-titles__link" data-i18n="footer.location">LOCATION</a>
+        <a href="#" class="jj-footer-titles__link" data-i18n="footer.clientService">CLIENT SERVICE</a>
+        <a href="#" class="jj-footer-titles__link" data-i18n="footer.aboutUs">ABOUT US</a>
+        <a href="#" class="jj-footer-titles__link" data-i18n="footer.legal">LEGAL</a>
+        <div class="jj-footer-locale" id="jj-footer-locale">
+          <button
+            type="button"
+            class="jj-footer-titles__link jj-footer-locale__toggle"
+            id="jj-locale-toggle"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="jj-locale-menu"
+            data-i18n-aria="footer.chooseLanguage"
+            aria-label="Choose language"
+          >
+            <span data-i18n="locale.display">SWEDEN – EN</span>
+            <span class="jj-footer-locale__caret" aria-hidden="true">▾</span>
+          </button>
+          <ul class="jj-footer-locale__menu" id="jj-locale-menu" role="listbox" hidden></ul>
+        </div>
+      </div>
+    </nav>
+    <div class="jj-footer__divider" aria-hidden="true"></div>
+    <p class="jj-footer__copy">© 2024 JAMIL JAMILA. ALL RIGHTS RESERVED.</p>
+  </footer>
+</div>
+
+
+<div id="jj-waitlist-modal" class="jj-waitlist-modal" aria-hidden="true" role="dialog" aria-labelledby="jj-waitlist-title" aria-modal="true">
+  <div class="jj-waitlist-modal__backdrop" data-jj-close-modal></div>
+  <div class="jj-waitlist-modal__panel" role="document">
+    <div class="jj-waitlist-modal__header">
+      <div>
+        <h3 class="jj-waitlist-modal__title" id="jj-waitlist-title" data-i18n="waitlist.title">Join the circle</h3>
+        <p class="jj-waitlist-modal__sub" data-i18n="waitlist.sub">Wear the moment, before anyone else.</p>
+      </div>
+      <button type="button" class="jj-waitlist-modal__close" data-jj-close-modal data-i18n-aria="waitlist.close" aria-label="Close">&times;</button>
+    </div>
+
+    <section class="notify-section jj-waitlist-notify">
+      <form class="notify-form jj-waitlist-form" id="jj-waitlist-form">
+        <input class="notify-input jj-waitlist-input" type="email" data-i18n-placeholder="waitlist.placeholder" placeholder="your@email.com" autocomplete="email" required>
+        <button class="notify-btn jj-waitlist-submit" type="submit" data-i18n="waitlist.submit">RESERVE MY PLACE</button>
+        <p class="jj-waitlist-note" data-i18n="waitlist.note">Cancel anytime</p>
+      </form>
+      <div class="notify-success jj-waitlist-success" id="jj-waitlist-success">
+        <span data-i18n="waitlist.success">Thank you. A personal note will arrive in your inbox soon.</span>
+      </div>
+    </section>
+  </div>
+</div>
+
+
+<div id="jj-login-drawer" class="jj-login-drawer" aria-hidden="true">
+  <div class="jj-login-drawer__backdrop" data-jj-close-login tabindex="-1"></div>
+  <aside class="jj-login-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="jj-login-drawer-title">
+    <button type="button" class="jj-login-drawer__close" data-jj-close-login aria-label="Close">&times;</button>
+    <div id="jj-login-drawer-signed-out" class="jj-login-drawer__body">
+      <h2 id="jj-login-drawer-title" class="jj-login-drawer__title">Sign In</h2>
+      <p class="jj-login-drawer__note">Use your account to keep liked items across devices.</p>
+    </div>
+  </aside>
+</div>
+
+<script src="js/firebase-config.public.js?v=1"></script>
+<script src="js/admin-config.public.js?v=2"></script>
+<script src="js/auth-form-guard.js?v=1"></script>
+<script src="js/login-drawer-ui.js?v=4" defer></script>
+<script src="js/site-header.js?v=3" defer></script>
+<script src="js/bag-store.js?v=1"></script>
+<script src="js/liked-store.js?v=2"></script>
+<script src="js/bag-nav.js?v=2" defer></script>
+<script src="js/product-nav.js?v=1"></script>
+<script src="js/liked.js?v=5" defer></script>
+<script type="module" src="js/liked-share.js?v=4"></script>
+<script type="module" src="js/firebase.js?v=2"></script>
+<script type="module" src="js/login-drawer.js?v=4"></script>
+<script src="js/i18n-data.js" defer></script>
+<script src="js/i18n.js" defer></script>
+<script src="js/waitlist-ui.js?v=1" defer></script>
+<script type="module" src="js/notify.js"></script>
+<script type="module" src="js/auth-nav.js?v=2"></script>
+</body>
+</html>

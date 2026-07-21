@@ -134,6 +134,8 @@
     (100% - (var(--jj-per-view) - 1) * var(--jj-gap)) / var(--jj-per-view)
   );
   scroll-snap-align: start;
+  text-decoration: none;
+  color: inherit;
 }
 
 .jj-product-carousel__track.is-continuous .jj-product-card {

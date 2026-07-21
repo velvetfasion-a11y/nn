@@ -1,0 +1,811 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@300;400;500&display=swap");
+
+:root {
+  --jj-bg: #f7f4ef;
+  --jj-foreground: #2a2824;
+  --jj-gold: #b8956c;
+  --jj-gold-deep: #8f7048;
+  --text-main: #111111;
+  --text-muted: #666666;
+  --border-color: #dddddd;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Jost", sans-serif;
+  --jj-line: #e2ddd0;
+  --jj-black: #111111;
+  --jj-white: #ffffff;
+  --frame-bg: #f2efe8;
+  --jj-header-h: 84px;
+  --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+ * device.css / mobile.css set `overflow-x: hidden|clip` on <html>/<body>
+ * sitewide (to stop horizontal scroll from full-bleed sections). That is
+ * exactly what silently breaks `position: sticky` in Chrome/Safari — any
+ * ancestor with a non-visible overflow on one axis turns the *other* axis
+ * into a scrolling context, and sticky descendants stop tracking the
+ * viewport. It's why every other page uses a `fixed` header instead of
+ * `sticky`. The product page's sticky info-panel genuinely needs native
+ * sticky behaviour, so we restore normal (visible) overflow scoped to
+ * this page only — high specificity + !important so it wins over both
+ * the unconditional and the max-width:1023px `!important` mobile rule.
+ */
+html.jj-pdp,
+body.jj-product-page {
+  overflow-x: visible !important;
+}
+
+body.jj-product-page {
+  margin: 0;
+  padding-top: 0;
+  background: var(--jj-bg);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header matches the standard site header used across every page (fixed). */
+.jj-site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: color-mix(in oklab, var(--jj-bg) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid color-mix(in oklab, var(--jj-line) 70%, transparent);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* The product gallery runs underneath the shared header. */
+body.jj-product-page .jj-site-header {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.jj-site-header__inner {
+  position: relative;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: 84px;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.jj-brand {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  color: var(--jj-foreground);
+  white-space: nowrap;
+  justify-self: start;
+}
+
+.jj-nav {
+  position: static;
+  grid-column: 2;
+  justify-self: center;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 44px;
+  width: max-content;
+  max-width: none;
+  transform: none;
+  pointer-events: auto;
+}
+
+.jj-nav__link {
+  position: relative;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--jj-foreground);
+  transition: color 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-nav__link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--jj-gold);
+  transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), left 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-nav__link:hover {
+  color: var(--jj-gold-deep);
+}
+
+.jj-nav__link:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.jj-header-actions {
+  position: relative;
+  z-index: 2;
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: end;
+}
+
+.jj-icon-btn,
+.jj-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jj-foreground);
+  cursor: pointer;
+  transition: color 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.jj-icon-btn svg,
+.jj-menu-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jj-icon-btn:hover,
+.jj-menu-btn:hover {
+  color: var(--jj-gold-deep);
+}
+
+.jj-notify-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 18px;
+  border: 1px solid var(--jj-foreground);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--jj-foreground);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.jj-notify-btn:hover {
+  background: var(--jj-foreground);
+  color: var(--jj-bg);
+}
+
+.jj-menu-btn {
+  display: none;
+}
+
+/*
+ * Stacked, natural-aspect-ratio gallery beside a sticky details panel.
+ * Images render at width:100%; height:auto — never cropped, on any
+ * screen size — with the info panel pinned beside them on desktop.
+ */
+.jj-product {
+  display: flex;
+  /*
+   * align-items: stretch (default) so the info column matches the
+   * gallery's full height — without that, the sticky panel's own
+   * containing block is only as tall as its content and has zero room
+   * to travel, so it can never actually stick while the (taller)
+   * gallery scrolls past.
+   */
+  align-items: stretch;
+  gap: 0;
+}
+
+/*
+ * Full-bleed: the gallery has no padding/max-width of its own, so it
+ * runs flush to the viewport's top-left corner (right up against the
+ * fixed header, no gap on any side). Only the info column gets an
+ * inner gutter + a max-width cap for readability on very wide screens.
+ */
+.jj-product__gallery-shell {
+  width: 50%;
+  position: relative;
+}
+
+.jj-product__gallery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--frame-bg);
+}
+
+.jj-product__frame {
+  margin: 0;
+}
+
+.jj-product__frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.jj-product__gallery-arrow {
+  display: none;
+}
+
+.jj-product__info {
+  width: 50%;
+  position: relative;
+  padding: calc(var(--jj-header-h) + 48px) 40px 80px 64px;
+}
+
+.jj-product__sticky {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 0 0;
+  padding: 0 0 2rem;
+  position: sticky;
+  top: calc(var(--jj-header-h) + 48px);
+  max-height: none;
+  overflow: visible;
+}
+
+.jj-product__sticky::-webkit-scrollbar {
+  display: none;
+}
+
+.jj-product__top-meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.jj-product__sku {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.jj-product__heart {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.jj-product__heart:hover {
+  transform: scale(1.08);
+}
+
+.jj-product__heart.is-active {
+  color: var(--jj-gold-deep);
+}
+
+.jj-product__brand {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.jj-product__title {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text-main);
+}
+
+.jj-product__price {
+  margin: 0 0 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.jj-product__note {
+  margin: 0 0 3rem;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  font-weight: 300;
+  color: var(--text-main);
+}
+
+/* Sizes — stock from admin variants; sold-out = Gucci/LV diagonal strike */
+.jj-product__sizes {
+  margin-bottom: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.jj-product__sizes-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.jj-product__size-guide {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.jj-product__size-grid {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.jj-product__size-btn {
+  position: relative;
+  flex: 1;
+  padding: 1rem 0;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.jj-product__size-btn:hover:not(:disabled):not(.is-sold-out) {
+  border-color: var(--text-main);
+}
+
+.jj-product__size-btn.is-active:not(.is-sold-out) {
+  background: var(--text-main);
+  color: var(--jj-white);
+  border-color: var(--text-main);
+}
+
+/* Hairline diagonal across the tile — LV / Gucci style */
+.jj-product__size-btn.is-sold-out {
+  color: #a8a29a;
+  border-color: #ddd8d0;
+  cursor: not-allowed;
+}
+
+.jj-product__size-btn.is-sold-out .jj-product__size-label {
+  opacity: 0.7;
+}
+
+.jj-product__size-btn.is-sold-out::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 1px;
+  background: currentColor;
+  transform: rotate(-28deg);
+  transform-origin: center;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.jj-product__size-grid.is-required .jj-product__size-btn:not(.is-sold-out):not(:disabled) {
+  border-color: var(--text-main);
+  animation: jj-size-pulse 0.45s ease;
+}
+
+@keyframes jj-size-pulse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+/* Add to Bag */
+.jj-product__add {
+  width: 100%;
+  background: var(--text-main);
+  color: var(--jj-white);
+  border: none;
+  border-radius: 50px;
+  padding: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-bottom: 3rem;
+}
+
+.jj-product__add:hover:not(:disabled):not(.is-sold-out) {
+  background: #333333;
+}
+
+.jj-product__add:active:not(:disabled):not(.is-sold-out) {
+  transform: scale(0.995);
+}
+
+.jj-product__add.is-added {
+  background: #2f6e3f;
+}
+
+.jj-product__add.is-sold-out,
+.jj-product__add:disabled:not(.is-added) {
+  background: transparent;
+  color: #9a948c;
+  border: 1px solid #ddd8d0;
+  cursor: not-allowed;
+}
+
+.jj-product__toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 300;
+  padding: 14px 22px;
+  border: 1px solid var(--border-color);
+  background: var(--jj-white);
+  color: var(--text-main);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.jj-product__toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Accordions */
+.jj-accordion {
+  border-top: 1px solid var(--border-color);
+}
+
+.jj-accordion__item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.jj-accordion__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+}
+
+.jj-accordion__icon {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.jj-accordion__item.is-open .jj-accordion__icon {
+  transform: rotate(45deg);
+}
+
+.jj-accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease-out;
+}
+
+.jj-accordion__item.is-open .jj-accordion__panel {
+  grid-template-rows: 1fr;
+}
+
+.jj-accordion__panel-inner {
+  overflow: hidden;
+}
+
+.jj-accordion__panel p {
+  margin: 0;
+  padding: 0 0 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+/* Footer strip */
+.jj-product-footer {
+  border-top: 1px solid var(--border-color);
+  background: var(--jj-black);
+  color: rgba(255, 255, 255, 0.72);
+  padding: 48px 40px;
+}
+
+.jj-product-footer__inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.jj-product-footer__brand {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.jj-product-footer__copy {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --jj-header-h: 72px;
+  }
+
+  .jj-site-header__inner {
+    height: 72px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .jj-brand {
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+    justify-self: start;
+    min-width: 0;
+    font-size: clamp(15px, 3.8vw, 22px);
+    letter-spacing: -0.5px;
+  }
+
+  .jj-nav {
+    position: static;
+    grid-column: 2;
+    justify-self: center;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: 1;
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(10px, 2.8vw, 28px);
+    width: max-content;
+    max-width: none;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .jj-nav.is-open {
+    display: flex !important;
+  }
+
+  .jj-nav__link {
+    pointer-events: auto;
+    width: auto;
+    padding: 0;
+    text-align: center;
+    font-size: clamp(9px, 2.4vw, 12px);
+    letter-spacing: clamp(0.8px, 0.35vw, 1.75px);
+    white-space: nowrap;
+  }
+
+  .jj-header-actions {
+    grid-column: 3;
+  }
+
+  .jj-icon-btn--desktop {
+    display: none;
+  }
+
+  #jj-menu-btn,
+  .jj-menu-btn {
+    display: none !important;
+  }
+
+  /*
+   * Mobile luxury-PDP reveal: full-bleed gallery stays pinned while
+   * the product-information sheet scrolls upward over it.
+   */
+  .jj-product {
+    flex-direction: column;
+    gap: 0;
+    padding: 0 0 56px;
+  }
+
+  .jj-product__gallery-shell {
+    width: 100%;
+    min-height: 100svh;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    overflow: hidden;
+    background: #0a0a0a;
+    will-change: transform;
+  }
+
+  .jj-product__gallery {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    min-height: 100svh;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .jj-product__gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jj-product__frame {
+    width: 100%;
+    min-height: 100svh;
+    margin: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .jj-product__frame img {
+    width: 100%;
+    height: 100svh;
+    max-height: none;
+    aspect-ratio: auto;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+
+  .jj-product__gallery-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px 4px 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--text-main);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    transform: translateY(-50%);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, background 0.25s ease;
+  }
+
+  .jj-product__gallery-shell:hover .jj-product__gallery-arrow,
+  .jj-product__gallery-shell:focus-within .jj-product__gallery-arrow {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .jj-product__gallery-arrow--prev {
+    left: 12px;
+    transform: translateY(-50%);
+  }
+
+  .jj-product__gallery-arrow--next {
+    right: 12px;
+    padding-right: 0;
+    padding-left: 2px;
+    transform: translateY(-50%);
+  }
+
+  .jj-product__info {
+    width: 100%;
+    position: relative;
+    z-index: 3;
+    margin-top: -28px;
+    padding: 0 20px;
+    border-radius: 24px 24px 0 0;
+    background: var(--jj-bg);
+    box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.1);
+  }
+
+  .jj-product__sticky {
+    position: relative;
+    top: 0;
+    max-width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    padding: 2.5rem 0 0;
+  }
+
+  .jj-product__title {
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+  }
+
+  .jj-product-footer {
+    position: relative;
+    z-index: 4;
+    padding: 36px 20px;
+  }
+
+}

@@ -10,7 +10,7 @@ export async function saveLaunchSignupLocal(email, name = {}) {
   const ref = doc(db, "launch_subscribers", subscriberId(normalized));
   const existing = await getDoc(ref);
 
-  if (existing.exists()) {
+  if (existing.exists) {
     return { saved: true, duplicate: true };
   }
 
