@@ -63,11 +63,13 @@ cd functions && npm install && cd ..
 firebase login
 firebase use jamil-jamila
 firebase functions:secrets:set MAILERSEND_API_TOKEN
+firebase functions:secrets:set GEMINI_API_KEY
 firebase deploy --only functions,firestore:rules
 npm run build
 ```
 
 When prompted for `MAILERSEND_API_TOKEN`, paste a MailerSend token with **Full access → Email**.
+When prompted for `GEMINI_API_KEY`, paste the Gemini API key (required for Admin AI on jamiljamila.com).
 
 **If signups fail with "Could not submit your email":**
 

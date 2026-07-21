@@ -4,24 +4,57 @@
 (function () {
   const IDLE_MS = 2500;
 
-  function loadAiChat() {
+  function assetUrl(path) {
+    // Root-absolute so custom domain + nested routes still resolve.
+    return path.startsWith("/") ? path : `/${path.replace(/^\.\//, "")}`;
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
+        if (existing.dataset.loaded === "1") {
+          resolve();
+          return;
+        }
+        existing.addEventListener("load", () => resolve(), { once: true });
+        existing.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), {
+          once: true,
+        });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.addEventListener("load", () => {
+        script.dataset.loaded = "1";
+        resolve();
+      }, { once: true });
+      script.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), {
+        once: true,
+      });
+      document.body.appendChild(script);
+    });
+  }
+
+  async function loadAiChat() {
     if (window.__jjAiChatLoading) return;
     window.__jjAiChatLoading = true;
 
-    const css = document.createElement("link");
-    css.rel = "stylesheet";
-    css.href = "css/ai-chat.css";
-    document.head.appendChild(css);
+    if (!document.querySelector('link[href*="ai-chat.css"]')) {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = assetUrl("css/ai-chat.css");
+      document.head.appendChild(css);
+    }
 
-    const knowledge = document.createElement("script");
-    knowledge.src = "js/ai-knowledge.js";
-    knowledge.defer = true;
-    document.body.appendChild(knowledge);
-
-    const chat = document.createElement("script");
-    chat.src = "js/ai-chat.js";
-    chat.defer = true;
-    document.body.appendChild(chat);
+    try {
+      await loadScript(assetUrl("js/ai-knowledge.js"));
+      await loadScript(assetUrl("js/ai-chat.js"));
+    } catch (error) {
+      console.warn("AI chat failed to load:", error);
+      window.__jjAiChatLoading = false;
+    }
   }
 
   function schedule() {

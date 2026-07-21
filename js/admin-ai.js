@@ -1,4 +1,6 @@
-import { auth } from "./firebase.js";
+import { app, auth } from "./firebase.js";
+import { getFunctions, httpsCallable } from "./vendor/firebase-functions.js";
+import { isLocalDev } from "./is-dev.js";
 import {
   createProduct,
   fetchProducts,
@@ -11,6 +13,7 @@ import {
 const MAX_ATTACHMENTS = 4;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const DEFAULT_VARIANTS = { S: 0, M: 0, L: 0, XL: 0 };
+const functions = getFunctions(app, "europe-west1");
 
 let attachments = [];
 let busy = false;
@@ -108,18 +111,37 @@ async function addFiles(fileList) {
 async function authenticatedFetch(url, body) {
   const user = auth.currentUser;
   if (!user) throw new Error("Logga in som administratör igen");
-  const token = await user.getIdToken();
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Serverfel (${response.status})`);
-  return payload;
+
+  // Local Express API (npm run dev). Production uses Firebase callables —
+  // GitHub Pages has no /api, so custom-domain admin AI must go through Functions.
+  if (isLocalDev()) {
+    const token = await user.getIdToken();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || `Serverfel (${response.status})`);
+    return payload;
+  }
+
+  const name = String(url).includes("/image") ? "adminAiImage" : "adminAi";
+  try {
+    const callable = httpsCallable(functions, name);
+    const result = await callable(body);
+    return result.data || {};
+  } catch (error) {
+    const message =
+      error?.message ||
+      error?.details ||
+      error?.code ||
+      "AI-assistenten kunde inte svara";
+    throw new Error(String(message).replace(/^Firebase:\s*/i, "").replace(/\s*\(.*\)$/, ""));
+  }
 }
 
 function focusedProduct(products) {
