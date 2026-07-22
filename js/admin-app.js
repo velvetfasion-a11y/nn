@@ -94,7 +94,7 @@ function showView(view) {
 
   setActiveTab(view);
 
-  const scroller = document.getElementById("adminContent");
+  const scroller = document.querySelector(".admin-main");
   if (scroller) scroller.scrollTop = 0;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }

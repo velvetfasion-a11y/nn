@@ -123,7 +123,7 @@ body.admin-body textarea {
   background: color-mix(in oklab, var(--jj-bg) 60%, transparent);
 }
 
-/* MAIN — fills remaining viewport; only inner panels scroll */
+/* MAIN — single page scroll (AI + tabs + view move together) */
 .admin-main {
   flex: 1 1 auto;
   min-height: 0;
@@ -133,7 +133,11 @@ body.admin-body textarea {
   padding: 20px 24px 20px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 .admin-main h1 {
@@ -151,17 +155,13 @@ body.admin-body textarea {
   font-size: 0.92rem;
 }
 
-/* Content area scrolls as one unit (tabs + active view) */
+/* Content flows in the same scroll as AI — no nested scroll region */
 #adminContent {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  overflow: visible;
 }
 
 /* TABS — scroll with the view below */
@@ -1416,13 +1416,13 @@ body.admin-crop-open {
   letter-spacing: 0.12em;
 }
 
-/* ADMIN AI */
+/* ADMIN AI — scrolls away with the page (not locked chrome) */
 .admin-ai {
   position: relative;
-  flex-shrink: 0;
+  flex: 0 0 auto;
   margin-bottom: 16px;
   padding: 24px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid color-mix(in oklab, var(--jj-gold) 55%, var(--jj-line));
   border-radius: 12px;
   background:
@@ -1431,7 +1431,7 @@ body.admin-crop-open {
   box-shadow: 0 12px 34px rgba(42, 40, 36, 0.06);
   display: flex;
   flex-direction: column;
-  max-height: min(42vh, 420px);
+  max-height: none;
 }
 
 .admin-ai-head {
@@ -1463,9 +1463,9 @@ body.admin-crop-open {
 
 .admin-ai-messages {
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
-  max-height: none;
+  max-height: min(40vh, 320px);
   flex-direction: column;
   gap: 9px;
   margin-bottom: 14px;
@@ -1649,8 +1649,12 @@ body.admin-crop-open {
 
   .admin-ai {
     padding: 14px;
-    max-height: min(36vh, 340px);
+    max-height: none;
     margin-bottom: 12px;
+  }
+
+  .admin-ai-messages {
+    max-height: min(32vh, 240px);
   }
 
   .admin-ai-head {
