@@ -34,6 +34,9 @@ function bindImageFallback(img) {
     if (img.dataset.fallbackApplied) return;
     img.dataset.fallbackApplied = "1";
     img.src = PLACEHOLDER_IMAGE;
+    img.style.opacity = "1";
+    img.style.minHeight = "50vh";
+    img.style.objectFit = "cover";
   });
 }
 
@@ -252,39 +255,8 @@ async function init() {
     bindProductMeta(product);
 
     const nextImages = (product.images || []).map(normalizeImageSrc).filter(Boolean);
-    const currentHero = gallery?.querySelector("img")?.getAttribute("src") || "";
-    const sameHero =
-      nextImages.length > 0 &&
-      currentHero &&
-      normalizeImageSrc(currentHero) === normalizeImageSrc(nextImages[0]);
-
-    // If the first image is already on screen, append extra views without
-    // wiping the hero (avoids a second decode / flash).
-    if (sameHero && nextImages.length > 1) {
-      const extra = nextImages.slice(1);
-      gallery.insertAdjacentHTML(
-        "beforeend",
-        extra
-          .map(
-            (src, index) => `
-        <figure class="jj-product__frame" data-jj-frame>
-          <img
-            src="${escapeHtml(src)}"
-            alt="${escapeHtml(product.name)} — view ${index + 2}"
-            width="1200"
-            height="1500"
-            loading="lazy"
-            decoding="async"
-          >
-        </figure>`,
-          )
-          .join(""),
-      );
-      gallery.querySelectorAll("img").forEach(bindImageFallback);
-      window.dispatchEvent(new CustomEvent("jj-gallery-rendered"));
-    } else {
-      renderGallery(nextImages.length ? nextImages : [PLACEHOLDER_IMAGE], product.name);
-    }
+    // Always rebuild from Firestore so a broken/stale boot hero cannot stick.
+    renderGallery(nextImages.length ? nextImages : [PLACEHOLDER_IMAGE], product.name);
 
     renderSizeGrid(product);
     renderAccordions(product);

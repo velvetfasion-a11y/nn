@@ -12,7 +12,7 @@ import {
   reloadSubscribersAdmin,
   updateSubscriberOverviewCount,
 } from "./admin-subscribers.js";
-import { openImageEditor } from "./admin-image-editor.js";
+import { openImageEditor } from "./admin-image-editor.js?v=3";
 
 let products = [];
 let currentProductId = null;
@@ -80,14 +80,11 @@ function showView(view) {
   currentView = view;
 
   Object.entries(VIEWS).forEach(([key, id]) => {
+    // Form view is toggled separately below (shared by new + edit).
+    if (key === "product-new" || key === "product-edit") return;
     const el = document.getElementById(id);
     if (!el) return;
-    const show =
-      key === view ||
-      (view === "product-new" && key === "product-new") ||
-      (view === "product-edit" && key === "product-edit");
-    if (key === "product-new" || key === "product-edit") return;
-    el.hidden = !show;
+    el.hidden = key !== view;
   });
 
   const formView = document.getElementById("admin-view-product-form");
@@ -96,6 +93,9 @@ function showView(view) {
   }
 
   setActiveTab(view);
+
+  const scroller = document.getElementById("adminContent");
+  if (scroller) scroller.scrollTop = 0;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -148,7 +148,7 @@ function onHashChange() {
   draftProduct = null;
   currentProductId = null;
   showView(view);
-  if (view === "products") renderProductTable(getFilteredProducts());
+  if (view === "products") void reloadProductsList();
   if (view === "content") void reloadSiteContentAdmin();
   if (view === "subscribers") void reloadSubscribersAdmin();
 }
@@ -156,58 +156,50 @@ function onHashChange() {
 function getFilteredProducts() {
   const q = document.getElementById("searchInput")?.value.toLowerCase().trim();
   if (!q) return products;
-  return products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(q) ||
-      String(p.sku).toLowerCase().includes(q),
-  );
+  return products.filter((p) => {
+    const name = String(p.name || "").toLowerCase();
+    const sku = String(p.sku || "").toLowerCase();
+    return name.includes(q) || sku.includes(q);
+  });
 }
 
 function productThumbMarkup(p) {
   if (p.images?.length) {
-    return `<img src="${escapeHtml(p.images[0])}" alt="" class="admin-prod-thumb">`;
+    return `<img src="${escapeHtml(p.images[0])}" alt="${escapeHtml(p.name || "")}" class="admin-product-preview__img">`;
   }
-  return `<div class="admin-prod-thumb admin-prod-thumb-placeholder">—</div>`;
+  return `<div class="admin-product-preview__img admin-product-preview__img--empty" aria-hidden="true">Ingen bild</div>`;
 }
 
 function renderProductTable(list = products) {
-  const tbody = document.getElementById("productTableBody");
+  const grid = document.getElementById("productTableBody");
   const empty = document.getElementById("productTableEmpty");
-  const table = tbody?.closest("table");
-  if (!tbody || !empty) return;
+  if (!grid || !empty) return;
 
   updateOverviewCount();
 
   if (!list.length) {
-    tbody.innerHTML = "";
+    grid.innerHTML = "";
+    grid.hidden = true;
     empty.hidden = false;
-    if (table) table.hidden = true;
     return;
   }
 
   empty.hidden = true;
-  if (table) table.hidden = false;
+  grid.hidden = false;
 
-  tbody.innerHTML = list
+  grid.innerHTML = list
     .map(
       (p) => `
-    <tr>
-      <td>
-        <div class="admin-prod-cell">
-          ${productThumbMarkup(p)}
-          <div>
-            <div class="admin-prod-name">${escapeHtml(p.name)}</div>
-            <div class="admin-prod-meta">${Object.keys(p.variants || {}).length} storlekar</div>
-          </div>
-        </div>
-      </td>
-      <td>${escapeHtml(p.sku)}</td>
-      <td>${formatPrice(p.price)}</td>
-      <td>${stockBadge(p)}</td>
-      <td>
-        <button type="button" class="admin-table-link" data-action="edit" data-id="${escapeHtml(p.id)}">Redigera</button>
-      </td>
-    </tr>
+    <article class="admin-product-preview">
+      <div class="admin-product-preview__media">
+        ${productThumbMarkup(p)}
+      </div>
+      <h3 class="admin-product-preview__name">${escapeHtml(p.name || "Namnlös produkt")}</h3>
+      <div class="admin-product-preview__footer">
+        <p class="admin-product-preview__price">${escapeHtml(formatPrice(p.price || 0))}</p>
+        <button type="button" class="admin-btn admin-product-preview__edit" data-action="edit" data-id="${escapeHtml(p.id)}">Edit</button>
+      </div>
+    </article>
   `,
     )
     .join("");
@@ -726,9 +718,10 @@ async function loadAdminData() {
     updateOverviewCount();
   } catch (error) {
     console.error("Admin data load failed:", error);
-    products = [];
-    renderProductTable([]);
+    // Do not wipe products on a transient error — Firestore data is still intact.
     showToast("Kunde inte ladda produkter. Kontrollera inloggningen.");
+    if (products.length) renderProductTable(products);
+    else renderProductTable([]);
   }
 
   try {
@@ -736,6 +729,18 @@ async function loadAdminData() {
   } catch (error) {
     console.error("Subscriber load failed:", error);
     updateSubscriberOverviewCount();
+  }
+}
+
+async function reloadProductsList() {
+  try {
+    products = await fetchProducts();
+    renderProductTable(getFilteredProducts());
+    updateOverviewCount();
+  } catch (error) {
+    console.error("Product reload failed:", error);
+    showToast("Kunde inte uppdatera produktlistan.");
+    if (products.length) renderProductTable(getFilteredProducts());
   }
 }
 

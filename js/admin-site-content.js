@@ -8,7 +8,7 @@ import {
   readFocusFromPanel,
   setCoverFocus,
 } from "./image-focus.js";
-import { bindEditablePreviews, updatePreviewThumb } from "./admin-image-editor.js";
+import { bindEditablePreviews, updatePreviewThumb } from "./admin-image-editor.js?v=3";
 
 let siteContent = structuredClone(DEFAULT_SITE_CONTENT);
 

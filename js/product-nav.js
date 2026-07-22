@@ -14,9 +14,11 @@
   function productHref({ id, image, name } = {}) {
     const params = new URLSearchParams();
     if (id) params.set("id", String(id));
-    const img = normalizeImageSrc(image);
-    if (img) params.set("img", img);
+    // Do not put Storage URLs in the query string — `&`/`?` in them break
+    // parsing and paint a truncated/broken hero. Warm via sessionStorage instead.
     if (name) params.set("name", String(name));
+    const img = normalizeImageSrc(image);
+    if (id && img) rememberProduct(id, { image: img, name });
     const query = params.toString();
     return query ? `/product.html?${query}` : "/product.html";
   }

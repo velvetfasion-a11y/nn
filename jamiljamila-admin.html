@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site-image-frames.css?v=5">
-  <link rel="stylesheet" href="css/admin.css?v=19">
+  <link rel="stylesheet" href="css/admin.css?v=25">
 </head>
 <body class="admin-body">
 
@@ -40,7 +40,6 @@
         <p class="admin-ai-eyebrow">AI Studio</p>
         <h2 id="adminAiTitle">Skapa och ändra med en prompt</h2>
       </div>
-      <span class="admin-ai-secure">Gemini · server-säkrad</span>
     </div>
     <div class="admin-ai-messages" id="adminAiMessages" aria-live="polite">
       <div class="admin-ai-message admin-ai-message--assistant">
@@ -90,7 +89,7 @@
         <h2>Snabblänkar</h2>
         <ul class="admin-list">
           <li><a href="#content" data-view-link="content">Webbplats &amp; bilder <span>→</span></a></li>
-          <li><a href="#products" data-view-link="products">Produkter (tabellvy) <span>→</span></a></li>
+          <li><a href="#products" data-view-link="products">Produkter <span>→</span></a></li>
           <li><a href="#subscribers" data-view-link="subscribers">Prenumeranter (e-postlista) <span>→</span></a></li>
           <li><a href="#product/new" data-view-link="product-new">Ny produkt <span>→</span></a></li>
           <li><a href="/" target="_blank" rel="noopener">Visa webbplatsen <span>→</span></a></li>
@@ -111,23 +110,10 @@
         </div>
       </div>
 
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Produkt</th>
-              <th>SKU</th>
-              <th>Pris</th>
-              <th>Lager</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="productTableBody"></tbody>
-        </table>
-        <div class="admin-table-empty" id="productTableEmpty" hidden>
-          <p>Inga produkter ännu. Lägg till din första produkt för att visa den i butiken.</p>
-          <button type="button" class="admin-btn" data-action="create-product">+ Lägg till produkt</button>
-        </div>
+      <div class="admin-product-grid" id="productTableBody"></div>
+      <div class="admin-table-empty" id="productTableEmpty" hidden>
+        <p>Inga produkter ännu. Lägg till din första produkt för att visa den i butiken.</p>
+        <button type="button" class="admin-btn" data-action="create-product">+ Lägg till produkt</button>
       </div>
     </section>
 
@@ -258,7 +244,7 @@
 <script src="js/admin-config.public.js?v=2"></script>
 <script src="js/auth-form-guard.js?v=1"></script>
 <script type="module" src="js/admin-auth.js?v=9"></script>
-<script type="module" src="js/admin-app.js?v=19"></script>
+<script type="module" src="js/admin-app.js?v=24"></script>
 <script type="module" src="js/admin-ai.js?v=4"></script>
 </body>
 </html>

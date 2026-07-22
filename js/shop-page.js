@@ -1,8 +1,10 @@
 import {
+  CATALOG_PLACEHOLDER_IMAGE,
   fetchCatalogProducts,
   formatCatalogPrice,
+  normalizeCatalogImageSrc,
   normalizeShopCategory,
-} from "./catalog.js";
+} from "./catalog.js?v=3";
 
 const TITLES = {
   all: "The Summer 2026 Collection",
@@ -38,14 +40,40 @@ function productCardHtml(product) {
   const href =
     window.JJProductNav?.productHref({
       id: product.id,
-      image: product.image,
       name: product.name,
     }) || `/product.html?id=${encodeURIComponent(product.id)}`;
+  const main = normalizeCatalogImageSrc(product.image);
+  const altCandidate = normalizeCatalogImageSrc(product.imageAlt || "");
+  const alt = altCandidate && altCandidate !== main ? altCandidate : "";
+
   return `
-    <a href="${href}" class="jj-shop-card" data-category="${escapeHtml(product.category)}" data-name="${escapeHtml(product.name)}" data-price="${product.price}">
+    <a href="${href}" class="jj-shop-card${alt ? " has-hover-alt" : ""}" data-category="${escapeHtml(product.category)}" data-name="${escapeHtml(product.name)}" data-price="${product.price}">
       <div class="jj-shop-card__media">
-        <img class="jj-shop-card__img--main" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" width="900" height="1200" loading="lazy" decoding="async">
-        <img class="jj-shop-card__img--alt" src="${escapeHtml(product.imageAlt)}" alt="" width="900" height="1200" loading="lazy" decoding="async" aria-hidden="true">
+        <img
+          class="jj-shop-card__img--main"
+          src="${escapeHtml(main)}"
+          alt="${escapeHtml(product.name)}"
+          width="900"
+          height="1200"
+          loading="lazy"
+          decoding="async"
+          data-jj-fallback="${escapeHtml(CATALOG_PLACEHOLDER_IMAGE)}"
+        >
+        ${
+          alt
+            ? `<img
+          class="jj-shop-card__img--alt"
+          src="${escapeHtml(alt)}"
+          alt=""
+          width="900"
+          height="1200"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+          data-jj-fallback="${escapeHtml(CATALOG_PLACEHOLDER_IMAGE)}"
+        >`
+            : ""
+        }
       </div>
       <div class="jj-shop-card__info">
         <h2 class="jj-shop-card__name">${escapeHtml(product.name)}</h2>
@@ -96,43 +124,23 @@ function renderGrid() {
   }
 
   grid.innerHTML = sorted.map(productCardHtml).join("");
-  bindShopCardPressReveal();
+  bindShopCardImageFallbacks();
 }
 
-/** Touch/press: show alt image while held, revert to main on release. */
-function bindShopCardPressReveal() {
-  if (!grid || grid.dataset.pressBound === "1") return;
-  grid.dataset.pressBound = "1";
+/** Keep every card visible: failed images fall back to the site placeholder. */
+function bindShopCardImageFallbacks() {
+  if (!grid) return;
 
-  function clearAllPressing() {
-    grid.querySelectorAll(".jj-shop-card.is-pressing").forEach((card) => {
-      card.classList.remove("is-pressing");
+  grid.querySelectorAll(".jj-shop-card__media img").forEach((img) => {
+    if (img.dataset.jjFallbackBound === "1") return;
+    img.dataset.jjFallbackBound = "1";
+
+    img.addEventListener("error", () => {
+      const fallback = img.dataset.jjFallback || CATALOG_PLACEHOLDER_IMAGE;
+      if (img.getAttribute("src") === fallback) return;
+      img.src = fallback;
     });
-  }
-
-  grid.addEventListener(
-    "pointerdown",
-    (event) => {
-      if (event.pointerType === "mouse") return;
-      const card = event.target.closest(".jj-shop-card");
-      if (!card || !grid.contains(card)) return;
-      if (!card.querySelector(".jj-shop-card__img--alt")) return;
-      clearAllPressing();
-      card.classList.add("is-pressing");
-      try {
-        card.setPointerCapture?.(event.pointerId);
-      } catch {
-        /* ignore */
-      }
-    },
-    { passive: true },
-  );
-
-  const end = () => clearAllPressing();
-  grid.addEventListener("pointerup", end, { passive: true });
-  grid.addEventListener("pointercancel", end, { passive: true });
-  grid.addEventListener("lostpointercapture", end, { passive: true });
-  window.addEventListener("blur", end);
+  });
 }
 
 function updateSortUi() {

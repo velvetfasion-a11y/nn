@@ -3,6 +3,8 @@ import { db } from "./firebase.js";
 
 const productsRef = collection(db, "admin_products");
 
+export const CATALOG_PLACEHOLDER_IMAGE = "/assets/images/optimized/accessories.jpg";
+
 const CATEGORY_MAP = {
   his: "his",
   men: "his",
@@ -22,6 +24,14 @@ export function normalizeShopCategory(value) {
     .trim()
     .toLowerCase();
   return CATEGORY_MAP[key] || (key === "all" || !key ? "all" : key);
+}
+
+/** Make image URLs safe for <img src> on any page path. */
+export function normalizeCatalogImageSrc(src) {
+  const value = String(src || "").trim();
+  if (!value) return CATALOG_PLACEHOLDER_IMAGE;
+  if (/^(https?:|data:|blob:|\/)/i.test(value)) return value;
+  return `/${value.replace(/^\.\//, "")}`;
 }
 
 export function formatCatalogPrice(price, currency = "AED") {
@@ -46,11 +56,20 @@ function createdAtMs(value) {
 function mapProduct(snapshot) {
   const data = snapshot.data() || {};
   const category = normalizeShopCategory(data.category);
-  const images = Array.isArray(data.images)
-    ? data.images.filter(Boolean)
-    : data.image
-      ? [data.image]
-      : [];
+  const images = (
+    Array.isArray(data.images)
+      ? data.images
+      : data.image
+        ? [data.image]
+        : []
+  )
+    .map((src) => String(src || "").trim())
+    .filter(Boolean)
+    .map(normalizeCatalogImageSrc);
+
+  const unique = [...new Set(images)];
+  const image = unique[0] || CATALOG_PLACEHOLDER_IMAGE;
+  const imageAlt = unique.find((src) => src !== image) || image;
 
   return {
     id: snapshot.id,
@@ -61,9 +80,9 @@ function mapProduct(snapshot) {
     category,
     rawCategory: data.category || "",
     type: data.type || "Fysisk",
-    images,
-    image: images[0] || "assets/images/optimized/accessories.jpg",
-    imageAlt: images[1] || images[0] || "assets/images/optimized/collection-01.jpg",
+    images: unique.length ? unique : [CATALOG_PLACEHOLDER_IMAGE],
+    image,
+    imageAlt,
     variants: data.variants || {},
     stockLevel: data.stockLevel || "ok",
     sortOrder: Number(data.sortOrder) || 0,

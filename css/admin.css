@@ -22,17 +22,22 @@ body {
   background: var(--jj-bg);
 }
 
-/* Admin is a fixed-scale tool UI — prevent pinch / focus zoom on mobile */
+/* Admin is a fixed-scale app shell — no page zoom / no page scroll */
 html.admin-html,
 html:has(body.admin-body) {
+  height: 100%;
+  overflow: hidden;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   touch-action: manipulation;
 }
 
 body.admin-body {
-  touch-action: manipulation;
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
   overscroll-behavior: none;
+  touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -44,7 +49,19 @@ body.admin-body textarea {
   font-size: 16px !important;
 }
 
-/* NAV */
+#admin-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+#admin-app[hidden] {
+  display: none !important;
+}
+
+/* NAV — locked chrome */
 .admin-nav {
   display: flex;
   align-items: center;
@@ -52,10 +69,10 @@ body.admin-body textarea {
   gap: 16px;
   padding: 0 32px;
   height: 72px;
+  flex-shrink: 0;
   background: var(--jj-white);
   border-bottom: 1px solid var(--jj-line);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
 }
 
@@ -106,11 +123,17 @@ body.admin-body textarea {
   background: color-mix(in oklab, var(--jj-bg) 60%, transparent);
 }
 
-/* MAIN */
+/* MAIN — fills remaining viewport; only inner panels scroll */
 .admin-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 36px 24px 64px;
+  padding: 20px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .admin-main h1 {
@@ -128,13 +151,35 @@ body.admin-body textarea {
   font-size: 0.92rem;
 }
 
-/* TABS */
+/* Content area scrolls as one unit (tabs + active view) */
+#adminContent {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* TABS — scroll with the view below */
 .admin-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--jj-line);
   padding-bottom: 0;
+  flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .admin-tabs a {
@@ -287,6 +332,95 @@ body.admin-body textarea {
 
 .admin-search::placeholder {
   color: var(--jj-ink-mute);
+}
+
+/* Product list — image, name, price + Edit */
+.admin-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 18px;
+}
+
+.admin-product-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--jj-white);
+  border: 1px solid var(--jj-line);
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(42, 40, 36, 0.04);
+}
+
+.admin-product-preview__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--jj-bg);
+  border-radius: 4px;
+}
+
+.admin-product-preview__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-product-preview__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jj-ink-mute);
+}
+
+.admin-product-preview__name {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--jj-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-product-preview__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.admin-product-preview__price {
+  margin: 0;
+  font-family: "Jost", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--jj-ink-mute);
+  white-space: nowrap;
+}
+
+.admin-product-preview__edit {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 4.5rem;
+  justify-content: center;
+  padding-inline: 14px;
+}
+
+@media (max-width: 600px) {
+  .admin-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 }
 
 .admin-table-wrap {
@@ -760,9 +894,53 @@ body.admin-body textarea {
   padding-top: 4px;
 }
 
-/* VIEWS */
+/* VIEWS — grow with content; #adminContent handles vertical scroll */
+.admin-view {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+  padding-bottom: 24px;
+}
+
 .admin-view[hidden] {
   display: none !important;
+}
+
+/* Products: title + search scroll away with the grid */
+#admin-view-products {
+  display: block;
+  overflow: visible;
+  padding-bottom: 24px;
+}
+
+#admin-view-products .admin-products-head {
+  position: static;
+  margin-bottom: 14px;
+  background: transparent;
+}
+
+#admin-view-products .admin-product-grid,
+#admin-view-products .admin-table-empty {
+  flex: none;
+  min-height: 0;
+  overflow: visible;
+  padding-bottom: 0;
+}
+
+#admin-view-subscribers {
+  display: block;
+  overflow: visible;
+  padding-bottom: 24px;
+}
+
+#admin-view-subscribers .admin-products-head {
+  background: transparent;
+}
+
+#admin-view-subscribers .admin-table-wrap,
+#admin-view-subscribers .admin-table-empty {
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 /* TOAST */
@@ -810,8 +988,7 @@ body.admin-body textarea {
 
 /* AUTH GATE */
 #admin-gate[hidden],
-#admin-denied[hidden],
-#admin-app[hidden] {
+#admin-denied[hidden] {
   display: none !important;
 }
 
@@ -1159,12 +1336,28 @@ body.admin-crop-open {
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .admin-crop-frame .jj-image-frame--34::before,
 .admin-crop-frame .jj-image-frame--hero::before,
 .admin-crop-frame .jj-image-frame--wide::before {
   display: none;
+}
+
+.admin-crop-frame .admin-crop-frame__img,
+.admin-crop-frame img[data-crop-target] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1;
 }
 
 .admin-crop-frame.is-dragging {
@@ -1226,7 +1419,8 @@ body.admin-crop-open {
 /* ADMIN AI */
 .admin-ai {
   position: relative;
-  margin-bottom: 30px;
+  flex-shrink: 0;
+  margin-bottom: 16px;
   padding: 24px;
   overflow: hidden;
   border: 1px solid color-mix(in oklab, var(--jj-gold) 55%, var(--jj-line));
@@ -1235,6 +1429,9 @@ body.admin-crop-open {
     radial-gradient(circle at 100% 0, rgba(184, 149, 108, 0.14), transparent 38%),
     var(--jj-white);
   box-shadow: 0 12px 34px rgba(42, 40, 36, 0.06);
+  display: flex;
+  flex-direction: column;
+  max-height: min(42vh, 420px);
 }
 
 .admin-ai-head {
@@ -1243,6 +1440,7 @@ body.admin-crop-open {
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .admin-ai-eyebrow {
@@ -1263,26 +1461,19 @@ body.admin-crop-open {
   line-height: 1.15;
 }
 
-.admin-ai-secure {
-  flex-shrink: 0;
-  padding: 6px 9px;
-  border: 1px solid var(--jj-line);
-  border-radius: 999px;
-  color: var(--jj-ink-mute);
-  background: rgba(255, 255, 255, 0.75);
-  font-size: 0.64rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .admin-ai-messages {
   display: flex;
-  max-height: 260px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
   flex-direction: column;
   gap: 9px;
   margin-bottom: 14px;
   padding: 2px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 .admin-ai-message {
@@ -1371,6 +1562,7 @@ body.admin-crop-open {
   border-radius: 9px;
   background: #ffffff;
   transition: border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
 }
 
 .admin-ai-composer:focus-within {
@@ -1452,12 +1644,13 @@ body.admin-crop-open {
   }
 
   .admin-main {
-    padding-right: 14px;
-    padding-left: 14px;
+    padding: 12px 14px 14px;
   }
 
   .admin-ai {
-    padding: 18px 14px;
+    padding: 14px;
+    max-height: min(36vh, 340px);
+    margin-bottom: 12px;
   }
 
   .admin-ai-head {

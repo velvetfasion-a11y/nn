@@ -350,18 +350,19 @@ body {
 .jj-product-card__media {
   position: relative;
   width: 100%;
+  aspect-ratio: 3 / 4;
+  height: auto;
   margin-bottom: 18px;
   overflow: hidden;
   background: #ede8df;
 }
 
-/* Reliable 3:4 frame even when img is position:absolute */
 .jj-product-card__media::before {
-  content: "";
-  display: block;
-  padding-top: 133.333%;
+  content: none;
+  display: none;
 }
 
+.jj-product-card__media .jj-image-frame__fill,
 .jj-product-card__media img {
   position: absolute;
   inset: 0;

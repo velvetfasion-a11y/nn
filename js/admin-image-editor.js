@@ -128,17 +128,65 @@ function scheduleFocusVisual() {
 function layoutSession() {
   if (!activeSession) return;
 
-  const { preset, url } = activeSession;
-  const { frame, inner, target, title } = sessionElements();
-  if (!frame || !inner || !target) return;
+  const { preset } = activeSession;
+  const { frame, inner, title } = sessionElements();
+  if (!frame || !inner) return;
 
   title.textContent = activeSession.label || preset.label;
   sizeCropFrame(frame, preset.ratio);
   inner.className = `jj-image-frame ${frameClassForPreset(preset)}`;
+}
 
-  if (target.dataset.cropUrl !== url) {
-    target.dataset.cropUrl = url;
-    target.src = url;
+async function loadSessionImage(session) {
+  const { target, frame } = sessionElements();
+  if (!target || !session) return;
+
+  const directUrl = absoluteImageUrl(session.url);
+  target.removeAttribute("crossorigin");
+  target.alt = session.label || "Produktbild";
+
+  // Paint immediately — waiting on Storage SDK left a blank beige frame.
+  if (directUrl) {
+    target.dataset.cropUrl = directUrl;
+    target.src = directUrl;
+    session.displayUrl = directUrl;
+    if (frame) {
+      frame.style.backgroundImage = `url("${directUrl.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
+      frame.style.backgroundSize = "cover";
+      frame.style.backgroundPosition = "center";
+    }
+  }
+
+  let resolved;
+  try {
+    resolved = await resolveEditorImageSrc(session.url);
+  } catch (error) {
+    console.warn("resolveEditorImageSrc failed:", error);
+    resolved = { src: directUrl, objectUrl: "" };
+  }
+
+  if (activeSession !== session) {
+    if (resolved.objectUrl) URL.revokeObjectURL(resolved.objectUrl);
+    return;
+  }
+
+  if (resolved.objectUrl && resolved.src !== target.src) {
+    revokeSessionObjectUrl(session);
+    session.objectUrl = resolved.objectUrl;
+    session.displayUrl = resolved.src;
+    target.dataset.cropUrl = resolved.src;
+    target.src = resolved.src;
+  }
+
+  try {
+    await waitForImage(target);
+    if (frame) frame.style.backgroundImage = "";
+  } catch (error) {
+    console.error("Crop editor image failed to load:", session.url, error);
+    // Keep whatever src we have; never clear to a blank frame.
+    target.alt = "Kunde inte visa bilden";
+    if (!target.getAttribute("src") && directUrl) target.src = directUrl;
+    throw error;
   }
 }
 
@@ -219,18 +267,136 @@ function clampCrop(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function revokeSessionObjectUrl(session) {
+  if (session?.objectUrl) {
+    try {
+      URL.revokeObjectURL(session.objectUrl);
+    } catch {
+      /* ignore */
+    }
+    session.objectUrl = "";
+  }
+}
+
+function absoluteImageUrl(url) {
+  const raw = String(url || "").trim();
+  if (!raw) return "";
+  if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+  try {
+    return new URL(raw, window.location.href).href;
+  } catch {
+    return raw;
+  }
+}
+
+function storagePathFromDownloadUrl(url) {
+  try {
+    const parsed = new URL(url);
+    const match = parsed.pathname.match(/\/o\/([^?]+)/);
+    if (!match) return "";
+    return decodeURIComponent(match[1]);
+  } catch {
+    return "";
+  }
+}
+
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+    }),
+  ]);
+}
+
+/**
+ * Resolve a display/export URL. Always returns quickly with a usable img src.
+ * Blob URLs (when available) make canvas export work; otherwise plain URL still paints.
+ */
+async function resolveEditorImageSrc(url) {
+  const raw = absoluteImageUrl(url);
+  if (!raw) throw new Error("Ingen bild-URL");
+  if (/^(data:|blob:)/i.test(raw)) {
+    return { src: raw, objectUrl: "" };
+  }
+
+  const isFirebaseStorage =
+    /firebasestorage\.googleapis\.com/i.test(raw) ||
+    /firebasestorage\.app/i.test(raw) ||
+    (/googleapis\.com/i.test(raw) && /\/o\//i.test(raw));
+
+  if (isFirebaseStorage) {
+    try {
+      const { getBlob, ref } = await import("./vendor/firebase-storage.js");
+      const { storage } = await import("./firebase.js");
+      const path = storagePathFromDownloadUrl(raw);
+      const storageRef = path ? ref(storage, path) : ref(storage, raw);
+      const blob = await withTimeout(getBlob(storageRef), 8000, "Storage getBlob");
+      if (!blob || blob.size < 32) throw new Error("Tom bild från Storage");
+      const objectUrl = URL.createObjectURL(blob);
+      return { src: objectUrl, objectUrl };
+    } catch (error) {
+      console.warn("Firebase getBlob failed, trying fetch/img fallback:", error);
+    }
+  }
+
+  try {
+    const response = await withTimeout(
+      fetch(raw, { mode: "cors", credentials: "omit", cache: "force-cache" }),
+      8000,
+      "fetch image",
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    if (!blob || blob.size < 32) throw new Error("Tom bild");
+    const objectUrl = URL.createObjectURL(blob);
+    return { src: objectUrl, objectUrl };
+  } catch {
+    return { src: raw, objectUrl: "" };
+  }
+}
+
+function waitForImage(img, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    if (img.complete && img.naturalWidth) {
+      resolve();
+      return;
+    }
+    let settled = false;
+    const timer = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (img.naturalWidth) resolve();
+      else reject(new Error("Bilden laddades för långsamt"));
+    }, timeoutMs);
+    const onLoad = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Kunde inte läsa bilden"));
+    };
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      img.removeEventListener("load", onLoad);
+      img.removeEventListener("error", onError);
+    };
+    img.addEventListener("load", onLoad);
+    img.addEventListener("error", onError);
+  });
+}
+
 async function exportCroppedDataUrl(session) {
   const { target } = sessionElements();
   if (!target?.src) throw new Error("Ingen bild att exportera");
 
-  await new Promise((resolve, reject) => {
-    if (target.complete && target.naturalWidth) {
-      resolve();
-      return;
-    }
-    target.onload = () => resolve();
-    target.onerror = () => reject(new Error("Kunde inte läsa bilden"));
-  });
+  await waitForImage(target);
 
   const imgW = target.naturalWidth;
   const imgH = target.naturalHeight;
@@ -274,7 +440,47 @@ async function exportCroppedDataUrl(session) {
   ctx.fillStyle = "#f7f4ef";
   ctx.fillRect(0, 0, outW, outH);
   ctx.drawImage(target, sx, sy, sw, sh, 0, 0, outW, outH);
-  return canvas.toDataURL("image/jpeg", 0.92);
+
+  try {
+    return canvas.toDataURL("image/jpeg", 0.92);
+  } catch (error) {
+    // Tainted canvas (remote URL without CORS). Retry via blob fetch once.
+    const resolved = await resolveEditorImageSrc(session.url);
+    if (!resolved.objectUrl) throw error;
+    try {
+      const retry = new Image();
+      retry.src = resolved.src;
+      await waitForImage(retry);
+      ctx.clearRect(0, 0, outW, outH);
+      ctx.fillStyle = "#f7f4ef";
+      ctx.fillRect(0, 0, outW, outH);
+      const rW = retry.naturalWidth;
+      const rH = retry.naturalHeight;
+      const rCover = Math.max(outW / rW, outH / rH) * focus.scale;
+      let rsx = -((outW - rW * rCover) * (focus.x / 100)) / rCover;
+      let rsy = -((outH - rH * rCover) * (focus.y / 100)) / rCover;
+      let rsw = outW / rCover;
+      let rsh = outH / rCover;
+      if (rsx < 0) {
+        rsw += rsx;
+        rsx = 0;
+      }
+      if (rsy < 0) {
+        rsh += rsy;
+        rsy = 0;
+      }
+      if (rsx + rsw > rW) rsw = rW - rsx;
+      if (rsy + rsh > rH) rsh = rH - rsy;
+      rsx = clampCrop(rsx, 0, rW - 1);
+      rsy = clampCrop(rsy, 0, rH - 1);
+      rsw = clampCrop(rsw, 1, rW - rsx);
+      rsh = clampCrop(rsh, 1, rH - rsy);
+      ctx.drawImage(retry, rsx, rsy, rsw, rsh, 0, 0, outW, outH);
+      return canvas.toDataURL("image/jpeg", 0.92);
+    } finally {
+      URL.revokeObjectURL(resolved.objectUrl);
+    }
+  }
 }
 
 async function closeEditor(save) {
@@ -292,7 +498,14 @@ async function closeEditor(save) {
 
   if (session.cleanup) session.cleanup();
 
-  if (!save) return;
+  if (!save) {
+    if (overlayEl) {
+      const frame = overlayEl.querySelector("[data-crop-frame]");
+      if (frame) frame.style.backgroundImage = "";
+    }
+    revokeSessionObjectUrl(session);
+    return;
+  }
 
   writeFocusToPanel(session.key, session.focus, session.root);
   session.onChange?.(session.key, session.focus);
@@ -306,6 +519,8 @@ async function closeEditor(save) {
       session.onExportError?.(error);
     }
   }
+
+  revokeSessionObjectUrl(session);
 }
 
 export function openImageEditor({
@@ -328,13 +543,23 @@ export function openImageEditor({
   const target = overlay.querySelector("[data-crop-target]");
 
   if (activeSession?.cleanup) activeSession.cleanup();
+  revokeSessionObjectUrl(activeSession);
 
   if (target) {
-    target.crossOrigin = "anonymous";
+    target.removeAttribute("crossorigin");
     target.removeAttribute("data-crop-url");
+    // Show the image immediately while higher-quality blob loading continues.
+    const immediate = absoluteImageUrl(url);
+    if (immediate) {
+      target.src = immediate;
+      target.alt = label || "Produktbild";
+    } else {
+      target.removeAttribute("src");
+      target.alt = "Laddar bild …";
+    }
   }
 
-  activeSession = {
+  const session = {
     key,
     url,
     label,
@@ -345,12 +570,33 @@ export function openImageEditor({
     onExportError,
     initialFocus: normalizeFocus(initialFocus ?? focus),
     focus: normalizeFocus(focus),
+    objectUrl: "",
+    displayUrl: "",
     cleanup: frame ? bindStageInteractions(frame) : null,
   };
+  activeSession = session;
 
   overlay.hidden = false;
   document.body.classList.add("admin-crop-open");
+
+  const help = overlay.querySelector(".admin-crop-dialog__help");
+  if (help) {
+    help.textContent =
+      "Samma beskärning som på startsidan · Dra för att flytta · Scrolla för att zooma";
+  }
+
   renderSession();
+
+  loadSessionImage(session)
+    .then(() => {
+      if (activeSession === session) updateFocusVisual();
+    })
+    .catch(() => {
+      if (activeSession === session && help) {
+        help.textContent =
+          "Kunde inte ladda bilden — stäng och öppna igen, eller ladda upp bilden på nytt.";
+      }
+    });
 }
 
 function readPreviewUrl(thumb) {

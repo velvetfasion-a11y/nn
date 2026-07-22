@@ -30,7 +30,8 @@
   background-position: var(--jj-focus-x, 50%) var(--jj-focus-y, 50%);
   transform: scale(var(--jj-focus-scale, 1));
   transform-origin: var(--jj-focus-x, 50%) var(--jj-focus-oy, 50%);
-  contain: strict;
+  /* paint only — size containment can collapse abspos fills in some engines */
+  contain: paint;
 }
 
 .admin-crop-frame__img {
@@ -64,21 +65,26 @@
   display: block;
 }
 
-/* Homepage carousel */
+/* Homepage carousel — uniform 3:4 frames (widths set in product-carousel.css) */
 #jj-shop .jj-product-card__media {
   position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
+  background: #ede8df;
 }
 
 #jj-shop .jj-product-card__media::before {
-  content: "";
-  display: block;
-  padding-top: 133.333%;
+  content: none;
+  display: none;
 }
 
 #jj-shop .jj-product-card__media .jj-image-frame__fill {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  contain: paint;
 }
 
 #jj-shop .jj-product-card:hover .jj-image-frame__fill {
@@ -94,6 +100,9 @@
 }
 
 #jj-shop .jj-product-card__media img[data-jj-focus-hidden] {
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
